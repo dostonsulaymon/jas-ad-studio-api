@@ -141,15 +141,17 @@ Pure functions, the largest test surface in P1. Source 01 §28 and §50.
 
 ### Part 4 — The merged system prompt V2
 
-- [ ] `src/ai/prompt/ad-director.v2.ts` — `AD_DIRECTOR_SYSTEM_PROMPT_V2`, server-only, versioned.
-- [ ] Keeps from source 01 §25: input trust, gallery-inspiration limits, evidence before invention, product lock, category guidance, Uzbek context, language rules, the pre-return self-check.
-- [ ] Adds source 02's **full** architecture (02:706–721), which the first draft quoted incompletely: Product Reference · Product Lock · **Commercial Concept** · **Creative Direction** · Camera · Product Motion · Environment · Lighting · Material Treatment · Sequence · Editing · Audio · Hero Ending · **Visual Quality** · Fidelity Requirements — plus the **Opening Hook** requirement (02:186–210: describe an actual hook, not "start with an attention-grabbing shot") and **Negative/Avoidance direction** (02:619–643, with its warning against a universal hundred-item negative list).
-- [ ] Adds source 02's quality bar (02:647–683) as instruction.
-- [ ] **No numbers.** Length, beats and camera intensity come from the injected target block, assembled from Part 1's config.
-- [ ] User text, filenames, image text and gallery presets go in the **data** section, never the instruction section.
-- [ ] Tests: the assembled prompt carries the target's values; contains no hard-coded word or beat count; a target change changes the prompt; an input containing "ignore previous instructions" lands in the data section.
+- [x] `src/ai/prompt/ad-director.v2.ts` — `AD_DIRECTOR_SYSTEM_PROMPT_V2`, server-only, versioned.
+- [x] Keeps from source 01 §25: input trust, gallery-inspiration limits, evidence before invention, product lock, category guidance, Uzbek context, language rules, the pre-return self-check.
+- [x] Adds source 02's **full** architecture (02:706–721), which the first draft quoted incompletely: Product Reference · Product Lock · **Commercial Concept** · **Creative Direction** · Camera · Product Motion · Environment · Lighting · Material Treatment · Sequence · Editing · Audio · Hero Ending · **Visual Quality** · Fidelity Requirements — plus the **Opening Hook** requirement (02:186–210: describe an actual hook, not "start with an attention-grabbing shot") and **Negative/Avoidance direction** (02:619–643, with its warning against a universal hundred-item negative list).
+- [x] Adds source 02's quality bar (02:647–683) as instruction.
+- [x] **No numbers.** Length, beats and camera intensity come from the injected target block, assembled from Part 1's config.
+- [x] User text, filenames, image text and gallery presets go in the **data** section, never the instruction section.
+- [x] Tests: the assembled prompt carries the target's values; contains no hard-coded word or beat count; a target change changes the prompt; an input containing "ignore previous instructions" lands in the data section.
 
-**Verify:** `pnpm test`. **From here, changing this file is a standing-gate change.**
+**Verify:** done 2026-09-11 — 139 tests passing (21 new), lint, typecheck, build and contract clean. No AI call, no spend.
+
+**From here, changing `ad-director.v2.ts` is a standing-gate change.**
 
 ### Part 5 — Provider interface and the OpenAI adapter
 
