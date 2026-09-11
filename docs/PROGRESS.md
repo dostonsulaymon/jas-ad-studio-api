@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — DRAFT, under review. P0's plan is complete and closed. |
-| Doing now | P1 plan drafted; a review agent is checking it against the source documents and the locked decisions. Three open questions (Q-P1-1 to Q-P1-3) are stated in the plan and need answers before the parts that depend on them. |
+| Doing now | P1 plan revised after review. Blocked on Doston: **Q-P1-1** (enforcing a token ceiling whose tokenizer is not published — supersedes part of D-012 and spec §5, so it is a standing-gate change) and **Q-P1-4** (the shape of `brief.json`, which is really the seller wizard's contract). Part 0 also needs four answers from Jakhongir before Part 1. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -74,6 +74,33 @@ The design spec is at `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md
 New dependencies proposed under the standing gate: `openai`, `sharp`, and possibly a tokenizer depending on Q-P1-1.
 
 Nothing is built yet. No code, no live AI call, no spend.
+
+## 2026-09-11 — P1 plan reviewed and revised
+
+A review agent checked the draft against source 01 §25–§52, source 02, the design spec and the locked decisions. It found real problems, two of them by running things rather than reasoning about them.
+
+**Caught by experiment:**
+- A module laid out as `src/ai/schema/` **fails lint**. That directory does not match the `schema` boundaries element (which is `src/*/db/**`), so it falls through to `module`, and `port → module` is disallowed — and CI runs lint before tests. The output contract now lives in `src/ai/public/`, which is also where D-031 says the single source of truth belongs. No directory is named `schema/`; the word already means something else in the lint config.
+- **zod v4's `toJSONSchema` emits keywords OpenAI's strict Structured Outputs rejects** (`maxItems`, `maxLength`), and strict mode also forbids `.optional()` and requires `additionalProperties: false` throughout. The plan now has a tested downgrade step, and states the consequence plainly: bounds are then enforced only by our own zod parse, so a violation becomes a repair call rather than a provider-side rejection.
+
+**Locked decisions I was overturning without saying so:**
+- Q-P1-1's word-ceiling recommendation contradicts D-012, spec §5 and BRIEF C-4, all of which say a **token** ceiling is enforced by validators. It is a standing-gate change and is now raised as one rather than presented as a design preference.
+- D-043 already handled the D-029 provider question correctly.
+
+**Requirements the draft missed:**
+- Source 01 §26's trusted-metadata rule was absent entirely. The model must not author its own provenance; a server-stamped envelope now carries prompt version, model, target, config version, request id and usage, and everything downstream reads from it. A validator checks the model's echoed target against the requested one — a model renegotiating its own duration is a §51 hard failure.
+- The target config had no `version` field despite being called versioned.
+- §50's "do not send voiceover or overlays" was unvalidated, which is the one place D-017 could silently break.
+- `OPENAI_MODEL` and `store: false` (source 01 §27) were missing.
+- The repair path left four behaviours undefined, one of them a money bug: the spend check was post-call, and the OpenAI SDK's default `maxRetries: 2` means one "call" is silently up to three billed requests.
+- Fixture recording could leak the `Authorization` header through a serialized SDK error, and fixture photos would carry EXIF into git.
+- §49's "clothing/talent adapts to category" was dropped, and "gallery inspiration cannot override reference identity" was asserted with no fixture that could exercise it.
+
+**Ordering fixed:** the first live call moved from Part 8 to a new **Part 5b** — one capped $0.10 smoke call right after the adapter, which de-risks Parts 2, 5, 6 and 7 at once and measures the real per-call cost the spend cap is computed from. Part 8 split into 8a (offline sweep, no quality conclusions) and 8b (a 9-video Flow pilot that actually picks the config) — word count and validator pass cannot tell you which prompt makes a better video.
+
+**New Part 0:** four things from Jakhongir before any code. Which Flow mode and its real durations, aspect ratios and reference rules (D-013 says his test runs confirm these); whether Flow's paste box truncates a 700-word prompt, which nobody has tested and the whole length premise rests on; his Flow generation quota, since Part 8b and Part 9 need roughly 20–40 videos on **his** Google credits; and the ~10 pilot products, which are not on his owed list.
+
+Nothing built. No code, no live call, no spend.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 
