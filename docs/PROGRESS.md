@@ -14,7 +14,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 | Active plan | None yet. The design spec comes first. |
 | Doing now | Answering `docs/OPEN-QUESTIONS.md` one question at a time, as pop-up questions in chat. Answered so far: Q-01 to Q-11 → D-008 to D-019; Q-12 → D-020 to D-022; Q-13 → D-023; Q-14 → D-024, D-025; Q-15 → D-027; Q-16 → D-026. Part A done. T-01 → D-028; T-02 → D-029; T-03 → D-030; T-04 → D-031; T-05 → D-032; T-06 → D-033; T-07 → D-034; T-08 → D-035. **Every question is answered.** The design spec has been written and is waiting for Doston's review. |
 | Next | Doston reviews `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md` (confirm R-1 to R-8) → fixes → write Session B's kickoff prompt → write the P0 plan (writing-plans skill) → review → build |
-| Last verified state | Docs only, no code, no commits, no remotes |
+| Last verified state | Docs only, no code. Both repos are committed and pushed to private GitHub repos (`main`), 2026-09-11 |
 
 ## Current position
 
@@ -22,7 +22,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | Planning, before P0 |
 | Code | None |
-| Repos | `jas-ad-studio-api` and `jas-ad-studio-web`: local folders, `git init` done, **no commits, no remotes** |
+| Repos | Private on GitHub: `github.com/dostonsulaymon/jas-ad-studio-api` and `…/jas-ad-studio-web`. Branch `main`, pushed over SSH |
 | Decisions | D-001 to D-035 |
 | Open | None. The design choices R-1 to R-8 in the spec are waiting for Doston's review. |
 
@@ -73,5 +73,5 @@ The design spec is at `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md
 
 ## Blocked
 
-- **GitHub remotes:** the `gh` login has expired. Run `gh auth login`.
+- **`gh` CLI login:** still expired. The token supplied for setup lacks the `read:org` scope, so it could create repos but can't log in. Pushing works over SSH, so this blocks nothing until the GitHub Actions setup in P0 (D-034). Doston revokes that setup token once setup is finished.
 - **AI keys:** `jas-ad-studio-api/.env` holds only `OPEN_AI_API_KEY`, Doston's key for development (D-029). The P1 comparison also needs a Claude (Anthropic) key and a Gemini key; without them, P1 compares OpenAI models only. The OpenAI SDK's default variable name is `OPENAI_API_KEY`, so P0's env schema settles the name. `.env` is git-ignored as of 2026-09-11. Production billing moves to Jakhongir before launch (D-004).
