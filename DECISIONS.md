@@ -389,6 +389,20 @@ Every other port on Doston's machine is taken by kitobnarx and the attendance pr
 Dev and deployed are separate compose projects with separate volumes, so `pnpm dev` can never write into deployed data. `POSTGRES_PASSWORD` has no default in the deployed file: a missing one refuses the boot rather than starting the database with a guessable password.
 
 
+### D-043 · 2026-09-11 · P1 builds the provider interface but only the OpenAI adapter (Q-P1-2)
+
+D-029 asked for a 2–3 provider comparison. Only an OpenAI key exists (D-041), and adapters for providers we cannot call would be untested code that gives false confidence in a comparison that never happened.
+
+- P1 builds the **provider interface** (the `ai` module's public port) and the **OpenAI adapter**.
+- The seam is proven by a `FakeProvider` used throughout the tests, so it is a real boundary rather than a theoretical one.
+- Adding Claude or Gemini later is one file each against an already-tested contract.
+- P1 therefore compares **OpenAI models against each other**. `docs/PROGRESS.md` records it as a one-provider comparison, not as three.
+
+**Amends D-029**, which stands otherwise: the winning provider and model are still recorded as a decision after P1, and other providers stay available behind the interface.
+
+Why: Doston chose this when asked. It keeps D-029's real goal — never being locked to one vendor — without pretending to a comparison we cannot run.
+
+
 ---
 
 ## Inputs recorded but not yet decided
