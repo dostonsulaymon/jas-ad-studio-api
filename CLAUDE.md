@@ -22,7 +22,7 @@ People: Jakhongir is the owner and client. Doston builds it, with Claude (D-003)
 
 ## Status
 
-**Planning. There is no application code yet.** Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
+**P0 is built and under review; nothing beyond it exists.** There are no product features: no auth, no credits, no AI, no uploads. Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
 
 ## Starting a new session
 
@@ -86,7 +86,21 @@ Decided on 2026-09-11 (D-028 to D-035). It mirrors kitobnarx.
 
 ## Commands
 
-None yet. Phase 0 adds them.
+`nvm use` first — the shell default is older than Node 24.
+
+| | |
+|---|---|
+| `pnpm infra:up` / `infra:down` | dev Postgres (5437) and Redis (6384) |
+| `pnpm dev` / `pnpm dev:worker` | api on 3040, worker in watch mode |
+| `pnpm lint` `typecheck` `test` `build` | the checks; the pre-commit hook runs the first two |
+| `pnpm openapi:generate` / `openapi:check` | regenerate the contract, and fail on drift (D-031) |
+| `pnpm db:generate` | SQL migrations from the module schemas |
+| `POSTGRES_PASSWORD=… docker compose --profile app up -d --build` | the deployed stack (api 3041) |
+
+Two gotchas, both learned the hard way:
+
+- **Any script that boots the Nest app must be compiled, not run through tsx.** esbuild emits no decorator metadata, so `NestFactory.create()` cannot resolve constructor types and exits silently with no error. `src/openapi.ts` is compiled by `nest build` for this reason.
+- **Never find a process with `pgrep -f` here.** Other projects on this machine run `dist/main.api` and `dist/main.worker` too, and the pattern also matches the searching shell's own command line. Match on `/proc/<pid>/cwd` instead.
 
 ---
 

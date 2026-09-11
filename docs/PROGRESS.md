@@ -10,20 +10,20 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | Planning, before P0 |
-| Active plan | None yet. The design spec comes first. |
-| Doing now | Answering `docs/OPEN-QUESTIONS.md` one question at a time, as pop-up questions in chat. Answered so far: Q-01 to Q-11 → D-008 to D-019; Q-12 → D-020 to D-022; Q-13 → D-023; Q-14 → D-024, D-025; Q-15 → D-027; Q-16 → D-026. Part A done. T-01 → D-028; T-02 → D-029; T-03 → D-030; T-04 → D-031; T-05 → D-032; T-06 → D-033; T-07 → D-034; T-08 → D-035. **Every question is answered.** The design spec is approved (R-1 to R-8 → D-036 to D-038). Now: writing the P0 plan. |
-| Next | Write the P0 plan in `docs/superpowers/plans/` (writing-plans skill) → Doston reviews → build P0 → write the P1 plan. Session B's kickoff prompt is written before the P1 go (D-026). |
-| Last verified state | Docs only, no code. Both repos are committed and pushed to private GitHub repos (`main`), 2026-09-11 |
+| Phase | **P0 built, awaiting Doston's review.** Nothing is committed. |
+| Active plan | `docs/superpowers/plans/2026-09-11-phase-0-foundations.md` — every task checked |
+| Doing now | Nothing. Waiting on Doston's review of the P0 working tree. |
+| Next | Doston reviews and commits P0 → write the P1 plan (AI core + go/no-go) → his approval → build. Session B's kickoff prompt is written before the P1 go (D-026). |
+| Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
 ## Current position
 
 | | |
 |---|---|
-| Phase | Planning, before P0 |
-| Code | None |
+| Phase | P0 built, under review |
+| Code | api repo: NestJS api + worker, config, logging, Postgres, Redis, health, error shape, Docker, generated `openapi.json`. No product features. |
 | Repos | Private on GitHub: `github.com/dostonsulaymon/jas-ad-studio-api` and `…/jas-ad-studio-web`. Branch `main`, pushed over SSH |
-| Decisions | D-001 to D-038 |
+| Decisions | D-001 to D-042 |
 | Open | None |
 
 ## 2026-09-11 — project set up for planning
@@ -58,10 +58,66 @@ The design spec is at `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md
 - R-2: changed to a small owner admin panel in the web repo (D-037)
 - R-3 to R-8: as written (D-038)
 
+## 2026-09-11 — P0 built (api repo), not committed
+
+Built from `docs/superpowers/plans/2026-09-11-phase-0-foundations.md`. Doston approved P0 up front and asked for it finished in one sitting, reviewed before any commit. **Nothing is committed; the whole of P0 sits in the working tree.**
+
+**Scope corrected first.** `docs/PLAN.md` said P0 covered both repos and included a web shell; D-026 forbids UI before the P1 go/no-go. Doston confirmed api-only (D-039), and the PLAN row was fixed.
+
+**What was built:**
+- Repo scaffold: pnpm, Node 24 (`.nvmrc`), strict TypeScript, ESLint with `eslint-plugin-boundaries` enforcing the module-port rule (R-7) from the first module, prettier, vitest.
+- `config`: a zod env schema that fails closed, with tests for every failure mode.
+- `logger`: pino with redaction covering cookies, tokens, `DATABASE_URL`, the API key, and the prompt/brief/image fields spec §10 names — listed now so no generation code can land before the redaction exists.
+- Postgres pool and ioredis client, both with `error` handlers so a dependency blip cannot kill the process, and an advisory-locked migration runner.
+- `health`: `/health/live` does no I/O; `/health/ready` checks both dependencies with a per-check timeout.
+- The spec §9 error shape `{ code, messageKey, details?, requestId }`, with a filter that never lets an internal message or a 5xx detail reach a caller.
+- Two entrypoints on one image: `main.api` and `main.worker`.
+- `Dockerfile`, `docker-compose.yml` (deployed) and `docker-compose.dev.yml` (datastores only, separate project and volumes).
+- `openapi.json`, generated from the running app (D-031), with a `openapi:check` that fails on drift.
+- `.githooks/pre-commit` (no new dependency) and a GitHub Actions workflow.
+
+**Verified with real output, not assumed:**
+- `pnpm lint`, `pnpm typecheck`, `pnpm test` (33 passing), `pnpm build`, `pnpm openapi:check` — all clean.
+- Dev: `/health/live` 200 and `/health/ready` `{"status":"ready",...}` 200 on 3040.
+- Redis stopped → `/health/ready` **503** `{"postgres":"up","redis":"down"}` while `/health/live` stayed **200**; restarted → 200 again with no app restart. Postgres stopped → the same, naming postgres.
+- Unknown route → `404 {"code":"NOT_FOUND","messageKey":"errors.not_found","requestId":"…"}`, and an `x-request-id` header on every response.
+- Both processes exited on SIGTERM with no stack trace; the worker's keep-alive kept it alive until then.
+- Container stack (`--profile app`): postgres, redis, api and worker all healthy; the api's own healthcheck passed; it runs as uid 1000 `node`; image 291 MB. Torn down afterwards.
+- The pre-commit hook refused a staged file with a type error, and `git log` confirmed HEAD did not move.
+
+**Found while building:**
+- **tsx cannot boot Nest.** The OpenAPI generator first ran under tsx and exited code 1 with no output at all. esbuild emits no decorator metadata, so `NestFactory.create()` cannot resolve constructor types and dies silently. The generator now lives in `src/` and is compiled by `nest build`. Worth remembering: any future script that boots the app must be compiled, not tsx'd.
+- **`nestjs-zod` v5 dropped `patchNestjsSwagger`**, replaced by `cleanupOpenApiDoc`.
+- **Newest majors resolved on install** — TypeScript 7, ESLint 10, vitest 5, boundaries 7 — and were pinned back to kitobnarx's versions (D-040).
+- **Drizzle with no schema files** produces no journal, and `migrate()` throws on the missing folder. The runner logs `No migrations to apply` instead. No table was invented to work around it; the branch stops being taken in P2.
+- `.gitignore` had a voice transcript pasted into it from an earlier session. Restored.
+- The `/health/ready` route was documenting only 200 in the contract though it can return 503. Fixed before Session B could generate a client from it.
+
+**Mistake, reported:** while testing SIGTERM handling, a `pgrep` pattern matched a kitobnarx container's process and it was sent SIGTERM. `restart: unless-stopped` brought it back within seconds and it verified healthy; no data was touched. Process lookups in this repo now match on `/proc/<pid>/cwd`, not on a command-line string.
+
+**Not verified:** the GitHub Actions workflow has never run — `gh auth login` is still blocked (below). It is not claimed to pass.
+
+### Review run, same day
+
+Doston asked for the five review tests to be run and the results written up. Every one passed; the whole run is on one page: **https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788**
+
+| # | Test | Result |
+|---|---|---|
+| 1 | `lint` · `typecheck` · `test` · `build` · `openapi:check` | clean, 33 tests passing, contract up to date |
+| 2 | Health probes and the error shape on a running api | `/health/live` 200, `/health/ready` 200, unknown route `404 {"code":"NOT_FOUND","messageKey":"errors.not_found","requestId":"…"}`, `x-request-id` on every response |
+| 3 | Redis and Postgres each stopped and restarted | `/health/ready` 503 naming the downed one; `/health/live` stayed 200 throughout; both recovered with no app restart |
+| 4 | Pre-commit hook against a staged type error | commit refused, `git log` confirmed HEAD did not move |
+| 5 | Container stack | refused to start without `POSTGRES_PASSWORD`; with it, all four containers healthy, api healthcheck passing, running as uid 1000, 291 MB |
+
+Afterwards the deployed stack was torn down with its volumes, the dev api process was stopped, and kitobnarx was confirmed untouched. The dev datastores (5437 / 6384) were left up so Doston can run the same checks himself.
+
+Still not verified: GitHub Actions. Nothing changed there.
+
 ## Next
 
-1. Write the P0 plan with the writing-plans skill, get it reviewed, then build.
-2. Write Session B's kickoff prompt before the P1 go (D-026).
+1. Doston reviews the P0 working tree and commits it.
+2. Write the P1 plan (AI core + the go/no-go), get it approved, then build.
+3. Write Session B's kickoff prompt before the P1 go (D-026).
 
 ## Owed by Jakhongir (not blocking P0 or P1)
 
@@ -76,4 +132,4 @@ The design spec is at `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md
 ## Blocked
 
 - **`gh` CLI login:** still expired. The token supplied for setup lacks the `read:org` scope, so it could create repos but can't log in. Pushing works over SSH, so this blocks nothing until the GitHub Actions setup in P0 (D-034). Doston revokes that setup token once setup is finished.
-- **AI keys:** `jas-ad-studio-api/.env` holds only `OPEN_AI_API_KEY`, Doston's key for development (D-029). The P1 comparison also needs a Claude (Anthropic) key and a Gemini key; without them, P1 compares OpenAI models only. The OpenAI SDK's default variable name is `OPENAI_API_KEY`, so P0's env schema settles the name. `.env` is git-ignored as of 2026-09-11. Production billing moves to Jakhongir before launch (D-004).
+- **AI keys:** `.env` holds `OPENAI_API_KEY`, Doston's key for development (D-029). **The variable was renamed from `OPEN_AI_API_KEY` in P0 (D-041)**, with the value carried over; it is the name the OpenAI SDK reads by default. It is optional in the env schema, so CI and a fresh checkout boot without it. The P1 comparison also needs a Claude (Anthropic) key and a Gemini key; without them, P1 compares OpenAI models only. `.env` is git-ignored. Production billing moves to Jakhongir before launch (D-004).
