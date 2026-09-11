@@ -1,0 +1,49 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/health/live": {
+      "get": {
+        "operationId": "HealthController_live",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "The process is alive."
+          }
+        },
+        "summary": "Liveness. Always 200 while the process is running.",
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/health/ready": {
+      "get": {
+        "operationId": "HealthController_ready",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Every dependency is up."
+          },
+          "503": {
+            "description": "At least one dependency is down; the report names which."
+          }
+        },
+        "summary": "Readiness. 503 when a dependency is unusable.",
+        "tags": [
+          "health"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "JAS Ad Studio API",
+    "description": "Ad concepts and Google Flow prompts for Uzbek sellers.",
+    "version": "0.0.1",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {}
+  }
+}
