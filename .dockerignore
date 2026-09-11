@@ -1,0 +1,26 @@
+node_modules
+dist
+coverage
+.git
+.github
+.githooks
+*.tsbuildinfo
+
+# Secrets must never reach the build context, let alone an image layer.
+.env
+.env.*
+!.env.example
+
+logs
+*.log
+tmp
+storage
+
+.idea
+.vscode
+.DS_Store
+
+docs
+README.md
+CLAUDE.md
+DECISIONS.md
