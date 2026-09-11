@@ -1,4 +1,4 @@
-# PLAN — phase roadmap
+          # PLAN — phase roadmap
 
 **Status: ACTIVE.** Every open question is answered and the design spec is approved (D-036 to D-038). P0 is built and awaiting Doston's review.
 

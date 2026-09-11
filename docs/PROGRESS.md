@@ -10,9 +10,9 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0 complete.** Committed on branch `p0-foundations`, pushed, CI green. Not yet merged to `main`. |
-| Active plan | `docs/superpowers/plans/2026-09-11-phase-0-foundations.md` — every task checked |
-| Doing now | Writing the P1 plan (AI core + go/no-go). |
+| Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
+| Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — DRAFT, under review. P0's plan is complete and closed. |
+| Doing now | P1 plan drafted; a review agent is checking it against the source documents and the locked decisions. Three open questions (Q-P1-1 to Q-P1-3) are stated in the plan and need answers before the parts that depend on them. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -57,6 +57,23 @@ The design spec is at `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md
 - R-1: database sessions (D-036)
 - R-2: changed to a small owner admin panel in the web repo (D-037)
 - R-3 to R-8: as written (D-038)
+
+## 2026-09-11 — P1 plan drafted
+
+`docs/superpowers/plans/2026-09-11-phase-1-ai-core.md`. Written after reading source 01 §25, §26, §27, §28, §29, §49, §50, §51, source 02 in full, and D-012, D-013, D-017, D-019, D-029.
+
+**Shape:** nine parts, no HTTP and no database. Target config → output schema → deterministic validators → the merged system prompt V2 → provider interface and OpenAI adapter → the CLI harness → the seven safety fixtures → the live comparison run → Jakhongir's go/no-go. Only Parts 8 and 9 spend money; everything before them runs against a fake provider.
+
+**The central problem it resolves:** source 01 §25 asks for 180–350 word prompts, source 02 asks for 500–1,000, and Veo 3.1's 1,024-token ceiling (≈700 English words) cannot hold source 02's upper range at all. D-012 already settled the principle — no numbers in the system prompt, everything from the target config — and P1 settles the actual values by experiment: word count at ~300/500/650 and beats at 2/3/4, on the same products, judged in Flow.
+
+**Three open questions are stated in the plan and block the parts that depend on them:**
+- **Q-P1-1** how to enforce Veo's token ceiling when its tokenizer is not published. Recommendation: a conservative word and character ceiling named `maxWords`, never `maxTokens`, with `sourceTokenLimit` documenting where the figure came from.
+- **Q-P1-2** whether to write Claude and Gemini adapters with no keys to test them. Recommendation: interface plus the OpenAI adapter only, with the seam proven by a fake adapter; record honestly that it was a one-provider comparison if no other keys arrive.
+- **Q-P1-3** the live spend cap. Recommendation: the CLI refuses to start without `--max-spend-usd`, default $5 for a fixture sweep.
+
+New dependencies proposed under the standing gate: `openai`, `sharp`, and possibly a tokenizer depending on Q-P1-1.
+
+Nothing is built yet. No code, no live AI call, no spend.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 
