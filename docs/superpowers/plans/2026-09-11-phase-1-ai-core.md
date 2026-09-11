@@ -215,13 +215,13 @@ The gallery-inspiration fixture is **not** built: gallery presets need an inspir
 
 ### Part 8a — The offline sweep
 
-- [ ] Matrix, defined before the cap is set: **6 configs** (word count 300 / 500 / 700 at the baseline beat count, then beats 2 / 3 / 4 at the baseline word count) **× 7 fixtures = 42 runs**, up to 84 billed calls with repairs.
-- [ ] Cap computed from Part 5b's measured per-call cost × 84, with headroom. Passed explicitly; the CLI refuses without it.
-- [ ] Results table: product, category, model, prompt version, **target config version**, word count, measured tokens-per-word, validator pass, **§51 rubric score** (the nine criteria at source 01 §51), cost.
-- [ ] Tokens-per-word p95 across the corpus sets `tokensPerWord`, and `maxWords` is re-derived from `maxPromptTokens` with it. The provisional marks come off (Q-P1-1, D-012).
-- [ ] **No conclusions about video quality here.** Word count and validator pass cannot tell you whether 300 or 700 words makes a better video. This part produces candidate prompts; 8b judges them.
+- [x] Matrix, defined before the cap is set: **6 configs** (word count 300 / 500 / 700 at the baseline beat count, then beats 2 / 3 / 4 at the baseline word count) **× 7 fixtures = 42 runs**, up to 84 billed calls with repairs.
+- [x] Cap computed from Part 5b's measured per-call cost × 84, with headroom. Passed explicitly; the CLI refuses without it.
+- [x] Results table: product, category, model, prompt version, **target config version**, word count, measured tokens-per-word, validator pass, **§51 rubric score** (the nine criteria at source 01 §51), cost.
+- [x] Tokens-per-word p95 across the corpus sets `tokensPerWord`, and `maxWords` is re-derived from `maxPromptTokens` with it. The provisional marks come off (Q-P1-1, D-012).
+- [x] **No conclusions about video quality here.** Word count and validator pass cannot tell you whether 300 or 700 words makes a better video. This part produces candidate prompts; 8b judges them.
 
-**Verify:** the table in `docs/PROGRESS.md` with real numbers, and the cap never exceeded.
+**Verify:** done 2026-09-11 — 42 runs, **$0.128**, cap $1.00 never approached. Full table in `out/sweep.md`; findings in `docs/PROGRESS.md`.
 
 ### Part 8b — The Flow pilot that picks the config
 

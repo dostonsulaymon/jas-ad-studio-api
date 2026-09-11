@@ -3,44 +3,41 @@
   "model": "gpt-4.1-mini",
   "promptVersion": "ad-director-v2",
   "targetId": "flow-veo-3.1",
-  "targetConfigVersion": 1,
+  "targetConfigVersion": 2,
   "attempts": 1,
   "usage": {
     "inputTokens": 4214,
-    "outputTokens": 1008,
-    "estimatedCostUsd": 0.0032984
+    "outputTokens": 1022,
+    "estimatedCostUsd": 0.0033207999999999996
   },
   "result": {
     "status": "ready",
     "questionsUz": [],
-    "messageUz": null,
+    "messageUz": "Oddiy kulrang idishning oq yorliq bilan taʻkidlangan koʻrinishini toza studiya sharoitida koʻrsatish uchun tasviriy reklama tayyorlash.",
     "product": {
-      "category": "household container",
+      "category": "Idish-texnika",
       "observedDetails": [
-        "kulrang rang",
-        "oq yorliq bor",
-        "yassi asosli idish",
-        "yumaloq shakl"
+        "Kulrang rangda idishning silueti va umumiy shakli",
+        "Idish ustida oq yorliq mavjud"
       ],
       "confirmedClaims": [],
       "unknownDetails": [
-        "material turi",
-        "idish hajmi",
-        "qoʻshimcha funksiyalar"
+        "Idish materiali (masalan, keramika, plastmassa, metall yoki boshqa)",
+        "Idishning oʻlchami yoki sigʻimi",
+        "Idishning boshqa funksional xususiyatlari"
       ],
       "referenceConflicts": [],
       "fidelityConstraints": [
-        "idishning oq yorliqqa ega kulrang rangi va yumaloq, yassi shaklini aniq saqlash",
-        "idish yuzasidagi yorliqni oʻzgartirmaslik va oʻchirmaslik",
-        "idishning tashqi koʻrinishini ortiqcha dekoratsiyalarsiz koʻrsatish"
+        "Idishning kulrang rangi va oq yorliq batafsil koʻrsatilishi kerak",
+        "Idishning aniq shakli va silueti oʻzgartirilmasligi, idishdagi yorliq oʻrnida yoki koʻrinishida hech qanday oʻzgartirish va hisob-kitob qilinmagan qoʻshimchalar taqiqlanadi"
       ]
     },
     "concept": {
-      "titleUz": "Oddiy, toza va qulay kulrang idish",
-      "rationaleUz": "Bu reklama oddiy va amaliy kulrang idishni sodda studiya muhitida aniq koʻrsatib, uning oddiyligini va har xil vazifalarda qulayligini taʻkidlaydi.",
+      "titleUz": "Oddiy kulrang idishining sof va aniq koʻrinishi",
+      "rationaleUz": "Oddiy idishning kundalik foydalanishga mosligini va dizaynining soddaligi, oq yorliq bilan ajralib turishini koʻrsatish orqali xaridorlarga qulaylikni taqdim etish.",
       "style": "clean-studio",
-      "hookUz": "Dastlab idish yuzasi yorugʻlikda porlab, uning kulrang rangi va oq yorligʻi yaqqol koʻrinadi.",
-      "ctaUz": "Sizning oshxonangiz uchun ayni oddiy va qulay idishni hoziroq sotib oling!"
+      "hookUz": "Deyarli fon bilan kontrast hosil qiluvchi, oq yorliq bilan ajratilgan kulrang idishning aniq koʻrinishi",
+      "ctaUz": "Endi xarid qiling va kundalik hayotingizga oddiylik kiriting"
     },
     "target": {
       "targetId": "flow-veo-3.1",
@@ -50,32 +47,31 @@
     "shots": [
       {
         "startSeconds": 0,
-        "endSeconds": 2.5,
-        "descriptionUz": "Idish oq yorliqli yuqori yuzasi va kulrang rangining yaqin yoritilgan koʻrinishi.",
-        "cameraUz": "sekin yaqinlashish"
+        "endSeconds": 2,
+        "descriptionUz": "Idishning oq yorliqli yuzini yaqin planda koʻrsatish, uning toza kulrang yuzasi va yorligʻi koʻzni tortadi.",
+        "cameraUz": "Sekin push-in da kamera idishga yaqinlashadi"
       },
       {
-        "startSeconds": 2.5,
+        "startSeconds": 2,
         "endSeconds": 5,
-        "descriptionUz": "Idishning umuman koʻrinishi, uning yumaloq shakli va tekis asosi toʻliq tushiriladi.",
-        "cameraUz": "sekin orqaga kameralash"
+        "descriptionUz": "Idishning butun shakli va hajmi koʻrinuvi uchun uni old tomondan koʻrsatish.",
+        "cameraUz": "Statik, toʻgʻri koʻrinish"
       },
       {
         "startSeconds": 5,
         "endSeconds": 8,
-        "descriptionUz": "Idish stolga qoʻyiladi yoki aylantiriladi, uning oddiy va qulay tuzilishi va oq yorliq asosiy eʻtiborni oladi.",
-        "cameraUz": "sekin panoramali harakat"
+        "descriptionUz": "Idish atrofida yumshoq aylanma kamera harakati, yorliq va rangning tabiiy koʻrinishini taʻkidlaydi.",
+        "cameraUz": "Sekin lateral tracking harakati"
       }
     ],
-    "promptEn": "Use the supplied single reference image as the visual authority for an ordinary household container. The product is a grey round dish with a white label visible on its side. Maintain the exact shape, the dull grey color, and the white label without alterations. Do not add brand names or additional decorations. The commercial concept is to highlight the container's simple and practical aspects in a clean studio environment. Begin with a close-up shot focusing on the white label and grey surface under soft, clear lighting that reveals the texture and color precisely. The camera slowly zooms in to show the label details and smooth surface. Transition smoothly to a wider shot framing the whole dish from a slight angle to display its round, flat shape fully. Maintain a steady, slow camera track back. In the final segment, the container is gently set or rotated on a neutral studio table surface, showing usable and simplistic design without any extra props or clutter. Lighting remains soft and even to avoid shadows but emphasize the real material appearance. The entire 8-second clip is paced moderately with smooth cuts and minimalistic style, ensuring the product stays the star and clearly visible. Use natural room tone audio with subtle product handling sounds. Avoid high energy camera moves or artificial lighting effects. The hero ending is a stable front view of the dish with the white label clearly visible, emphasizing its everyday use appeal. Visual quality should be crisp and clean, without heavy shadows or reflections. Fidelity constraints include preserving the original white label’s position and appearance, the grey color shade, the round and flat shape, and avoiding any retexturing or added features that are not present in the reference. Avoid adding any branding text or logos beyond what is visible, no exaggerated gloss or sparkle, and no revealing unseen sides or interiors. The product is always the central focus on a clean neutral background, shot in the vertical 9:16 aspect ratio suitable for Instagram.",
+    "promptEn": "The supplied reference image is the single visual authority for this product, showing a gray dish with a white label. Maintain the dish's gray color, overall shape, and the distinct white label exactly as shown. Any changes to the shape, colors, or the label are prohibited. The commercial will be a clean studio-style video for Instagram, 8 seconds long, vertical aspect ratio (9:16), divided into three shots. Start with a close-up push-in shot highlighting the white label and smooth gray surface of the dish, emphasizing the contrast and clarity. Next, a stable front shot showing the full silhouette and proportions of the dish, presenting its simple and functional design. Finally, a slow lateral tracking shot smoothly circles around the dish to showcase the label and the material finish, ensuring the color and texture appear natural and consistent. Lighting is even and soft, revealing the matte or smooth texture of the dish without shadows or glare, on a clean neutral background that enhances product visibility. The product remains static or is lightly rotated realistically, no added effects or movements that would alter its shape or materials. Audio is subtle room tone with soft product handling sounds if any handling is shown. The final shot ends with a clear, stable frame of the dish facing forward, highlighting the white label. Render quality aims for clear texture detail and crisp color fidelity without artifacts. Fidelity must preserve the dish’s exact form, gray tone, and visible white label in all shots. Avoid adding text overlays, invented branding, or environmental distractions that detract from the product’s simplicity and presentation.",
     "assumptionsUz": [
-      "Idish materiali va hajmi nomaʻlum, shuning uchun faqat koʻzga koʻrinadigan yuzalar koʻrsatiladi.",
-      "Faqat bitta idish koʻrsatiladi, uning kulrang va oq yorliqli varianti. Idishning boshqa tafsilotlari tasdiqlanmagan."
+      "Idish materiali nomaʻlum, lekin yuzasi silliq yoki mat koʻrinadi deb taxmin qilinadi",
+      "Idish kattaligi va hajmi haqida maʻlumot yoʻq, shuning uchun oʻrtacha idish oʻlchamida tasvirlanadi"
     ],
     "reviewNotesUz": [
-      "Idishning oq yorligʻi va kulrang rangi aniq koʻrsatilishi kerak.",
-      "Idish shakli va yuzasi oʻzgarmasligi zarur.",
-      "Faqat haqiqiy koʻrinishga asoslangan kamera harakatlari va yoritish qoʻllanilsin."
+      "Mahsulot juda soddaligi sababli, eʻtibor yorliq va rang kontrasti mavjudligiga qaratiladi",
+      "Koʻproq maʻlumot yoki boshqa burchaklardan koʻrinish taqdim etilsa, reklama yanada aniqroq boʻladi"
     ]
   }
 }

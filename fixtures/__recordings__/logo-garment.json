@@ -3,45 +3,44 @@
   "model": "gpt-4.1-mini",
   "promptVersion": "ad-director-v2",
   "targetId": "flow-veo-3.1",
-  "targetConfigVersion": 1,
+  "targetConfigVersion": 2,
   "attempts": 1,
   "usage": {
     "inputTokens": 4238,
-    "outputTokens": 1040,
-    "estimatedCostUsd": 0.0033591999999999997
+    "outputTokens": 1118,
+    "estimatedCostUsd": 0.003484
   },
   "result": {
     "status": "ready",
     "questionsUz": [],
-    "messageUz": null,
+    "messageUz": "Bu reklama 8 soniyali Instagram uchun yaratiladi, yoshlar uchun moʻljallangan. Toʻq kulrang paxta futbolka koʻkrak qismida sariq dumaloq logotip bilan koʻrsatiladi. Tabiiy muhitda, zamonaviy kundalik kiyimda koʻrsatish orqali eʻtibor jalb qilinadi.",
     "product": {
-      "category": "clothing",
+      "category": "futbolka",
       "observedDetails": [
-        "Toʻq kulrang futbolka",
-        "Koʻkrak qismida sariq dumaloq logotip",
-        "Logotipdagi yozuv: JN"
+        "toʻq kulrang rang",
+        "koʻkrakda sariq dumaloq logotip",
+        "oddiy qisqa yengli futbolka"
       ],
       "confirmedClaims": [
         "100% paxta"
       ],
       "unknownDetails": [
-        "Futbolkaning old va orqa qismining koʻrinishi",
-        "Qulaylik, oʻlcham va egiluvchanlik haqida maʻlumot"
+        "matoning aniq toʻqimasi va qalinligi",
+        "logotipdagi harflarning aniq koʻrinishi"
       ],
       "referenceConflicts": [],
       "fidelityConstraints": [
-        "Futbolkaning toʻq kulrang rangi saqlanishi kerak",
-        "Sariq dumaloq logotip joylashuvi va shakli oʻzgartirilmasligi kerak",
-        "Logotipdagi ʻJNʻ yozuvi oʻzgarishi mumkin emas",
-        "Futbolka toʻliq futbolka shaklida koʻrsatilishi kerak, hech qanday rasm haqidagi koʻrinish yoki modeli oʻzgartirilmasligi kerak"
+        "rang toʻq kulrang boʻlishi kerak",
+        "sariq dumaloq logotip koʻkrak qismida joylashgan boʻlishi kerak",
+        "futbolka qisqa yengli va oddiy shaklda boʻlishi kerak"
       ]
     },
     "concept": {
-      "titleUz": "JN futbolkani yoshlar orasida tanitish",
-      "rationaleUz": "Toʻq kulrang paxta futbolkasi va uning koʻkrak qismidagi sariq dumaloq JN logotipi yoshlar orasida imidj yaratish uchun markaziy element sifatida ishlatiladi.",
+      "titleUz": "Oddiy, qulay va yorqin logotip bilan JN futbolkasi",
+      "rationaleUz": "Yoshlar orasida kundalik kiyim sifatida tanilgan, qulay va tabiiy matodan tayyorlangan futbolka sifatida namoyish qilish. Sariq dumaloq logotip mahsulot identifikatsiyasini kuchaytiradi.",
       "style": "lifestyle",
-      "hookUz": "Kadr futbolkaning koʻkrak qismidagi sariq dumaloq JN logotipiga yaqinlashadi.",
-      "ctaUz": "Endi oʻzing uchun JN futbolkani tanla va uslubingni koʻrsat!"
+      "hookUz": "Toʻq kulrang futbolka qirqilgan koʻrinishda, koʻkrakda sariq dumaloq logotip aniq koʻrinmoqda.",
+      "ctaUz": "JN futbolkasini hoziroq sinab koʻring va oʻzingizga qulay kiyim toping!"
     },
     "target": {
       "targetId": "flow-veo-3.1",
@@ -51,33 +50,33 @@
     "shots": [
       {
         "startSeconds": 0,
-        "endSeconds": 2.5,
-        "descriptionUz": "Toʻq kulrang futbolkaning koʻkrak qismidagi sariq dumaloq JN logotipiga yaqin kameraning sekin surilishi.",
-        "cameraUz": "Sekin oldinga surilish (push-in)"
+        "endSeconds": 3,
+        "descriptionUz": "Toʻq kulrang futbolka, logotip koʻrinishini diqqat bilan koʻrsatuvchi sekin push-in kamera harakati.",
+        "cameraUz": "sekin push-in"
       },
       {
-        "startSeconds": 2.5,
-        "endSeconds": 5,
-        "descriptionUz": "Futbolkani sport uslubida kiygan yosh modelning tabiiy harakatda bir qancha burchaklardan koʻrsatilishi, logotip koʻzga tashlanadi.",
-        "cameraUz": "Sekin trek qilish va silliq aylantirish"
+        "startSeconds": 3,
+        "endSeconds": 6,
+        "descriptionUz": "Model futbolkani kiyib, kundalik muhitda harakatlanmoqda, futbolka va logotip koʻrinadi.",
+        "cameraUz": "mukammal tarzda biroz oldinga siljish"
       },
       {
-        "startSeconds": 5,
+        "startSeconds": 6,
         "endSeconds": 8,
-        "descriptionUz": "Model futbolkani kiyib, tabassum bilan ekranga qaraydi, futbolka koʻrsatuvchi soʻnggi ramka, toza fon bilan.",
-        "cameraUz": "Barqaror qattiq kadr (static hero framing)"
+        "descriptionUz": "Model logotip sohasiga kamera qaratib turibdi, futbolka toʻliq koʻrinishda, oxirgi aniqlik beriladi.",
+        "cameraUz": "kameraning sekin fokus oʻtishi"
       }
     ],
-    "promptEn": "Create an 8-second vertical lifestyle video to promote the 'JN futbolka' t-shirt. The supplied reference is the single visual authority: a dark gray t-shirt with a round yellow logo bearing 'JN' on the chest. Preserve the dark gray color, the bright yellow round logo's precise shape and position with the 'JN' lettering clearly visible as is. The t-shirt's silhouette and proportions must remain accurate without any redesign. The video starts with a slow push-in close to the chest logo on a flat surface or worn, to showcase the logo clearly. Next, a young model wears the t-shirt in a casual, energetic outdoor or indoor urban lifestyle setting fitting for the youth audience, with the camera slowly tracking and gently orbiting to show the shirt and logo from multiple clear angles while maintaining realism and natural fabric movement. There should be no rapid or unstable camera motions. Finally, end with a stable hero frame of the model smiling and facing the camera fully, with the t-shirt and logo dominant on screen against a simple, uncluttered background. Lighting is soft natural or warm studio light revealing the cotton fabric texture and the deep dark gray color without glare. The t-shirt should neither be altered in shape nor recolored, and the yellow logo must remain strongly visible throughout. The video fades out softly at 8 seconds. Use subtle ambient urban or studio sound, no music or narration. The final shot must clearly present the product as the hero of the commercial in a realistic lifestyle context. Fidelity is paramount: do not add extra logos, text or labels beyond what is shown. Avoid staging or styling that obscures the logo or alters the t-shirt's appearance.",
+    "promptEn": "The supplied visual reference is the sole authority for the product's appearance. This product is a dark gray cotton T-shirt featuring a short sleeve and a distinct yellow circular logo on the chest area displaying 'JN.' The advertisement should avoid changing these specific design elements. The commercial concept focuses on portraying the T-shirt as a stylish, comfortable lifestyle product for young adults. The creative direction is lifestyle, shot in a natural everyday urban environment reflecting modern youth culture. Begin with a slow push-in on the T-shirt laid flat or on a mannequin, clearly showing the dark gray fabric and yellow circular logo. The camera then follows a young adult model putting on and casually moving wearing the T-shirt in a believable setting such as a city street or park, emphasizing the fit and material texture without fast or aggressive movements. Lighting is natural but bright enough to show the texture and color fidelity of the cotton fabric and the vivid yellow logo. The material should appear soft, matte cotton, with gentle shadows to highlight texture. The sequence shows: 1) close flat detail of the fabric and logo, 2) medium shot of the model in motion, 3) close focus on the logo area with calm final emphasis. Transitions are direct cuts to maintain clarity and keep pacing steady but relaxed within the 8-second limit. Audio is natural ambient city sound and soft fabric movement noise, no music or voiceover. The hero ending is a clean framing of the model looking towards or interacting with the camera with the T-shirt clearly visible. Visual quality should be clean, lifelike, and true to the reference colors without artificial enhancement. Fidelity requirements: no change in the dark gray color, the yellow logo shape and position must be preserved exactly, and no added graphics or text overlays apart from the physical logo visible in the reference. Avoid fast camera moves, changes in fabric color or texture, unnecessary zooms, or shots that cut off the T-shirt or logo. This prompt aims to build a clear, relatable lifestyle image of the JN T-shirt for Instagram youth awareness.",
     "assumptionsUz": [
-      "Futbolka toʻliq futbolka sifatida koʻrsatiladi, orqa qismi nomaʻlum.",
-      "Model kiyim sifatida futbolkani qulay va tabiiy tarzda namoyish qiladi."
+      "Model kiyim sifatida futbolkani kiygani tasvirlanadi.",
+      "Futbolka matosi yumshoq paxta kabi koʻrsatildi.",
+      "Logotip matodan alohida qoʻyilgan, sifatli rangli tasvirda saqlanadi."
     ],
     "reviewNotesUz": [
-      "Logotip rangi va shakli aynan saqlanishi muhim.",
-      "Futbolkaning umumiy koʻrinishi va rangi aniq boʻlishi kerak.",
-      "Model yosh auditoriyaga mos kiyimni namoyish qilishi kerak.",
-      "Lifestayl uslubi bilan video kontent ishlab chiqilishi kerak."
+      "Rang va logotip aniq koʻrinishi juda muhim.",
+      "Model va muhit yoshlar uchun jozibador boʻlishi zarur.",
+      "Video dinamikasi juda tez yoki agressiv boʻlmasligi kerak."
     ]
   }
 }

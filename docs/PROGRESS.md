@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 Parts 1–7 done; every source 01 §49 safety case passes offline against recorded model output. Next: Part 8a, the offline sweep. |
+| Doing now | P1 Parts 1–8a done. **Parts 8b and 9 are Jakhongir's** — they need Google Flow, which no code can do. Everything buildable in P1 is built. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -280,6 +280,56 @@ The effect, measured on the same seven fixtures:
 **Live spend to date: $0.083.**
 
 **Verified:** 229 tests passing (40 new), lint, typecheck, build clean.
+
+## 2026-09-11 — P1 Part 8a done: the offline sweep
+
+42 runs — six configurations across the seven fixtures, one factor at a time — for **$0.128** against a $1.00 cap. Full table in `out/sweep.md` (git-ignored); `out/sweep.json` has every row.
+
+### The tokens-per-word measurement (D-012, Q-P1-1)
+
+Measured with a real BPE over `promptEn` alone, across 27 generated prompts:
+
+| min | median | p95 | max |
+|---|---|---|---|
+| 1.126 | 1.188 | **1.221** | 1.235 |
+
+The config had been guessing **1.6**. It is now **1.4** — the p95 plus about 15%, because the measurement uses GPT's tokenizer standing in for Veo's, and the cost of being wrong is a truncated prompt. `maxWords` is re-derived as `floor(1024 / 1.4) = 730`, up from 640. Target config version 2.
+
+This is not the binding constraint in practice: generated prompts run 190–330 words against a 730 ceiling. But it is the one D-012 asks for, and it is now measured rather than guessed.
+
+### The finding that matters most: the length lever barely works
+
+Average words among `ready` runs:
+
+| Config | Avg words |
+|---|---|
+| `recommendedWords: 300` | 246 |
+| `recommendedWords: 500` | 282 |
+| `recommendedWords: 700` | 262 |
+
+Asking for 500 instead of 300 buys 36 words. Asking for 700 buys **nothing** — it is worse than 500. `gpt-4.1-mini` saturates around 250–320 words regardless of instruction.
+
+**Source 02 asks for 500–1,000 words of production-brief depth. This model will not produce it at any setting.** That is not a bug in the prompt or the config; it is the model. It means one of two things, and Part 8b has to decide which:
+- a larger model follows the length instruction and delivers source 02's depth, and the cost per package rises accordingly; or
+- source 02's depth expectation is not achievable at a sane price, and the standard is revised against what actually makes good Flow video.
+
+Either way the answer comes from watching real videos, not from word counts — which is exactly why Part 8b exists as a separate step.
+
+### The beat lever does work
+
+`beats-3` and `beats-4` both produced 5 of 5 possible `ready` results with sensible shot counts; `beats-2` produced shorter prompts (249 avg). Beats behave as a real control, unlike length.
+
+### Reliability
+
+`AI_MALFORMED` occurred **twice in about fifty calls** — the model occasionally returns JSON that fails the strict schema. The one repair attempt does not cover it, because the failure is in the response body rather than in validation. At ~4% this is worth watching in P4, where a failed job must release its reserved credit; it is not worth a retry loop here (source 01 §28).
+
+### Not concluded here, deliberately
+
+No claim is made about which configuration produces better video. Word count and validator pass cannot answer that. Part 8a produces candidate prompts and one measurement; Part 8b judges them in Flow.
+
+**Live spend to date: $0.25.**
+
+**Verified:** 229 tests passing, recordings refreshed at config v2, lint, typecheck, build clean.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 

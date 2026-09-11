@@ -5,24 +5,28 @@ import { videoTargetSchema, type VideoTarget } from './target.schema';
  * is a deliberate edit rather than a runtime setting (D-012).
  *
  * `tokensPerWord` is our own estimator, not Google's tokenizer, which is not published.
- * 1.6 is deliberately pessimistic: ordinary English prose runs about 1.3, and
- * cinematographic compounds, hyphenation and punctuation push it higher. Part 8a
- * replaces it with the p95 measured across the real generated corpus, and `maxWords` is
- * re-derived from `maxPromptTokens` with that figure.
+ *
+ * Part 8a measured it over 27 generated prompts with a real BPE: median 1.188, p95
+ * 1.221, max 1.235. 1.4 is that p95 plus ~15%, because the measurement is GPT's
+ * tokenizer standing in for Veo's, and the cost of being wrong is a truncated prompt.
+ * `maxWords` is derived from it: floor(1024 / 1.4) = 731.
+ *
+ * Not the binding constraint in practice — generated prompts run 190-330 words — but it
+ * is the one D-012 asks for, and it is now measured rather than guessed.
  *
  * `provisional` is true until Jakhongir confirms the Flow mode, durations, aspect ratios
  * and reference rules from his own test runs (D-013, plan Part 0).
  */
 const FLOW_VEO_31 = {
   id: 'flow-veo-3.1',
-  version: 1,
+  version: 2,
   sourceUrl: 'https://deepmind.google/models/veo/',
   checkedAt: '2026-09-11',
   provisional: true,
 
   maxPromptTokens: 1024,
-  tokensPerWord: 1.6,
-  maxWords: 640,
+  tokensPerWord: 1.4,
+  maxWords: 730,
   maxChars: 4500,
   recommendedWords: 500,
 

@@ -3,43 +3,42 @@
   "model": "gpt-4.1-mini",
   "promptVersion": "ad-director-v2",
   "targetId": "flow-veo-3.1",
-  "targetConfigVersion": 1,
+  "targetConfigVersion": 2,
   "attempts": 1,
   "usage": {
     "inputTokens": 4229,
-    "outputTokens": 929,
-    "estimatedCostUsd": 0.0031780000000000003
+    "outputTokens": 998,
+    "estimatedCostUsd": 0.0032884000000000004
   },
   "result": {
     "status": "ready",
     "questionsUz": [],
-    "messageUz": "Iltimos, kulrang elektr choynakni yon tomondagi texnik yorliqni oʻqib boʻlmaydigan holda aniq koʻrsatadigan tasvirlarni taqdim eting.",
+    "messageUz": null,
     "product": {
-      "category": "Elektr choynak",
+      "category": "elektr choynak",
       "observedDetails": [
-        "Kulrang rangda",
-        "Yon tomonida texnik yorliq bor, oʻqib boʻlmaydi",
-        "Elektr choynak shakli, qoʻltiq tutqichi koʻrinadi"
+        "kulrang rang",
+        "toʻgʻri va tekis shakl",
+        "chap tomonda tutqich",
+        "yon tomonida oʻqib boʻlmaydigan texnik yorliq"
       ],
       "confirmedClaims": [],
       "unknownDetails": [
-        "Texnik yorliqdagi yozuv mazmuni nomaʻlum",
-        "Materiallar aniqlanmagan",
-        "Hajmi va quvvati nomaʻlum"
+        "material turi aniqlanmagan",
+        "elektr choynakning quvvati va boshqa texnik xususiyatlari tasdiqlanmagan"
       ],
       "referenceConflicts": [],
       "fidelityConstraints": [
-        "Kulrang rang va shakl oʻzgartirilmasin",
-        "Yon tarafdagi texnik yorliq joylashuvi saqlansin",
-        "Texnik yorliqdagi yozuv oʻqilmaydi, shuning uchun unga fokus qilinmasin"
+        "choynakning kulrang rangi, tekis shakli, tutqich joylashuvi va texnik yorliq joyi saqlanishi",
+        "yon tomondagi yorliqdagi yozuvni oʻzgartirmaslik va oʻqib boʻlmasligini saqlash"
       ]
     },
     "concept": {
-      "titleUz": "Oddiy va zamonaviy kulrang elektr choynakni koʻrsatish",
-      "rationaleUz": "Choynakning sodda, aniq koʻrinishi oilalar uchun ishonch va foydalilikni taʻkidlashga yordam beradi.",
+      "titleUz": "Soddaligi va qulayligi bilan tanishing",
+      "rationaleUz": "Ushbu video reklama mazkur kulrang elektr choynakning oddiy va samarali dizaynini koʻrsatadi, oilalar uchun qulayligi va zamonaviyligini taʻkidlaydi.",
       "style": "clean-studio",
-      "hookUz": "Yengil yumshoq yorugʻlikda, kulrang choynakning old tomoni va tutqichi aniq koʻrsatiladi.",
-      "ctaUz": "Hozir xarid qiling va oilangiz uchun issiq choyning zavqini oling!"
+      "hookUz": "Video choynakning toʻgʻri rakursda ustidan boshlanadi, uning silliq yuzasi va kulrang ranglari aniq koʻrinadi.",
+      "ctaUz": "Endi xarid qiling va qulaylikdan bahramand boʻling!"
     },
     "target": {
       "targetId": "flow-veo-3.1",
@@ -49,32 +48,32 @@
     "shots": [
       {
         "startSeconds": 0,
-        "endSeconds": 3,
-        "descriptionUz": "Old tomondan kulrang choynakning tutqichi bilan birga toʻliq koʻrinishi, yengil kamera push-in.",
-        "cameraUz": "Sekin oldinga surish"
+        "endSeconds": 2.5,
+        "descriptionUz": "Kulrang elektr choynak toʻgʻri rakursda stolda turibdi, yuqoridan sekingina pastga qarab kamera harakati bilan yoritiladi.",
+        "cameraUz": "kerakli yorugʻlikda yuqoridan pastga suriladigan kamera harakati"
       },
       {
-        "startSeconds": 3,
-        "endSeconds": 6,
-        "descriptionUz": "Choynak yon tomoniga kamera aylanadi, texnik yorliq koʻrinadi, lekin yozuvi oʻqilmaydi.",
-        "cameraUz": "Sekin oʻngga aylanish"
+        "startSeconds": 2.5,
+        "endSeconds": 5,
+        "descriptionUz": "Kamera choynakning tutqich qismiga yaqinlashadi, tutqichning ergonomik shakli va yonidagi texnik yorliq koʻrsatiladi.",
+        "cameraUz": "sekin push-in kamerasi"
       },
       {
-        "startSeconds": 6,
+        "startSeconds": 5,
         "endSeconds": 8,
-        "descriptionUz": "Choynak stolda statik holatda, yoritish materiali va silliqligini koʻrsatadi.",
-        "cameraUz": "Stativdan static shot"
+        "descriptionUz": "Choynakning yon tomoni toʻliq koʻrsatiladi, yorliqdaki matn koʻzga tashlanmaydi, oxirida choynak barqaror holda stolda namoyish etiladi.",
+        "cameraUz": "sekin lateral tracking va barqaror hero kerama"
       }
     ],
-    "promptEn": "This video showcases a gray electric kettle as the sole visual authority. The product's exact silhouette, gray color, and visible handle must remain unchanged. The technical label on the side is visible but the text remains unreadable and is not emphasized. Start with a soft-lit, clean studio environment showing a frontal view of the kettle with its handle. The camera slowly pushes in to highlight the kettle's smooth surface and matte material. Next, the camera gently pans right to reveal the kettle's side, showing the technical label without focusing on the text. Finally, a static shot from a tripod presents the kettle set on a plain surface emphasizing the material texture and shape. The environment should be bright but neutral, with lighting that reveals the real color and finish without glare or reflections. No additional text or branding is present. The audio consists of subtle room tone and light ambient foley matched to small background sounds like soft clicks or chair movement. The video runs for 8 seconds with three simple beats and transitions consisting of smooth cuts and camera movement. The product remains dominant and clearly visible throughout. Avoid any invented markings, colors, or designs. Do not show any internal parts or fluid inside the kettle. Avoid busy backgrounds or distracting elements to maintain a clean studio look. The camera movement remains controlled and natural, no fast or energetic motions. The final product presentation emphasizes the kettle's practical and simple design, appealing to family-oriented buyers.",
+    "promptEn": "Show a single grey electric kettle placed on a clean white studio table as the only product in frame. The camera starts from an overhead top-down shot slowly moving down to reveal the kettle's smooth flat surface and overall rectangular silhouette. The grey color and minimal design of the kettle are clearly visible. Then the camera slowly pushes in toward the ergonomic handle on the kettle's left side, showing the handle shape and the technical label on the side, but the text on the label is blurry and unreadable. Finally, the camera moves laterally to show the kettle's full left side, maintaining focus on the kettle standing steadily on the table. Studio lighting is soft and even to reveal the true surface texture and color without glare. The background is clean and light to keep attention on the product. The sequence progresses smoothly with subtle transitions and calm pacing. The audio includes realistic subtle room tone and product placement sounds. The clip runs for 8 seconds in vertical 9:16 aspect ratio with modest camera moves to keep the kettle dominant and its details clear. Fidelity is crucial: the exact grey color, the kettle's rectangular shape, handle location, and the presence of an unreadable technical label on the side must remain unchanged. Avoid any text replacement, flashy effects, reflections that change color, or revealing unknown parts. The final hero shot centers the kettle, stable on the table, inviting viewers to appreciate its simple, functional design.",
     "assumptionsUz": [
-      "Texnik yorliqdagi yozuv oʻqilmaydi, shuning uchun uning mazmuni reklamada koʻrsatilmaydi",
-      "Faqat yon va old tomondan choynak koʻrsatiladi"
+      "Yorliqdagi matn oʻqilmaydi, bu holatni videoda saqlab qolamiz.",
+      "Faqat bitta kulrang elektr choynak koʻrsatiladi, boshqa rang yoki variantlar yoʻq."
     ],
     "reviewNotesUz": [
-      "Texnik yorliq oʻqilmayotgani ishonchli koʻrsatilishi kerak",
-      "Yorugʻlik choynakning haqiqiy kulrang rangini koʻrsatishi shart",
-      "Kamera harakatlari tabiiy va silliq boʻlishi kerak"
+      "Choynakning silliq, toʻgʻri shaklidagi kulrang rangini va tutqichning chap tomonda ekanligini taʻkidlang.",
+      "Yon tomondagi yorliqdagi matn oʻqib boʻlmasligi muhim va bu buzilmasligi kerak.",
+      "Videoda faqat choynak asosiy predmet sifatida namoyish qilinishi, ortiqcha effektlardan saqlanish kerak."
     ]
   }
 }

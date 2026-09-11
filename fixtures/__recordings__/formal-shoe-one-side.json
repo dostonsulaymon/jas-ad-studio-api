@@ -3,40 +3,38 @@
   "model": "gpt-4.1-mini",
   "promptVersion": "ad-director-v2",
   "targetId": "flow-veo-3.1",
-  "targetConfigVersion": 1,
+  "targetConfigVersion": 2,
   "attempts": 1,
   "usage": {
     "inputTokens": 4231,
-    "outputTokens": 391,
-    "estimatedCostUsd": 0.002318
+    "outputTokens": 376,
+    "estimatedCostUsd": 0.002294
   },
   "result": {
     "status": "needs_input",
     "questionsUz": [
-      "Tuflidan aniq koʻrinadigan burchaklar yoki tafsilotlar (masalan, barmoqlarning shakli, tikuv joylari yoki taqin holati) haqida qoʻshimcha rasmlar taqdim eta olasizmi?",
-      "Tuflining oʻng yoki chap tomonining aniq koʻrinishini koʻrsatadigan qoʻshimcha suratingiz bormi?"
+      "Tuflining old, yuqori va boshqa yon tomondan sifatli suratlarini ilova qila olasizmi?",
+      "Tufli toʻliq charm ekanligi va boshqa rang yoki model variantlari bormi?"
     ],
-    "messageUz": "Faqat bitta yon tomondan rasmingiz bor, qoʻshimcha burchaklardan bir nechta rasm kerak boʻladi. Iltimos, tuflining old, yuqori va yon tomonlarini aniq koʻrsatadigan rasmlar yuboring.",
+    "messageUz": "Faqat bitta yon tomondan surat berilgan, tuflining boshqa burchaklaridan sifatli suratlar kerak repertuarni toʻliq yaratish uchun. Iltimos, old va yuqori koʻrinishdagi tasvirlarni ham yuboring. Shuningdek, charm materialining tasdiqlanganligiga va agar mavjud boʻlsa, rang hamda model variantlari haqida maʻlumot bering.",
     "product": {
       "category": "erkaklar tuflisi",
       "observedDetails": [
         "Jigarrang rang",
-        "Charmsimon materiali koʻrinadi",
-        "Faqat bitta yon tomondan rasm bor",
-        "Oddiy, klassik siluet"
+        "Klassik shakl",
+        "Charmga oʻxshash yuzasi",
+        "Faqat bitta yon tomondan surat bor"
       ],
       "confirmedClaims": [],
       "unknownDetails": [
-        "Tuflining tikuvlari va pastki qismi koʻrinmayapti",
-        "Marka yoki logotip yoʻq yoki koʻrinmaydi",
-        "Yuzaki tekstura va material haqidagi aniq maʻlumot",
-        "Ichki va pastki qism haqidagi tafsilotlar"
+        "Old va yuqori tomonlari koʻrinmayapti",
+        "Materialning haqiqiy charm ekanligi tasdiqlanmagan",
+        "Logotip yoki brend belgisi koʻrinmayapti"
       ],
       "referenceConflicts": [],
       "fidelityConstraints": [
-        "Jigarrang charm tuflisining siluet va rangini oʻzgartirmaslik",
-        "Faqat mavjud burchaklar va qismlarni koʻrsatish",
-        "Boshqa tomondan koʻrinishni ixtiro qilmaslik"
+        "Tuflining real silueti va ishlab chiqarish detallari faqat koʻrsatilgan yon tomondan olingan suratga mos boʻlishi kerak",
+        "Faqat jigarrang klassik charm tuflisining bitta yon tomoni suratidan kelib chiqib kiyim hissiyotini oʻzgarishsiz saqlash kerak"
       ]
     },
     "concept": null,
