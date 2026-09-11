@@ -1,6 +1,6 @@
 # P1 — AI core and the real-world go/no-go
 
-**Status:** APPROVED to build. Every open question is answered (Q-P1-1 to Q-P1-5). Part 0 still needs four answers from Jakhongir before the target config's values can be called final.
+**Status:** Parts 1–8a **BUILT AND VERIFIED**. Parts 8b and 9 are **handed off** — they require Google Flow and real products, which no code can do. Part 0's questions remain outstanding with Jakhongir.
 **Repo:** `jas-ad-studio-api` only (D-026)
 **Built from:** design spec §5, §12 · source 01 §25, §26, §27, §28, §49, §50, §51, §52 · source 02 in full · D-012, D-013, D-017, D-019, D-029, D-043
 **Review:** a review agent checked this draft against the sources and the locked decisions on 2026-09-11. Its findings are folded in below; the two it raised that only Doston can settle are Q-P1-1 and Q-P1-4.
@@ -223,26 +223,25 @@ The gallery-inspiration fixture is **not** built: gallery presets need an inspir
 
 **Verify:** done 2026-09-11 — 42 runs, **$0.128**, cap $1.00 never approached. Full table in `out/sweep.md`; findings in `docs/PROGRESS.md`.
 
-### Part 8b — The Flow pilot that picks the config
+### Part 8b — The Flow pilot that picks the config · **HANDED OFF**
 
-Judged, not counted. No predetermined sample size: this is Doston and Jakhongir looking at videos and deciding which prompt reads better, and a fixed *n* would be false precision.
+Everything that can be prepared is prepared. `pnpm p1:handoff` generates **`out/flow-pilot.md`**: the same products at 300 / 500 / 700 words, each prompt in a copy-paste block with its Uzbek shot plan and a blank line to mark the verdict. A pack of 3 products × 3 lengths costs about $0.03 to generate.
 
-- [ ] Take one product's candidate prompts from 8a and generate it in Flow at **each word setting (300 / 500 / 700)**, then at each beat setting.
-- [ ] **The same product across configs.** Comparing a 300-word bottle against a 700-word shoe measures the product, not the prompt length — this is the only real constraint on this part.
-- [ ] Look at them. If the better setting is obvious, stop. If it is not, add another product and repeat.
-- [ ] Set the winning length and beat default in the target config and remove the provisional marks.
-- [ ] Record the provider and model pick as a decision (D-029 as amended by D-043), on D-029's stated criterion: prompt quality by the §51 rubric first, then cost per **successful** package — cost divided by the packages that cleared the rubric, not by all of them.
+- [x] The generator, the instruction sheet and the verdict sheet.
+- [x] Same product across configs — the only variable is prompt length.
+- [ ] **Jakhongir or Doston runs the generations in Flow and judges them.**
+- [ ] The winning length goes into the target config; `provisional` comes off.
+- [ ] The provider and model pick recorded as a decision (D-029 as amended by D-043).
 
-**Verify:** the comparisons recorded in `docs/PROGRESS.md` — product, config, which won and why — and a settled, no-longer-provisional target config.
+**Blocked on nothing but a person with Flow open.**
 
-### Part 9 — Jakhongir's go/no-go
+### Part 9 — Jakhongir's go/no-go · **HANDED OFF**
 
-- [ ] ~10 real products at the settled config, plus a one-page Flow instruction sheet.
+- [x] The harness: `pnpm p1:generate --product <dir> --max-spend-usd <n>` produces a full package per product.
+- [ ] **~10 real products.** Not yet supplied, and not on Jakhongir's owed list in spec §15 — it is a multi-day sourcing task.
 - [ ] He judges each: shape, colours and labels intact; nothing invented; postable without heavy editing (D-019).
-- [ ] Every run recorded in `docs/PROGRESS.md`: product, category, prompt version, Flow mode, usable yes/no, what went wrong.
+- [ ] Every run recorded in `docs/PROGRESS.md`.
 - [ ] **≥6 usable → go.** Below 6 → fix and re-test, at most twice, then decide together.
-
-**Verify:** the recorded results and a written go or no-go.
 
 ---
 

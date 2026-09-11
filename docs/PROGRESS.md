@@ -12,8 +12,8 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 Parts 1–8a done. **Parts 8b and 9 are Jakhongir's** — they need Google Flow, which no code can do. Everything buildable in P1 is built. |
-| Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
+| Doing now | **Everything buildable in P1 is built.** Parts 1–8a done and verified. Parts 8b and 9 need a person with Google Flow open and ~10 real products; the handoff pack is generated and waiting. |
+| Next | Jakhongir runs `out/flow-pilot.md` in Flow to pick the prompt length, then ~10 real products for the D-019 go/no-go. Nothing further gets built until that answers. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
 ## Current position
@@ -330,6 +330,33 @@ No claim is made about which configuration produces better video. Word count and
 **Live spend to date: $0.25.**
 
 **Verified:** 229 tests passing, recordings refreshed at config v2, lint, typecheck, build clean.
+
+## 2026-09-11 — P1 Parts 8b and 9 prepared and handed off
+
+Both parts need a person with Google Flow open. Everything that could be built for them is built.
+
+`pnpm p1:handoff <model> <cap> <product dirs...>` writes **`out/flow-pilot.md`**: the same products at 300 / 500 / 700 words, each prompt in a copy-paste block with its Uzbek shot plan and a blank verdict line. It opens with how to run it, what "usable" means (D-019's wording), and the reminder that the app writes prompts while Flow makes the video and nothing touches Google credits automatically. A 3-product pack costs about $0.03 and is generated: 8 videos to judge.
+
+**What is still owed by a human, and by whom:**
+
+| Who | What | Blocks |
+|---|---|---|
+| Jakhongir | Which Flow mode, and its real durations, aspect ratios and reference rules (D-013) | The target config stays `provisional` |
+| Jakhongir | Whether Flow's paste box truncates a long prompt | Nothing now — prompts run 220–350 words, far under any plausible limit |
+| Jakhongir or Doston | Run the 8b pilot and pick the prompt length | The `recommendedWords` setting |
+| Jakhongir | ~10 real products, mixed categories | The D-019 go/no-go, and therefore the whole phase |
+
+The truncation question turned out to matter less than the plan feared: the model produces 220–350 word prompts whatever it is asked for, so the 1,024-token ceiling is nowhere near binding.
+
+## P1 status — what is done and what is not
+
+**Built, tested and verified:** target config · the output contract, the brief schema and the trusted envelope · the deterministic validators · the merged system prompt V2 · the provider interface and OpenAI adapter · the repair path with its spend cap · the CLI harness · the seven §49 safety fixtures replayed offline · the offline sweep.
+
+**229 tests. Total live spend across every run in the phase: $0.28.**
+
+**Not done, and not doable in code:** the Flow pilot (8b) and the go/no-go (9). P1's exit criterion is "at least 6 of 10 real products give a usable Flow video" — that is a judgement about videos, made by a person, on products we do not have.
+
+**The one finding that could change the product:** `gpt-4.1-mini` saturates at 250–330 word prompts no matter what length it is asked for. Source 02 specifies 500–1,000 words of production-brief depth. Either a larger model is needed — raising cost per package, which D-029's criterion weighs — or source 02's depth expectation is revised against what actually makes good video. Part 8b is where that gets decided, and it needs eyes on real Flow output, not more word counts.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 
