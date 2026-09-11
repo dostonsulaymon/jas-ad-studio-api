@@ -27,7 +27,8 @@
     "openapi:generate": "nest build && node dist/openapi.js write",
     "openapi:check": "nest build && node dist/openapi.js check",
     "p1:generate": "nest build && node dist/p1-generate.js",
-    "p1:smoke": "nest build && node dist/p1-smoke.js"
+    "p1:smoke": "nest build && node dist/p1-smoke.js",
+    "p1:record": "nest build && node dist/p1-record.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

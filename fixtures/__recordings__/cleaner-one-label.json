@@ -1,0 +1,84 @@
+{
+  "fixture": "cleaner-one-label",
+  "model": "gpt-4.1-mini",
+  "promptVersion": "ad-director-v2",
+  "targetId": "flow-veo-3.1",
+  "targetConfigVersion": 1,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4237,
+    "outputTokens": 1132,
+    "estimatedCostUsd": 0.0035060000000000004
+  },
+  "result": {
+    "status": "ready",
+    "questionsUz": [],
+    "messageUz": "Bu reklama video 8 soniya davom etadi va 9:16 formatda, toza studiya muhiti va oshxona yuzalari tozalash uchun mosligini taʻkidlash uslubida tayyorlanadi.",
+    "product": {
+      "category": "universal tozalovchi suyuqlik",
+      "observedDetails": [
+        "750 ml hajmli plastik idish",
+        "tozalash uchun universal suyuqlik",
+        "bir dona oq yorliq bor, yorliqda TOZA va 750 ml yozuvi koʻrinadi",
+        "idish yashil rangda",
+        "qopqogʻi yashil rangda"
+      ],
+      "confirmedClaims": [
+        "oshxona yuzalari uchun mos"
+      ],
+      "unknownDetails": [
+        "tozalash suyuqligining aniq tarkibi",
+        "qopqoq turi (vidali yoki bosiladigan)",
+        "yorliqda boshqa matnlar",
+        "tozalovchining rangi va teksturasi"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Idish shakli, rang va yorliq matni oʻzgartirilmasligi kerak",
+        "faqat bitta yopishtirilgan oq yorliq koʻrsatilishi kerak",
+        "oshxona yuzalari uchun mosligi taʻkidlanishi kerak"
+      ]
+    },
+    "concept": {
+      "titleUz": "TOZA — oshxonangiz tozaligi uchun universal yechim",
+      "rationaleUz": "Bu reklama mahsulotning universal tozalovchi ekanligini va ayniqsa oshxona yuzalari uchun juda mosligini koʻrsatadi, oddiy va toza studiya uslubida, uy bekalari uchun qiziqarli va tushunarli boʻlishi uchun.",
+      "style": "clean-studio",
+      "hookUz": "Tasvir TOZA idishining oppoq yorligʻi va shuningdek 750 ml hajmi aniq koʻrinadigan yaqin koʻrinish bilan ochiladi.",
+      "ctaUz": "Hozir xarid qiling, oshxonangizni TOZA bilan tozalang!"
+    },
+    "target": {
+      "targetId": "flow-veo-3.1",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 3,
+        "descriptionUz": "Oq fonda Toza idishi yaqin planda, yorliq aniq koʻrinadi, kamera sekin oynaga yaqinlashadi.",
+        "cameraUz": "Sekin surish"
+      },
+      {
+        "startSeconds": 3,
+        "endSeconds": 6,
+        "descriptionUz": "Idish qoʻlga olinadi va oshxona yuzasi bilan birga koʻrsatiladi, idish joylashgan joy va qopqoq toʻliq koʻrinadi.",
+        "cameraUz": "Kuzatuvli siljish"
+      },
+      {
+        "startSeconds": 6,
+        "endSeconds": 8,
+        "descriptionUz": "Idish tik turib, yorliq yuzaga qaragan holda markazlashtiriladi, yumshoq yorugʻlikda namoyish qilinadi.",
+        "cameraUz": "Statik kamera, yumshoq fokus"
+      }
+    ],
+    "promptEn": "Use the supplied reference as the single visual authority for the TOZA universal cleaning liquid in a 750 ml green plastic bottle with a single white label showing 'TOZA' and '750 ml'. Do not alter the bottle shape, color, or label design. The product is a universal cleaner confirmed suitable for kitchen surfaces. The commercial concept is to highlight its suitability for cleaning kitchen surfaces, targeting housekeepers, in a clean-studio style. The video length is 8 seconds in 9:16 format, consisting of three shots. The commercial opens with a close-up of the bottle against a plain white background with a slow push-in to reveal label details. Next, a handheld or tracking shot follows the bottle being held near a kitchen-like surface showing the product in use context, with the green cap visible. Finally, a static shot centers the bottle upright with the label facing forward, lit softly to show material texture and color accurately. The lighting is bright and neutral, revealing the actual bottle color and label without shade or color cast. The product remains dominant and clearly identifiable in each shot, steady and realistic with no invented features. The editing uses direct cuts between shots, paced evenly to allow visual recognition and appeal. The audio is subtle product handling sounds and quiet room tone, no music or voices. Avoid any flashy camera moves or artificial effects that distract from the product identity. Do not invent additional text or branding beyond what is visible. Ensure sharp focus on the label and bottle features. The final shot holds two seconds as a hero ending to reinforce brand recognition. Fidelity: preserve the bottle's green plastic texture, its rectangular tall shape, the flat green cap, and the one white rectangular label with its printed text exactly as in the reference. Avoid any modification of these key traits or adding unverified elements.",
+    "assumptionsUz": [
+      "Idishning aniq shakli va cap turi faqat old koʻrinishdan aniq emas, shuning uchun siluetni saqlab, harakatda ortiqcha tafsilotlarni yaratishdan saqlanish lozim."
+    ],
+    "reviewNotesUz": [
+      "Mahsulot yagonaligi va soddaligi saqlanishi kerak.",
+      "Yorliqda boshqa matnlar yoʻqligi sababli yaqin kadrda faqat koʻrib boʻlingan yozuvlar koʻrsatiladi.",
+      "Reklama uygʻun va tushunarli, maqsadli auditoriyaga mos keltirilgan."
+    ]
+  }
+}

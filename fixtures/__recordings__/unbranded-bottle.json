@@ -1,0 +1,79 @@
+{
+  "fixture": "unbranded-bottle",
+  "model": "gpt-4.1-mini",
+  "promptVersion": "ad-director-v2",
+  "targetId": "flow-veo-3.1",
+  "targetConfigVersion": 1,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4236,
+    "outputTokens": 993,
+    "estimatedCostUsd": 0.0032832
+  },
+  "result": {
+    "status": "ready",
+    "questionsUz": [],
+    "messageUz": null,
+    "product": {
+      "category": "termal idish",
+      "observedDetails": [
+        "Oddiy kulrang poʻlat termos",
+        "Burama qopqoq",
+        "Yorliq va logotipsiz"
+      ],
+      "confirmedClaims": [],
+      "unknownDetails": [
+        "Ichki hajmi",
+        "Isitish yoki sovutish xususiyati",
+        "Ogʻirligi va oʻlchamlari"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Poʻlat korpus rangi va mat yuzasi oʻzgartirilmasligi",
+        "Burama qopqoq aniq koʻrsatilishi",
+        "Yorliq va logotipsiz koʻrsatilishi"
+      ]
+    },
+    "concept": {
+      "titleUz": "Oddiy kulrang termosning toza, zamonaviy targʻiboti",
+      "rationaleUz": "Ofis xodimlari va talabalar uchun oddiy, ishonchli termos kerak. Minimalistik, toza fon va yorugʻlik yordamida, oddiy kulrang poʻlat termosning mustahkamligi va samimiyligi taʻkidlanadi.",
+      "style": "clean-studio",
+      "hookUz": "Kamera yaqinlashib, silliq kulrang poʻlat termosning burama qopqogʻini koʻrsatadi, uning ishlov berilgan yuzasi va aniq silueti koʻzga tashlanadi.",
+      "ctaUz": "Sizning ishingiz va oʻqishingiz uchun ishonchli termosni tanlang, hoziroq sotib oling!"
+    },
+    "target": {
+      "targetId": "flow-veo-3.1",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 3,
+        "descriptionUz": "Kamera stetikada, yorqin, neytral studiya fonida, termosni yuqoridan pastga va yon tomonidan asta-sekin yaqinlashi",
+        "cameraUz": "restrained push-in"
+      },
+      {
+        "startSeconds": 3,
+        "endSeconds": 6,
+        "descriptionUz": "Termos burama qopqogʻini ochish uchun qoʻl harakati, kamera unga biroz yon tomondan asta-surish orqali kuzatadi",
+        "cameraUz": "small tracking move"
+      },
+      {
+        "startSeconds": 6,
+        "endSeconds": 8,
+        "descriptionUz": "Termos stol ustida toʻliq koʻrinishda markazda joylashgan, kamera sekans oxirida uning silliq va aniq shaklini namoyish qilish uchun ozgina yuqoriga egiladi",
+        "cameraUz": "nearly static hero framing"
+      }
+    ],
+    "promptEn": "The supplied reference image is the single visual authority for this product: a simple matte grey steel thermos with a screw-on cap, no logos or labels visible. Maintain the product's cylindrical silhouette, smooth matte surface, and the screw cap as shown. No additional branding or markings. The commercial concept centers on the reliability and simplicity of this thermos, appealing to office workers and students. The setting is a clean, bright studio with neutral light grey background, emphasizing the product's minimalistic design and steel material. Begin with a close restrained push-in, approaching the top and side of the thermos, highlighting the matte steel texture and rounded edges. Transition to a small tracking move as a hand unscrews the cap gently, demonstrating functional detail without revealing any interior or content. Finish with a nearly static hero framing, showing the full thermos centered on a flat surface, with a slight tilt upwards to showcase its shape against the plain background. Lighting is even and soft to reveal the steel texture without strong shadow or glare. The material look is smooth, matte, and metallic, reflecting subtle studio lights naturally. No text overlays or sound other than natural room tone and light foley of cap unscrewing. The video is 8 seconds long, aspect ratio 9:16, with about three beats matching the described shots and camera moves. Fidelity requires preserving the exact grey color and matte metal finish, the screw cap design, and no visible logos or markings. Avoid any color changes, added textures, or graphic overlays. Do not animate or exaggerate physical features beyond realistic hand interaction and natural camera motion. This prompt is tailored specifically for the provided reference and must not be generic or overly stylized beyond clean studio realism.",
+    "assumptionsUz": [
+      "Terros hajmi va aniq oʻlchamlari nomaʻlum, umumiy silueti saqlanadi",
+      "Ichki koʻrinishi koʻrsatilmaydi, faqat tashqi qopqoqdan foydalaniladi"
+    ],
+    "reviewNotesUz": [
+      "Minimalistik kulrang termos oʻziga xos koʻrinishda, yorliq va logo yoʻq",
+      "Toza studiya uslubida suratga olish mahsulotni yanada koʻzga tashlash uchun toʻgʻri tanlov"
+    ]
+  }
+}

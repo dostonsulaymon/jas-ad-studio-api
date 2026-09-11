@@ -257,6 +257,34 @@ describe('content', () => {
     );
   });
 
+  it.each([
+    ['no music or voiceover', 'The sound is subtle foley and ambient tone, no music or voiceover.'],
+    ['without narration', 'Ambient room tone only, without narration.'],
+    ['avoid subtitles', 'Avoid subtitles and any on-screen text.'],
+    ['no background music', 'Natural foley, no background music.'],
+    ['nor any voiceover', 'There is no dialogue nor any voiceover.'],
+  ])('accepts a prompt that rules the feature out (%s)', (_label, sentence) => {
+    // The model complying — "no music or voiceover" — is not a violation. Rejecting it
+    // cost a repair call on every run and failed some outright.
+    expect(codes(resultWith({ promptEn: `${englishPrompt} ${sentence}` }))).not.toContain(
+      'PROMPT_FORBIDDEN_DIRECTION',
+    );
+  });
+
+  it('still rejects the feature when it is genuinely being directed', () => {
+    const sentence = 'A warm voiceover reads the tagline while music swells.';
+
+    expect(codes(resultWith({ promptEn: `${englishPrompt} ${sentence}` }))).toContain(
+      'PROMPT_FORBIDDEN_DIRECTION',
+    );
+  });
+
+  it('rejects a later positive mention even when an earlier one was negated', () => {
+    const prompt = `${englishPrompt} No background music. Add a calm narration over the hero shot.`;
+
+    expect(codes(resultWith({ promptEn: prompt }))).toContain('PROMPT_FORBIDDEN_DIRECTION');
+  });
+
   it('does not reject ordinary foley and room tone, which are the default audio', () => {
     const prompt = `${englishPrompt} Audio is subtle product foley and quiet room tone.`;
 

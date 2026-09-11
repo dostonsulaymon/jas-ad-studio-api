@@ -1,0 +1,53 @@
+{
+  "fixture": "conflicting-variants",
+  "model": "gpt-4.1-mini",
+  "promptVersion": "ad-director-v2",
+  "targetId": "flow-veo-3.1",
+  "targetConfigVersion": 1,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 5465,
+    "outputTokens": 441,
+    "estimatedCostUsd": 0.0028916000000000002
+  },
+  "result": {
+    "status": "needs_input",
+    "questionsUz": [
+      "Butilkalar bitta modelmi yoki rang farqlari bilan alohida variantlarmi?",
+      "Butilkada logotip yoki matn haqida maʻlumot bera olasizmi? Iltimos, iloji boʻlsa aniq va koʻrinarli rasmni yuboring."
+    ],
+    "messageUz": "Iltimos, butilkalar haqida yanada aniqroq rasm va qoʻshimcha maʻlumot bering, chunki mavjud rasmdan mahsulotning detallari, logotip yoki matnini aniqlash mumkin emas.",
+    "product": {
+      "category": "sport essentials",
+      "observedDetails": [
+        "Kolleksiyada ikkita sport uchun butilka",
+        "Ikkala butilkaning shakli kvadratga yaqin, uzun va tik holatda",
+        "Bir butilka koʻk rangda va quyuqroq koʻk qopqoq bilan",
+        "Ikkinchi butilka qizil rangda va quyuq qizil qopqoq bilan, u holda oq rangli toʻrtburchak ichida nom yoki nimadir bor, ammo aniq emas"
+      ],
+      "confirmedClaims": [],
+      "unknownDetails": [
+        "Butilkada qanday logotip yoki yozuv borligi nomaʻlum",
+        "Material turi va oʻlchamlari nomalum",
+        "Ichimlikni oson tomon olish uchun qanday ochilish qismi borligi nomaʻlum",
+        "Qanday qoʻshimcha xususiyatlari borligi nomaʻlum"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Mahsulot shakli, ranglari va qopqoq rangi oʻzgartirilmasligi kerak",
+        "Yozuv yoki logotip mavjud boʻlsa, u oʻz joyida aniq koʻrsatilishi kerak",
+        "Yozuvnoma aniqlanmasa, uni ixtiro qilish mumkin emas"
+      ]
+    },
+    "concept": null,
+    "target": {
+      "targetId": "flow-veo-3.1",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [],
+    "promptEn": null,
+    "assumptionsUz": [],
+    "reviewNotesUz": []
+  }
+}

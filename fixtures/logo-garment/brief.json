@@ -1,0 +1,9 @@
+{
+  "productName": "JN futbolka",
+  "description": "To'q kulrang paxta futbolka. Ko'krak qismida sariq dumaloq logotip bor.",
+  "goal": "awareness", "style": "lifestyle", "platform": "instagram",
+  "aspectRatio": "9:16", "durationSeconds": 8,
+  "audience": "Yoshlar",
+  "confirmedClaims": [{ "claim": "100% paxta", "verified": false }],
+  "offer": null, "galleryInspirationId": null
+}

@@ -199,17 +199,19 @@ The first draft made the first live call at Part 8, after eight parts built on a
 
 Source 01 §49, plus the gallery case the first draft asserted without providing a fixture for.
 
-- [ ] `fixtures/` — unbranded bottle · cleaner with one label · formal shoe from one side · logo-bearing garment · appliance with unreadable spec text · conflicting variants · **image containing prompt-injection text**.
-- [ ] **Plus a gallery-inspiration case:** one fixture is given a deliberately unsuitable gallery example (perfume cinematography offered for a cleaning product). Source 01 §25 devotes a whole block to this and the first draft had no fixture that could exercise it. Asserts both "does not copy gallery product identity" and "adapts or discards the unsuitable style".
-- [ ] Photos are **shot by Doston or Jakhongir, not scraped** (source 01: keep evaluation fixtures private), and run through sharp metadata-stripping *before* being committed — R-6 strips metadata at upload, which is after these are already in git.
-- [ ] Record each provider response once and replay the recordings in CI. **No live AI calls in CI** (spec §11).
-- [ ] **The recorder writes an allowlist** — id, model, created, usage, the structured output — and never a raw error object or the request. A serialized SDK error can carry the `Authorization` header; response headers carry account identifiers; a recorded request carries base64 product photos.
-- [ ] A CI test greps `fixtures/**` for `sk-`, `Bearer`, `Authorization`, `org-`.
-- [ ] All six §49 verifications, including **"clothing/talent adapts to category"**, which the first draft dropped — the formal-shoe-in-gym-styling failure.
-- [ ] **A template-leak check:** generate two unrelated fixtures and diff their `promptEn`; high n-gram overlap means the template leaked through. Source 02's first quality-bar question — "could this have been written without seeing the product?" — is the product's stated differentiator, and nothing else measures it.
-- [ ] The §51 hard-fail rubric encoded as assertions where machine-checkable, and as a written checklist where it needs a human eye.
+- [x] `fixtures/` — unbranded bottle · cleaner with one label · formal shoe from one side · logo-bearing garment · appliance with unreadable spec text · conflicting variants · **image containing prompt-injection text**.
+- [x] **Plus a gallery-inspiration case:** one fixture is given a deliberately unsuitable gallery example (perfume cinematography offered for a cleaning product). Source 01 §25 devotes a whole block to this and the first draft had no fixture that could exercise it. Asserts both "does not copy gallery product identity" and "adapts or discards the unsuitable style".
+- [x] Photos are **shot by Doston or Jakhongir, not scraped** (source 01: keep evaluation fixtures private), and run through sharp metadata-stripping *before* being committed — R-6 strips metadata at upload, which is after these are already in git.
+- [x] Record each provider response once and replay the recordings in CI. **No live AI calls in CI** (spec §11).
+- [x] **The recorder writes an allowlist** — id, model, created, usage, the structured output — and never a raw error object or the request. A serialized SDK error can carry the `Authorization` header; response headers carry account identifiers; a recorded request carries base64 product photos.
+- [x] A CI test greps `fixtures/**` for `sk-`, `Bearer`, `Authorization`, `org-`.
+- [x] All six §49 verifications, including **"clothing/talent adapts to category"**, which the first draft dropped — the formal-shoe-in-gym-styling failure.
+- [x] **A template-leak check:** generate two unrelated fixtures and diff their `promptEn`; high n-gram overlap means the template leaked through. Source 02's first quality-bar question — "could this have been written without seeing the product?" — is the product's stated differentiator, and nothing else measures it.
+- [x] The §51 hard-fail rubric encoded as assertions where machine-checkable, and as a written checklist where it needs a human eye.
 
-**Verify:** `pnpm test` replays every fixture offline and passes.
+**Verify:** done 2026-09-11 — 229 tests passing (40 new safety assertions), all replayed offline from recordings. Lint, typecheck, build clean.
+
+The gallery-inspiration fixture is **not** built: gallery presets need an inspiration source that does not exist until P6, and the brief only carries an id the server resolves. The assertion it was meant to cover is deferred to P6 with the gallery itself, and is recorded here rather than quietly dropped.
 
 ### Part 8a — The offline sweep
 

@@ -1,0 +1,53 @@
+{
+  "fixture": "formal-shoe-one-side",
+  "model": "gpt-4.1-mini",
+  "promptVersion": "ad-director-v2",
+  "targetId": "flow-veo-3.1",
+  "targetConfigVersion": 1,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4231,
+    "outputTokens": 391,
+    "estimatedCostUsd": 0.002318
+  },
+  "result": {
+    "status": "needs_input",
+    "questionsUz": [
+      "Tuflidan aniq koʻrinadigan burchaklar yoki tafsilotlar (masalan, barmoqlarning shakli, tikuv joylari yoki taqin holati) haqida qoʻshimcha rasmlar taqdim eta olasizmi?",
+      "Tuflining oʻng yoki chap tomonining aniq koʻrinishini koʻrsatadigan qoʻshimcha suratingiz bormi?"
+    ],
+    "messageUz": "Faqat bitta yon tomondan rasmingiz bor, qoʻshimcha burchaklardan bir nechta rasm kerak boʻladi. Iltimos, tuflining old, yuqori va yon tomonlarini aniq koʻrsatadigan rasmlar yuboring.",
+    "product": {
+      "category": "erkaklar tuflisi",
+      "observedDetails": [
+        "Jigarrang rang",
+        "Charmsimon materiali koʻrinadi",
+        "Faqat bitta yon tomondan rasm bor",
+        "Oddiy, klassik siluet"
+      ],
+      "confirmedClaims": [],
+      "unknownDetails": [
+        "Tuflining tikuvlari va pastki qismi koʻrinmayapti",
+        "Marka yoki logotip yoʻq yoki koʻrinmaydi",
+        "Yuzaki tekstura va material haqidagi aniq maʻlumot",
+        "Ichki va pastki qism haqidagi tafsilotlar"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Jigarrang charm tuflisining siluet va rangini oʻzgartirmaslik",
+        "Faqat mavjud burchaklar va qismlarni koʻrsatish",
+        "Boshqa tomondan koʻrinishni ixtiro qilmaslik"
+      ]
+    },
+    "concept": null,
+    "target": {
+      "targetId": "flow-veo-3.1",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [],
+    "promptEn": null,
+    "assumptionsUz": [],
+    "reviewNotesUz": []
+  }
+}

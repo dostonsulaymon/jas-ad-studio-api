@@ -1,0 +1,80 @@
+{
+  "fixture": "appliance-unreadable-text",
+  "model": "gpt-4.1-mini",
+  "promptVersion": "ad-director-v2",
+  "targetId": "flow-veo-3.1",
+  "targetConfigVersion": 1,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4229,
+    "outputTokens": 929,
+    "estimatedCostUsd": 0.0031780000000000003
+  },
+  "result": {
+    "status": "ready",
+    "questionsUz": [],
+    "messageUz": "Iltimos, kulrang elektr choynakni yon tomondagi texnik yorliqni oʻqib boʻlmaydigan holda aniq koʻrsatadigan tasvirlarni taqdim eting.",
+    "product": {
+      "category": "Elektr choynak",
+      "observedDetails": [
+        "Kulrang rangda",
+        "Yon tomonida texnik yorliq bor, oʻqib boʻlmaydi",
+        "Elektr choynak shakli, qoʻltiq tutqichi koʻrinadi"
+      ],
+      "confirmedClaims": [],
+      "unknownDetails": [
+        "Texnik yorliqdagi yozuv mazmuni nomaʻlum",
+        "Materiallar aniqlanmagan",
+        "Hajmi va quvvati nomaʻlum"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Kulrang rang va shakl oʻzgartirilmasin",
+        "Yon tarafdagi texnik yorliq joylashuvi saqlansin",
+        "Texnik yorliqdagi yozuv oʻqilmaydi, shuning uchun unga fokus qilinmasin"
+      ]
+    },
+    "concept": {
+      "titleUz": "Oddiy va zamonaviy kulrang elektr choynakni koʻrsatish",
+      "rationaleUz": "Choynakning sodda, aniq koʻrinishi oilalar uchun ishonch va foydalilikni taʻkidlashga yordam beradi.",
+      "style": "clean-studio",
+      "hookUz": "Yengil yumshoq yorugʻlikda, kulrang choynakning old tomoni va tutqichi aniq koʻrsatiladi.",
+      "ctaUz": "Hozir xarid qiling va oilangiz uchun issiq choyning zavqini oling!"
+    },
+    "target": {
+      "targetId": "flow-veo-3.1",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 3,
+        "descriptionUz": "Old tomondan kulrang choynakning tutqichi bilan birga toʻliq koʻrinishi, yengil kamera push-in.",
+        "cameraUz": "Sekin oldinga surish"
+      },
+      {
+        "startSeconds": 3,
+        "endSeconds": 6,
+        "descriptionUz": "Choynak yon tomoniga kamera aylanadi, texnik yorliq koʻrinadi, lekin yozuvi oʻqilmaydi.",
+        "cameraUz": "Sekin oʻngga aylanish"
+      },
+      {
+        "startSeconds": 6,
+        "endSeconds": 8,
+        "descriptionUz": "Choynak stolda statik holatda, yoritish materiali va silliqligini koʻrsatadi.",
+        "cameraUz": "Stativdan static shot"
+      }
+    ],
+    "promptEn": "This video showcases a gray electric kettle as the sole visual authority. The product's exact silhouette, gray color, and visible handle must remain unchanged. The technical label on the side is visible but the text remains unreadable and is not emphasized. Start with a soft-lit, clean studio environment showing a frontal view of the kettle with its handle. The camera slowly pushes in to highlight the kettle's smooth surface and matte material. Next, the camera gently pans right to reveal the kettle's side, showing the technical label without focusing on the text. Finally, a static shot from a tripod presents the kettle set on a plain surface emphasizing the material texture and shape. The environment should be bright but neutral, with lighting that reveals the real color and finish without glare or reflections. No additional text or branding is present. The audio consists of subtle room tone and light ambient foley matched to small background sounds like soft clicks or chair movement. The video runs for 8 seconds with three simple beats and transitions consisting of smooth cuts and camera movement. The product remains dominant and clearly visible throughout. Avoid any invented markings, colors, or designs. Do not show any internal parts or fluid inside the kettle. Avoid busy backgrounds or distracting elements to maintain a clean studio look. The camera movement remains controlled and natural, no fast or energetic motions. The final product presentation emphasizes the kettle's practical and simple design, appealing to family-oriented buyers.",
+    "assumptionsUz": [
+      "Texnik yorliqdagi yozuv oʻqilmaydi, shuning uchun uning mazmuni reklamada koʻrsatilmaydi",
+      "Faqat yon va old tomondan choynak koʻrsatiladi"
+    ],
+    "reviewNotesUz": [
+      "Texnik yorliq oʻqilmayotgani ishonchli koʻrsatilishi kerak",
+      "Yorugʻlik choynakning haqiqiy kulrang rangini koʻrsatishi shart",
+      "Kamera harakatlari tabiiy va silliq boʻlishi kerak"
+    ]
+  }
+}

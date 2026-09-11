@@ -37,20 +37,40 @@ const PLACEHOLDER_PATTERNS = [
 /**
  * D-017 defers voiceover and overlay text, and source 01 §25 sets the default audio to
  * foley and room tone with no music, dialogue or narration. Source 01 §50 makes sending
- * them anyway an explicit "do not". Without this check a locked decision could drift out
- * of the product one generated prompt at a time.
+ * them anyway an explicit "do not".
  */
 const FORBIDDEN_DIRECTION_PATTERNS: [RegExp, string][] = [
-  [/\bvoice[- ]?over\b/i, 'voiceover'],
-  [/\bnarrat(?:ion|or)\b/i, 'narration'],
-  [/\bsubtitles?\b/i, 'subtitles'],
-  [/\bclosed captions?\b/i, 'captions'],
-  [/\bburned[- ]in text\b/i, 'burned-in text'],
-  [/\bon[- ]screen text\b/i, 'on-screen text'],
-  [/\btext overlay\b/i, 'text overlay'],
-  [/\bmusic (?:track|cue|bed)\b/i, 'music cue'],
-  [/\bbackground music\b/i, 'background music'],
+  [/\bvoice[- ]?overs?\b/gi, 'voiceover'],
+  [/\bnarrat(?:ion|or)\b/gi, 'narration'],
+  [/\bsubtitles?\b/gi, 'subtitles'],
+  [/\bclosed captions?\b/gi, 'captions'],
+  [/\bburned[- ]in text\b/gi, 'burned-in text'],
+  [/\bon[- ]screen text\b/gi, 'on-screen text'],
+  [/\btext overlays?\b/gi, 'text overlay'],
+  [/\bmusic (?:track|cue|bed)\b/gi, 'music cue'],
+  [/\bbackground music\b/gi, 'background music'],
 ];
+
+/**
+ * A prompt saying "no music or voiceover" is complying, not violating, and rejecting it
+ * cost a repair call on every run and failed some outright. The mention only counts as a
+ * direction when nothing negates it just before.
+ */
+const NEGATORS =
+  /\b(?:no|not|none|without|avoid|avoiding|never|omit|omitting|exclude|excluding|free of|absent|nor|don't|do not|does not|silent|zero)\b/i;
+
+/** Far enough back to catch "no music or X" and "avoid any X", short enough to stay local. */
+const NEGATION_WINDOW = 60;
+
+function isNegated(text: string, matchIndex: number): boolean {
+  const sentenceStart = Math.max(
+    text.lastIndexOf('.', matchIndex - 1) + 1,
+    matchIndex - NEGATION_WINDOW,
+    0,
+  );
+
+  return NEGATORS.test(text.slice(sentenceStart, matchIndex));
+}
 
 /** Timeline arithmetic runs on floats, so comparisons need a tolerance. */
 const EPSILON = 0.01;
@@ -288,10 +308,19 @@ function validateContent(result: GenerationResult): ValidationIssue[] {
   }
 
   for (const [pattern, label] of FORBIDDEN_DIRECTION_PATTERNS) {
-    if (pattern.test(result.promptEn)) {
+    pattern.lastIndex = 0;
+
+    for (const match of result.promptEn.matchAll(pattern)) {
+      if (isNegated(result.promptEn, match.index)) continue;
+
       issues.push(
-        error('PROMPT_FORBIDDEN_DIRECTION', 'promptEn', `${label} is deferred until after launch (D-017)`),
+        error(
+          'PROMPT_FORBIDDEN_DIRECTION',
+          'promptEn',
+          `${label} is deferred until after launch (D-017)`,
+        ),
       );
+      break;
     }
   }
 
