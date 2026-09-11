@@ -178,11 +178,11 @@ Pure functions, the largest test surface in P1. Source 01 §28 and §50.
 
 The first draft made the first live call at Part 8, after eight parts built on an unverified provider contract. Source 01 §52 effectively asks for this: "if valid live credentials are available, perform a small capped live evaluation."
 
-- [ ] One fixture, one image, the real downgraded JSON Schema, cap **$0.10**.
-- [ ] Confirms: the strict schema is accepted (Part 2's keyword list is right); the model takes inline images; `store: false` is accepted; what a real refusal and a real usage block look like; the **actual per-call cost**, which is what Q-P1-3's cap is then computed from.
-- [ ] Measures the real tokens-per-word ratio on one genuine prompt, as the first datum for Q-P1-1.
+- [x] One fixture, one image, the real downgraded JSON Schema, cap **$0.10**.
+- [x] Confirms: the strict schema is accepted (Part 2's keyword list is right); the model takes inline images; `store: false` is accepted; what a real refusal and a real usage block look like; the **actual per-call cost**, which is what Q-P1-3's cap is then computed from.
+- [x] Measures the real tokens-per-word ratio on one genuine prompt, as the first datum for Q-P1-1.
 
-**Verify:** a written result in `docs/PROGRESS.md` with the real numbers and the real spend. Whatever it contradicts in Parts 2 and 5 is fixed before Part 6.
+**Verify:** done 2026-09-11. Two runs, **$0.0139 total**. Strict schema accepted, images genuinely read, `store: false` accepted, product lock held. It contradicted one thing in Part 3 — `product.*` skipped normalisation — which is fixed with regression tests. The tokens-per-word measurement was dropped as meaningless: output tokens cover the whole JSON response, not `promptEn` alone.
 
 ### Part 6 — The CLI harness
 

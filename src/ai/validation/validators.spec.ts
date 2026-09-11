@@ -300,6 +300,44 @@ describe('language and script', () => {
   });
 });
 
+describe('the product analysis fields, which are Uzbek too', () => {
+  it('normalises the apostrophe in fidelity constraints', () => {
+    // The first live call returned "o'zgartirilmasligi" and "bo‘lishi" in the same
+    // field, because product.* was skipping normalisation entirely.
+    const result = resultWith({
+      product: {
+        category: 'Termos',
+        observedDetails: [],
+        confirmedClaims: [],
+        unknownDetails: [],
+        referenceConflicts: [],
+        fidelityConstraints: ["rang o'zgartirilmasligi", 'mat bo‘lishi'],
+      },
+    });
+    const normalized = normalizeResult(result);
+
+    expect(normalized.product.fidelityConstraints).toEqual([
+      `rang o${UZBEK_APOSTROPHE}zgartirilmasligi`,
+      `mat bo${UZBEK_APOSTROPHE}lishi`,
+    ]);
+  });
+
+  it('rejects Cyrillic in a product field', () => {
+    const result = resultWith({
+      product: {
+        category: 'Термос',
+        observedDetails: [],
+        confirmedClaims: [],
+        unknownDetails: [],
+        referenceConflicts: [],
+        fidelityConstraints: [],
+      },
+    });
+
+    expect(codes(result)).toContain('UZBEK_NOT_LATIN');
+  });
+});
+
 describe('Uzbek apostrophe normalisation', () => {
   it.each([
     ['typewriter', "o'zgarmas"],

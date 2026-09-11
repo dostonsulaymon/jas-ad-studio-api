@@ -56,7 +56,13 @@ export interface GenerateInput {
 }
 
 export type GenerateOutcome =
-  | { status: 'ok'; envelope: GenerationEnvelope; warnings: ValidationIssue[] }
+  | {
+      status: 'ok';
+      envelope: GenerationEnvelope;
+      warnings: ValidationIssue[];
+      /** What the first attempt got wrong, when a repair was needed. Empty otherwise. */
+      repairedFrom: ValidationIssue[];
+    }
   | {
       status: 'failed';
       code: string;
@@ -96,7 +102,12 @@ export async function generateAdPackage(
   }
 
   if (first.report.ok) {
-    return { status: 'ok', envelope: envelope(input, first, 1, deps.provider.name), warnings: first.report.warnings };
+    return {
+      status: 'ok',
+      envelope: envelope(input, first, 1, deps.provider.name),
+      warnings: first.report.warnings,
+      repairedFrom: [],
+    };
   }
 
   const repair = await attempt(
@@ -138,7 +149,12 @@ export async function generateAdPackage(
     };
   }
 
-  return { status: 'ok', envelope: envelope(input, repair, 2, deps.provider.name), warnings: repair.report.warnings };
+  return {
+    status: 'ok',
+    envelope: envelope(input, repair, 2, deps.provider.name),
+    warnings: repair.report.warnings,
+    repairedFrom: first.report.errors,
+  };
 }
 
 type Attempt =

@@ -344,7 +344,19 @@ function validateLanguage(result: GenerationResult): ValidationIssue[] {
 }
 
 function uzbekFields(result: GenerationResult): [string, string][] {
+  const productLists: [string, string[]][] = [
+    ['observedDetails', result.product.observedDetails],
+    ['confirmedClaims', result.product.confirmedClaims],
+    ['unknownDetails', result.product.unknownDetails],
+    ['referenceConflicts', result.product.referenceConflicts],
+    ['fidelityConstraints', result.product.fidelityConstraints],
+  ];
+
   const fields: [string, string][] = [
+    ['product.category', result.product.category],
+    ...productLists.flatMap(([name, values]) =>
+      values.map((value, i): [string, string] => [`product.${name}.${String(i)}`, value]),
+    ),
     ...result.questionsUz.map((q, i): [string, string] => [`questionsUz.${String(i)}`, q]),
     ...result.assumptionsUz.map((a, i): [string, string] => [`assumptionsUz.${String(i)}`, a]),
     ...result.reviewNotesUz.map((n, i): [string, string] => [`reviewNotesUz.${String(i)}`, n]),
@@ -370,6 +382,14 @@ function uzbekFields(result: GenerationResult): [string, string][] {
 export function normalizeResult(result: GenerationResult): GenerationResult {
   return {
     ...result,
+    product: {
+      category: normalizeUzbek(result.product.category),
+      observedDetails: result.product.observedDetails.map(normalizeUzbek),
+      confirmedClaims: result.product.confirmedClaims.map(normalizeUzbek),
+      unknownDetails: result.product.unknownDetails.map(normalizeUzbek),
+      referenceConflicts: result.product.referenceConflicts.map(normalizeUzbek),
+      fidelityConstraints: result.product.fidelityConstraints.map(normalizeUzbek),
+    },
     questionsUz: result.questionsUz.map(normalizeUzbek),
     assumptionsUz: result.assumptionsUz.map(normalizeUzbek),
     reviewNotesUz: result.reviewNotesUz.map(normalizeUzbek),

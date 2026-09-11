@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 Parts 1–5 done. Next: Part 5b, one capped live smoke call — the first spend of the project. |
+| Doing now | P1 Parts 1–5b done; the AI core works end to end against the real API. Next: Part 6, the CLI harness. **One prompt change is waiting on Doston** — see the TARGET_MISMATCH finding below. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -196,6 +196,33 @@ Failed calls settle at zero spend rather than guessing at a charge we cannot ver
 `OPENAI_MODEL` added to the env schema and `.env.example` (source 01 §27: never hard-code an unverified model name).
 
 **Verified:** 159 tests passing (20 new), lint, typecheck, build clean. **No live call yet** — that is Part 5b.
+
+## 2026-09-11 — P1 Part 5b done: the first live call
+
+Two runs of `p1-smoke`, **$0.0139 total**, capped at $0.10 and never near it.
+
+**What only the live API could confirm, now confirmed:**
+- The downgraded strict JSON Schema is **accepted**. Part 2's keyword list was right.
+- Inline images are genuinely read: the model described the grey thermos, its screw cap and the absence of labels.
+- `store: false` is accepted.
+- **The product lock held.** Unprompted, the model wrote "do not add any labels, logos or decorations" into its own fidelity constraints for an unbranded product — which is the unbranded-bottle fixture's whole point.
+- Real cost: **$0.00697** per full generation including a repair, on `gpt-4.1-mini`. The plan's earlier $5 sweep estimate was an order of magnitude too high; a 42-run sweep is well under $1.
+
+**The validators earned their place on the first real call.** Both runs needed a repair, and the diagnostics say why:
+- `TARGET_MISMATCH` — the model returned `targetId: "instagram-story"` instead of `flow-veo-3.1`. It invented a plausible-sounding target rather than echoing the one it was given. Without the check that a model may not renegotiate its own target (source 01 §50), this would have passed as a valid package pointing at a generator that does not exist.
+- `PROMPT_FORBIDDEN_DIRECTION` — the model wrote a voiceover into `promptEn` despite the prompt forbidding it. D-017 would have drifted out of the product on the very first generation.
+
+Both were fixed by the single repair call, and the second attempt was clean.
+
+**A bug the live output exposed.** `product.fidelityConstraints` came back with two different apostrophes in the same field — `o'zgartirilmasligi` and `bo‘lishi`. `normalizeResult` had never touched `product.*`, so six Uzbek fields were skipping both normalisation and the Cyrillic check. Fixed, with regression tests, and the re-run confirmed consistent output.
+
+**A measurement withdrawn.** The first run reported "observed output tokens/word: 3.372" against the config's 1.6 estimator. That figure is meaningless: output tokens cover the entire JSON response — the Uzbek shot plan, the product analysis, everything — not `promptEn` alone. It is not evidence about the estimator and is no longer printed. Part 8a needs a real tokenizer run over `promptEn` by itself.
+
+**Waiting on Doston — a prompt change.** The `TARGET_MISMATCH` failure happens because the TARGET block names the target but never says "echo this id exactly". A one-line clarification would likely remove a repair call from every generation, which is real money across a sweep. Changing the assembled system prompt is a standing-gate change, so it is not being made unilaterally.
+
+**Observed, not yet acted on:** `gpt-4.1-mini`'s Uzbek has rough patches — "raundak", "progrestiv", "Qarama-qarshi sloy" are not words. Uzbek quality is a model-selection criterion for Part 8a, not a bug to fix here.
+
+**Verified:** 161 tests passing, lint, typecheck, build clean.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 
