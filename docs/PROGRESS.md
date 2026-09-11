@@ -12,8 +12,8 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | Planning, before P0 |
 | Active plan | None yet. The design spec comes first. |
-| Doing now | Answering `docs/OPEN-QUESTIONS.md` one question at a time, as pop-up questions in chat. Answered so far: Q-01 to Q-11 → D-008 to D-019; Q-12 → D-020 to D-022; Q-13 → D-023; Q-14 → D-024, D-025; Q-15 → D-027; Q-16 → D-026. Part A done. T-01 → D-028; T-02 → D-029; T-03 → D-030; T-04 → D-031; T-05 → D-032; T-06 → D-033; T-07 → D-034; T-08 → D-035. **Every question is answered.** The design spec has been written and is waiting for Doston's review. |
-| Next | Doston reviews `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md` (confirm R-1 to R-8) → fixes → write Session B's kickoff prompt → write the P0 plan (writing-plans skill) → review → build |
+| Doing now | Answering `docs/OPEN-QUESTIONS.md` one question at a time, as pop-up questions in chat. Answered so far: Q-01 to Q-11 → D-008 to D-019; Q-12 → D-020 to D-022; Q-13 → D-023; Q-14 → D-024, D-025; Q-15 → D-027; Q-16 → D-026. Part A done. T-01 → D-028; T-02 → D-029; T-03 → D-030; T-04 → D-031; T-05 → D-032; T-06 → D-033; T-07 → D-034; T-08 → D-035. **Every question is answered.** The design spec is approved (R-1 to R-8 → D-036 to D-038). Now: writing the P0 plan. |
+| Next | Write the P0 plan in `docs/superpowers/plans/` (writing-plans skill) → Doston reviews → build P0 → write the P1 plan. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | Docs only, no code. Both repos are committed and pushed to private GitHub repos (`main`), 2026-09-11 |
 
 ## Current position
@@ -23,8 +23,8 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 | Phase | Planning, before P0 |
 | Code | None |
 | Repos | Private on GitHub: `github.com/dostonsulaymon/jas-ad-studio-api` and `…/jas-ad-studio-web`. Branch `main`, pushed over SSH |
-| Decisions | D-001 to D-035 |
-| Open | None. The design choices R-1 to R-8 in the spec are waiting for Doston's review. |
+| Decisions | D-001 to D-038 |
+| Open | None |
 
 ## 2026-09-11 — project set up for planning
 
@@ -53,13 +53,15 @@ All 16 product questions and 8 tech questions were answered one at a time in cha
 
 `.env` (which holds `OPEN_AI_API_KEY`) is now git-ignored. It was checked with `git check-ignore -v .env`.
 
-The design spec is at `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md`.
+The design spec is at `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md`. Doston approved it the same day:
+- R-1: database sessions (D-036)
+- R-2: changed to a small owner admin panel in the web repo (D-037)
+- R-3 to R-8: as written (D-038)
 
 ## Next
 
-1. Doston reviews the design spec, including the design choices R-1 to R-8 listed at its top.
-2. Write Session B's kickoff prompt. It's handed over at the P1 go (D-026).
-3. Write the P0 plan with the writing-plans skill, get it reviewed, then build.
+1. Write the P0 plan with the writing-plans skill, get it reviewed, then build.
+2. Write Session B's kickoff prompt before the P1 go (D-026).
 
 ## Owed by Jakhongir (not blocking P0 or P1)
 

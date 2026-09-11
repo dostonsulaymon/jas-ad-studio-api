@@ -319,6 +319,41 @@ Tailwind v4 via `@tailwindcss/postcss`, the same as kitobnarx-web. The design to
 
 Why: familiar to Doston, and the spec's own suggestion.
 
+### D-036 · 2026-09-11 · Sessions: an opaque ID in an httpOnly cookie, stored in Postgres (spec R-1)
+
+After Google sign-in, the API creates a random 256-bit session ID. It stores the ID in a `sessions` table with the user and an expiry, and sets it as an `HttpOnly; Secure; SameSite=Lax` cookie on the one domain (D-032). Logging out deletes the row. Banning a user or "log out everywhere" deletes all of that user's rows. No JWT.
+
+Why: sessions can be revoked instantly, and one origin keeps cookies simple.
+
+### D-037 · 2026-09-11 · A small owner admin panel in the web repo (spec R-2)
+
+- **Where and who:** a `/admin` section of `jas-ad-studio-web`, shown only to users with role `owner`. The owner role is set at sign-in from an env allowlist of Google emails (`OWNER_EMAILS`), never from the client.
+- **Screens:**
+  - pending orders: confirm, or reject with a reason
+  - grant credits, with a required note
+  - settings: support contacts (D-023), payment instructions (D-008), pack prices (D-009)
+  - read-only views of users, generations and daily AI spend
+
+  Phone-friendly.
+- **Safety:** every action calls owner-only API endpoints under `/api/owner/*`, which reuse the same credit services and transactions as the app. There is no direct table editing. Every owner action is written to `owner_audit_log`: who, what, when.
+- **When:** after the P1 go. The endpoints come in P3, the screens in P5. About 2–3 extra days.
+- **Supersedes:** the owner-CLI idea (spec R-2), and the "no admin dashboard" line in Addendum A §A4. Source 01 §55 rules out a *heavyweight* dashboard; this is a small panel. Gallery clips are still managed as a file plus a folder for now (spec R-5).
+
+Why: Jakhongir confirms every payment by hand (D-008) and needs to do it from his phone. Doston: "why not admin dashboard?"
+
+### D-038 · 2026-09-11 · Design choices R-3 to R-8 approved as written in the spec
+
+Doston approved the remaining design choices in `docs/superpowers/specs/2026-09-11-jas-ad-studio-design.md` §0:
+
+- **R-3:** The credit balance lives in a `credit_accounts` row (`available`, `reserved`, never below zero), with a `credit_ledger` row in the same transaction for every change. A reserve is one atomic `UPDATE … WHERE available >= 1`.
+- **R-4:** Money and job logic is tested against a real Postgres (integration tests), in addition to unit tests. This departs from kitobnarx's unit-only rule on purpose.
+- **R-5:** Gallery metadata lives in a JSON file in the api repo, and the clips live on a media volume served at `/api/gallery/media/*` with long cache headers. It could move into the owner panel (D-037) later.
+- **R-6:** Only two copies of each photo are kept: the 2048 px reference copy and the 1024 px model-input copy. The original upload is discarded after processing.
+- **R-7:** API modules talk only through each module's public port file, enforced by lint.
+- **R-8:** Web-only decisions go in the web repo's `DECISIONS.md` as W-001 onward, written by Session B. Shared decisions go only in this file, written by Session A.
+
+With D-036 (R-1) and D-037 (R-2), **the design spec is approved.**
+
 ---
 
 ## Inputs recorded but not yet decided

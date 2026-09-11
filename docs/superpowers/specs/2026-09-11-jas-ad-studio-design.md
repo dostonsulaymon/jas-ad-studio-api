@@ -1,26 +1,26 @@
 # JAS Ad Studio — design spec
 
-**Status:** DRAFT, waiting for Doston's review · **Date:** 2026-09-11
+**Status:** APPROVED by Doston on 2026-09-11 (R-1 to R-8 → D-036 to D-038) · **Date:** 2026-09-11
 **Built from:** `DECISIONS.md` D-001 to D-035, and the owner's documents in `docs/source/` (01 build prompt v2, 02 prompt quality standard, 03 Addendum A). D-028 supersedes §A7 of document 03.
 
 This spec says **how** the product is built. The phase plans in `docs/superpowers/plans/` turn it into tasks. Where it disagrees with `DECISIONS.md`, `DECISIONS.md` wins, and the spec gets fixed.
 
 ---
 
-## 0. Design choices to confirm in review
+## 0. Design choices (approved 2026-09-11)
 
 The questions round didn't cover these. I made each call for a reason, and each one is easy to change now and costly later.
 
 | # | Choice | Why | Alternative |
 |---|---|---|---|
-| **R-1** | Sessions are **opaque session IDs in an httpOnly cookie, stored in Postgres**. No JWT. | Can be revoked instantly (log out everywhere, ban). One origin (D-032) makes cookies trivial. | Signed JWT cookie: stateless, but can't be revoked before it expires |
-| **R-2** | Owner actions (confirm an order, grant credits, edit settings, add a gallery clip) run through an **owner CLI inside the api container**, for example `docker compose exec api pnpm owner confirm-order <id>`. | No admin dashboard (source 01 §55). Uses the same service code and transactions as the app, so it's safer than hand-written SQL. | SQL by hand, or a token-protected owner-only HTTP route |
-| **R-3** | The credit balance lives in a `credit_accounts` row (`available`, `reserved`), with `CHECK >= 0`. **Every change also writes a `credit_ledger` row in the same transaction.** | Reserving a credit is one atomic `UPDATE … WHERE available >= 1`, so concurrent jobs can't overspend. The ledger is the audit trail. | A balance computed from the ledger on every read, with advisory locks |
-| **R-4** | Money and job logic is tested against a **real Postgres** (integration tests), not only unit tests. | Race conditions (two jobs, one credit; double confirm; a late success) only show up against a real database. This departs from kitobnarx's unit-only rule. | Unit tests with mocks: they miss exactly these bugs |
-| **R-5** | Gallery metadata lives in a **JSON file in the api repo**. Clips live on a media volume, served at `/api/gallery/media/*` with long-lived cache headers, so Cloudflare caches them. | Owner-curated with no CMS (source 01 §14). Clips never touch the database. | A `gallery_examples` table plus the owner CLI |
-| **R-6** | We keep only **two copies of each photo**: a 2048 px reference copy (downloadable, for Flow) and a 1024 px model-input copy. **The original upload is discarded** after processing. | Addendum A: 2048 px is plenty for Flow and keeps storage small. EXIF and GPS data are gone with the original. | Also keep the original (up to 10 MB each) |
-| **R-7** | API modules talk **only through each module's public port file**, and lint enforces it (the kitobnarx pattern). | Keeps modules separate, and lets Session A refactor safely. | Free imports between modules |
-| **R-8** | Web-only UI decisions are recorded in the web repo's own `DECISIONS.md` as **W-001…** by Session B. Shared decisions go only in the api `DECISIONS.md`, written by Session A. | Two sessions must never edit the same file (D-025). | One shared file, edited through Doston |
+| **R-1** ✅ D-036 | Sessions are **opaque session IDs in an httpOnly cookie, stored in Postgres**. No JWT. | Can be revoked instantly (log out everywhere, ban). One origin (D-032) makes cookies trivial. | Signed JWT cookie: stateless, but can't be revoked before it expires |
+| **R-2** ✅ D-037 | A **small owner panel** at `/admin` in the web repo, for owner Google accounts only. It covers orders, grants, settings, and read-only users and generations. Every action calls owner-only `/api/owner/*` endpoints. | Jakhongir confirms every payment (D-008), from his phone. It uses the same services and transactions as the app, so there is no raw table editing. | An owner CLI (not usable from a phone), or a generic DB admin tool (bypasses the credit rules) |
+| **R-3** ✅ D-038 | The credit balance lives in a `credit_accounts` row (`available`, `reserved`), with `CHECK >= 0`. **Every change also writes a `credit_ledger` row in the same transaction.** | Reserving a credit is one atomic `UPDATE … WHERE available >= 1`, so concurrent jobs can't overspend. The ledger is the audit trail. | A balance computed from the ledger on every read, with advisory locks |
+| **R-4** ✅ D-038 | Money and job logic is tested against a **real Postgres** (integration tests), not only unit tests. | Race conditions (two jobs, one credit; double confirm; a late success) only show up against a real database. This departs from kitobnarx's unit-only rule. | Unit tests with mocks: they miss exactly these bugs |
+| **R-5** ✅ D-038 | Gallery metadata lives in a **JSON file in the api repo**. Clips live on a media volume, served at `/api/gallery/media/*` with long-lived cache headers, so Cloudflare caches them. | Owner-curated with no CMS (source 01 §14). Clips never touch the database. | A `gallery_examples` table plus the owner CLI |
+| **R-6** ✅ D-038 | We keep only **two copies of each photo**: a 2048 px reference copy (downloadable, for Flow) and a 1024 px model-input copy. **The original upload is discarded** after processing. | Addendum A: 2048 px is plenty for Flow and keeps storage small. EXIF and GPS data are gone with the original. | Also keep the original (up to 10 MB each) |
+| **R-7** ✅ D-038 | API modules talk **only through each module's public port file**, and lint enforces it (the kitobnarx pattern). | Keeps modules separate, and lets Session A refactor safely. | Free imports between modules |
+| **R-8** ✅ D-038 | Web-only UI decisions are recorded in the web repo's own `DECISIONS.md` as **W-001…** by Session B. Shared decisions go only in the api `DECISIONS.md`, written by Session A. | Two sessions must never edit the same file (D-025). | One shared file, edited through Doston |
 
 ---
 
@@ -67,7 +67,7 @@ Each module owns its tables and exposes one public port file (R-7).
 | `generation` | generation jobs, the credit flow (§6), polling, needs-input cache | `POST /projects/:id/generations` (needs an `Idempotency-Key` header), `GET /generations/:id` |
 | `gallery` | example metadata and creative presets (R-5), media serving | `GET /gallery`, `GET /gallery/media/*` |
 | `feedback` | "Did you get a usable video?" answers, and product events | `POST /generations/:id/feedback`, `POST /events` |
-| `owner-cli` | owner actions (R-2), with no HTTP surface | CLI only |
+| `owner` | owner-only actions for the admin panel (D-037): confirm or reject orders, grant credits, edit settings, read users, generations and spend; writes the audit log | `/owner/*` (role `owner` only) |
 
 The gallery, the packs list and public settings work signed out. Everything else needs a session, and the owner of every row is checked on the server.
 
@@ -75,9 +75,9 @@ The gallery, the packs list and public settings work signed out. Everything else
 
 | Table | Key columns | Rules |
 |---|---|---|
-| `users` | id, google_sub (unique), email, name, locale, created_at | — |
+| `users` | id, google_sub (unique), email, name, locale, role (`seller`, `owner`), created_at | `owner` only comes from the `OWNER_EMAILS` allowlist at sign-in (D-037) |
 | `sessions` | id (random 256-bit), user_id, expires_at, created_at | deleted on logout |
-| `site_settings` | key (pk), value (jsonb), updated_at | edited only through the owner CLI |
+| `site_settings` | key (pk), value (jsonb), updated_at | edited only through owner endpoints (D-037) |
 | `credit_packs` | id, credits (1, 5, 15), price_uzs (nullable), is_active, sort_order | not sold while `price_uzs` is null (D-009) |
 | `credit_orders` | id, user_id, pack_id, credits, amount_uzs, status (`pending`, `paid`, `rejected`, `cancelled`), payment_method, payer_reference, rejection_reason, confirmed_at, confirmed_by | clients can create and cancel their own `pending` orders only |
 | `credit_accounts` | user_id (pk), available, reserved | `CHECK (available >= 0 AND reserved >= 0)` (R-3) |
@@ -88,6 +88,7 @@ The gallery, the packs list and public settings work signed out. Everything else
 | `packages` | generation_id (pk), result (jsonb, validated §5), prompt_en, created_at | written only together with the `debit` |
 | `feedback` | id, generation_id, user_id, usable (`ha`, `qisman`, `yoq`), comment, created_at | — |
 | `events` | id, user_id (nullable), name, props (jsonb, no prompts or images), created_at | our own table; no third-party analytics |
+| `owner_audit_log` | id, owner_id, action, target_type, target_id, details (jsonb), created_at | written by every owner action, append-only (D-037) |
 
 ## 5. The AI package
 
@@ -173,6 +174,7 @@ CLIENT  polls GET /generations/:id until ready / needs_input / refused / failed.
 - **i18n:** every string lives in translation files, with only `uz-Latn` at launch (D-014). The library choice is a dependency, made in the web plan.
 - **Brand:** one settings file in each repo (D-016). The design tokens come from source 01 §5.
 - **UI rules:** the must-never rules in `jas-ad-studio-web/CLAUDE.md`, for example: copy puts only the prompt on the clipboard; no prices until they're configured; the gallery works signed out.
+- **Owner panel:** `/admin`, visible only to role `owner`, phone-friendly. Pending orders, grants, settings, and read-only users, generations and spend (D-037). It calls only `/api/owner/*`.
 
 ## 9. Errors
 
@@ -241,7 +243,7 @@ pnpm p1:generate --product fixtures/unbranded-bottle --provider openai --model <
 - voiceover and overlay text (D-017)
 - Telegram, phone or email sign-in (D-015)
 - languages other than Uzbek Latin (D-014)
-- an admin dashboard, a CMS, a public user gallery, teams, an AI chat
+- a heavyweight admin dashboard (the small owner panel is in, D-037), a CMS, a public user gallery, teams, an AI chat
 - multi-clip campaigns (source 01 §24)
 
 ## 15. Owed by the owner (not blocking P0 or P1)
