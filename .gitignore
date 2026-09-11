@@ -1,0 +1,4 @@
+# Secrets — never commit (D-029)
+.env
+.env.*
+!.env.example
