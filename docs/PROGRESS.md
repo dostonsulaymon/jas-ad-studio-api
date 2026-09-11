@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 Parts 1 and 2 done. Next: Part 3, the deterministic validators — target and capability, length against both ceilings, timeline, forbidden directions, script normalisation and language. |
+| Doing now | P1 Parts 1–3 done. Next: Part 4, the merged system prompt V2 — source 01 §25 plus source 02's full architecture, with no numbers in it. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -143,6 +143,21 @@ A test caught a real bug in the downgrade walker: it treated a *property named* 
 The downgrade drops the bounds zod emits because strict mode rejects them, which means they are enforced only by our own parse — so a violation becomes one repair call rather than a provider-side rejection. That trade is written into the file, and `assertStrictCompatible` fails loudly rather than letting a rejected keyword reach the API.
 
 **Verified:** 72 tests passing (20 new), lint, typecheck, build clean. No AI call, no spend.
+
+## 2026-09-11 — P1 Part 3 done: deterministic validators
+
+`src/ai/validation/`. Pure functions, 46 new tests, the largest test surface in P1. Every issue names its field and carries a code, because the repair call is fed these verbatim (source 01 §28).
+
+- **Target and capability (§50):** the echoed target is compared against what the server actually requested, not merely checked for internal consistency. A model that quietly renegotiates its duration or aspect ratio is §51's "unsupported provider mode" hard failure, and there are separate codes for *unsupported* and *renegotiated* so the repair message can say which.
+- **Length (D-012):** both ceilings enforced. The token error names the estimator and its ratio in the message, so nobody downstream reads the figure as Veo's own count.
+- **Timeline:** starts at 0, contiguous, ends at the duration, beat count within the target's max. Float tolerance of 0.01, so a shot ending at 7.999 passes rather than failing on arithmetic. Overlap and gap produce different messages.
+- **Forbidden directions (§50 + D-017):** voiceover, narration, subtitles, captions, on-screen text and music cues are rejected in `promptEn`. Without this a locked decision could drift out of the product one generated prompt at a time. Ordinary foley and room tone — the documented default audio — are explicitly not caught, and a test pins that.
+- **Script:** the Uzbek apostrophe is normalised before validation. Three characters render almost identically and all three occur: source 01 writes U+2018, sellers type U+0027, the standard is U+02BB. Normalising first means the validator judges the text rather than the keyboard.
+- **Language:** Cyrillic in an Uzbek field or in `promptEn` is an error. "Does this read as English" is a **warning only**, over a 50-word floor, and quoted spans are excluded because source 01 §25 keeps spoken Uzbek untranslated inside the English prompt. A heuristic that triggers a paid repair on a good prompt costs more than the mistake it catches — which is why source 01 §28 hedges with "where practical".
+
+One test failure worth keeping: a warning test used 36 words of Uzbek and expected a warning that correctly did not fire, because the check has a 50-word floor. The validator was right and the test was wrong.
+
+**Verified:** 118 tests passing, lint, typecheck, build, contract clean. No AI call, no spend.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 

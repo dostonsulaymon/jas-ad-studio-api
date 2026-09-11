@@ -126,18 +126,18 @@ Two things the build itself proved:
 
 Pure functions, the largest test surface in P1. Source 01 §28 and §50.
 
-- [ ] **Target and capability (§50):** the target exists; `durationSeconds` and `aspectRatio` are supported; reference mode is supported; **the model's echoed target matches the server-requested one** — a model that renegotiates its own duration is the §51 hard failure "unsupported provider mode".
-- [ ] **Length (D-012):** `promptEn` within **`maxPromptTokens`** — estimated as `words × tokensPerWord`, with the estimator named in the error so nobody reads it as Veo's own count — and within `maxWords` and `maxChars`; non-empty on `ready`.
-- [ ] **Timeline:** first shot starts at 0; contiguous, no overlap, no gap; last shot ends at the duration; beat count ≤ `beats.max`.
-- [ ] **Forbidden directions (§50 + D-017):** `promptEn` must not carry voiceover, narration, subtitles, burned-in captions, on-screen text or music cues. Source 01 §25 sets default audio to foley and room tone with no music, dialogue or narration, and D-017 defers voiceover and overlays entirely. Cheap, deterministic, and it protects a locked decision from silent drift.
-- [ ] **Placeholders:** no `[PRODUCT]`, `{…}`, `TBD`, `Lorem`.
-- [ ] **Script:** Uzbek fields normalize to NFC and to **one canonical apostrophe, U+02BB (ʻ)**, the Uzbek standard. Source 01 writes U+2018, sellers type U+0027, and all three render nearly identically — so normalize the two wrong variants first, then validate. Uzbek fields containing Cyrillic hard-fail.
-- [ ] **Language, with source 01 §28's own hedge ("where practical") kept:** Cyrillic in `promptEn` hard-fails; Uzbek-specific apostrophes outside quoted spans hard-fail; an English function-word ratio over a ≥300-word prompt is recorded as a **warning**, not a repair trigger. Burning a paid repair call on a good prompt because a heuristic misfired is worse than the warning.
-- [ ] **Ready state:** `ready` has concept, shots and prompt; `needs_input` has 1–2 questions and no prompt; `refused` has a message and no prompt.
-- [ ] Every validator returns a structured error naming the field and the problem — the repair call is fed these verbatim.
-- [ ] Tests: a passing and a failing case per rule, plus boundaries (exactly `maxWords`, a shot ending at 7.999, a single-beat timeline, each apostrophe variant).
+- [x] **Target and capability (§50):** the target exists; `durationSeconds` and `aspectRatio` are supported; reference mode is supported; **the model's echoed target matches the server-requested one** — a model that renegotiates its own duration is the §51 hard failure "unsupported provider mode".
+- [x] **Length (D-012):** `promptEn` within **`maxPromptTokens`** — estimated as `words × tokensPerWord`, with the estimator named in the error so nobody reads it as Veo's own count — and within `maxWords` and `maxChars`; non-empty on `ready`.
+- [x] **Timeline:** first shot starts at 0; contiguous, no overlap, no gap; last shot ends at the duration; beat count ≤ `beats.max`.
+- [x] **Forbidden directions (§50 + D-017):** `promptEn` must not carry voiceover, narration, subtitles, burned-in captions, on-screen text or music cues. Source 01 §25 sets default audio to foley and room tone with no music, dialogue or narration, and D-017 defers voiceover and overlays entirely. Cheap, deterministic, and it protects a locked decision from silent drift.
+- [x] **Placeholders:** no `[PRODUCT]`, `{…}`, `TBD`, `Lorem`.
+- [x] **Script:** Uzbek fields normalize to NFC and to **one canonical apostrophe, U+02BB (ʻ)**, the Uzbek standard. Source 01 writes U+2018, sellers type U+0027, and all three render nearly identically — so normalize the two wrong variants first, then validate. Uzbek fields containing Cyrillic hard-fail.
+- [x] **Language, with source 01 §28's own hedge ("where practical") kept:** Cyrillic in `promptEn` hard-fails; Uzbek-specific apostrophes outside quoted spans hard-fail; an English function-word ratio over a ≥300-word prompt is recorded as a **warning**, not a repair trigger. Burning a paid repair call on a good prompt because a heuristic misfired is worse than the warning.
+- [x] **Ready state:** `ready` has concept, shots and prompt; `needs_input` has 1–2 questions and no prompt; `refused` has a message and no prompt.
+- [x] Every validator returns a structured error naming the field and the problem — the repair call is fed these verbatim.
+- [x] Tests: a passing and a failing case per rule, plus boundaries (exactly `maxWords`, a shot ending at 7.999, a single-beat timeline, each apostrophe variant).
 
-**Verify:** `pnpm test`. No AI call.
+**Verify:** done 2026-09-11 — 118 tests passing (46 new), lint, typecheck, build and contract clean. No AI call, no spend.
 
 ### Part 4 — The merged system prompt V2
 
