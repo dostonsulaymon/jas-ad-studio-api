@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+# D-034: a fast local gate. It never passes silently — if it fails, fix the root cause.
+# Installed by the `prepare` script: git config core.hooksPath .githooks
+set -e
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "pre-commit: pnpm is not on PATH. Run 'nvm use' first." >&2
+  exit 1
+fi
+
+echo "pre-commit: lint"
+pnpm -s lint
+
+echo "pre-commit: typecheck"
+pnpm -s typecheck
+
+echo "pre-commit: ok"

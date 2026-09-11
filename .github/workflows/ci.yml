@@ -1,0 +1,66 @@
+# D-034: the full set of checks on every push and pull request.
+# No AI keys are provided here on purpose — spec §11 forbids live AI calls in CI.
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:17-bookworm
+        env:
+          POSTGRES_USER: jas
+          POSTGRES_PASSWORD: jas
+          POSTGRES_DB: jas_ad_studio_test
+        options: >-
+          --health-cmd "pg_isready -U jas -d jas_ad_studio_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5437:5432
+
+      redis:
+        image: redis:8-bookworm
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 6384:6379
+
+    env:
+      NODE_ENV: test
+      DATABASE_URL: postgres://jas:jas@127.0.0.1:5437/jas_ad_studio_test
+      REDIS_URL: redis://127.0.0.1:6384
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      - run: pnpm typecheck
+
+      - run: pnpm test
+
+      - run: pnpm build
+
+      # D-031: the committed contract must match the code, or the web repo generates a
+      # client for an API that no longer exists.
+      - run: pnpm openapi:check
