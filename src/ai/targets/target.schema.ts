@@ -1,7 +1,5 @@
 import { z } from 'zod';
-
-export const ASPECT_RATIOS = ['9:16', '16:9', '1:1'] as const;
-export const REFERENCE_MODES = ['frames-to-video', 'ingredients-to-video', 'none'] as const;
+import { ASPECT_RATIOS, REFERENCE_MODES } from '../public/video-format';
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'must be an ISO date (YYYY-MM-DD)');
 

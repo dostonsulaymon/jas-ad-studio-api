@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 Part 1 done (video target config). Next: Part 2, the output contract — the §26 shape, the trusted envelope, `brief.json`, and the JSON Schema downgrade. |
+| Doing now | P1 Parts 1 and 2 done. Next: Part 3, the deterministic validators — target and capability, length against both ceilings, timeline, forbidden directions, script normalisation and language. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -125,6 +125,24 @@ The plan is approved. Part 1 starts. Part 0's four questions are outstanding wit
 The target is marked `provisional: true` until Jakhongir confirms the Flow mode, durations, aspect ratios and reference rules (Part 0). A test asserts the flag is still true, so it fails the day that changes and forces the value to be re-read rather than assumed.
 
 **Verified:** `pnpm lint`, `pnpm typecheck`, `pnpm test` (52 passing, 19 new), `pnpm build`, `pnpm openapi:check` — all clean. No AI call and no spend; nothing in Part 1 touches a provider.
+
+## 2026-09-11 — P1 Part 2 done: the output contract
+
+`src/ai/public/` — the `ai` module's port, and therefore the only thing other modules may import (R-7).
+
+- **`brief.schema.ts`** — the seller's brief, designed as the wizard's real input contract (Q-P1-4), not a fixture format. Claims carry a `verified` flag so a seller's assertion is never stored as a fact, and gallery inspiration is taken as an **id only**: accepting an inline example body would let a seller smuggle arbitrary instructions past the data/instruction split (source 01 §25).
+- **`result.schema.ts`** — source 01 §26's shape without `editingAssets` (D-017), plus the **trusted envelope**. A test asserts the model's own schema has no `model`, `provider`, `usage` or `promptVersion` field, so provenance cannot be model-authored (source 01 §26). The model echoes its target, which Part 3 will check against the requested one.
+- **`strict-json-schema.ts`** — the downgrade to OpenAI strict Structured Outputs.
+
+**Two things the build proved, rather than assumed:**
+
+The boundary error the review predicted actually happened. `src/ai/public/*` importing from `src/ai/targets/` is `port → module` and lint refused it. The shared format vocabulary moved into the port, where the contract belongs.
+
+A test caught a real bug in the downgrade walker: it treated a *property named* `pattern` as a schema keyword. A brief field called `format` or `default` would have been stripped from the schema silently, changing the contract with nothing reporting it. `properties` maps are now walked as names rather than keywords, and a test pins it.
+
+The downgrade drops the bounds zod emits because strict mode rejects them, which means they are enforced only by our own parse — so a violation becomes one repair call rather than a provider-side rejection. That trade is written into the file, and `assertStrictCompatible` fails loudly rather than letting a rejected keyword reach the API.
+
+**Verified:** 72 tests passing (20 new), lint, typecheck, build clean. No AI call, no spend.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 

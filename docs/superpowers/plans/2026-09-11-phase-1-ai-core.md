@@ -82,9 +82,8 @@ The first draft said "$5" before knowing how many runs there are. The matrix is 
 
 D-013 says the Flow facts are "confirmed by Jakhongir's test runs", and spec §5 literally reads `durations: [8] (confirm in Flow)`. If the chosen mode turns out to do 6 seconds, or handles reference images differently, every fixture run and the whole sweep is void.
 
-- [ ] Which Flow mode — "Frames to video" or "Ingredients to video" — and its supported durations, aspect ratios and reference-image rules.
+- [ ] Which Flow mode — "Frames to video" or "Ingredients to video" — and its supported durations, aspect ratios and reference-image rules. This is the one Part 0 item that genuinely blocks: if the mode does 6 seconds rather than 8, every timeline the validators enforce is wrong.
 - [ ] **Does Flow's prompt box accept a ~700-word prompt, or silently truncate?** Nobody has tested this, and the entire length premise rests on it.
-- [ ] His Google Flow generation quota. Part 8b and Part 9 together need roughly 20–40 videos, and up to two fix-and-retest rounds on top (D-019). These are **his** Google credits — the app never touches them (CLAUDE.md).
 - [ ] The ~10 real pilot products, a mix of categories. Sourcing these is a multi-day human task, not a checkbox, and it is not currently on his owed list in spec §15.
 
 **Verify:** the answers recorded in `docs/PROGRESS.md` with a date, and the target config's `checkedAt` set from them.
@@ -110,14 +109,18 @@ Each part stops for review. **Every part ends by updating `docs/PROGRESS.md`, ti
 
 **Module layout, corrected.** The review ran the actual eslint config against a stub `ai` module: a directory named `src/ai/schema/` does **not** match the `schema` element (which is `src/*/db/**`), so it falls through to `module`, and `port → module` is disallowed — a hard lint error that CI runs before the tests. The output types are the contract, so they live in the port, which also matches D-031's "zod schemas are the single source".
 
-- [ ] `src/ai/public/` — the output schema, the brief schema (Q-P1-4), the provider port and its DI token. Nothing else imports across the module line.
-- [ ] `src/ai/prompt|targets|providers` stay module-internal. **No directory named `schema/`** — the word is already a boundaries element type meaning something else, and that trap costs the next reader an hour.
-- [ ] The output shape per source 01 §26, **without `editingAssets`** (D-017): strict objects, no unknown properties, explicit nullability, bounded arrays and strings, enums for `status` and `style`.
-- [ ] **The trusted envelope (source 01 §26).** "Persist separately as trusted server metadata: prompt version; model; usage; request ID; capability version; gallery inspiration ID. *Do not let the model author these as trusted facts.*" The model's JSON is wrapped in a server-stamped `{ promptVersion, provider, model, targetId, targetConfigVersion, requestId, usage, galleryInspirationId }`. Everything downstream — the Part 6 report, the Part 8a table — reads provenance from the envelope, never from the model's own output.
-- [ ] **The JSON Schema downgrade.** zod v4's `toJSONSchema` emits `maxItems`/`maxLength`; OpenAI's strict Structured Outputs rejects those keywords, requires every property in `required` (so `.optional()` is unusable — nullable unions only) and `additionalProperties: false` throughout. A tested downgrade step strips the unsupported keywords and asserts none remain. **Consequence, stated plainly:** the bounds are then enforced only by our own zod parse, so a bound violation becomes a Part 5 repair rather than a provider-side rejection. The exact keyword list is confirmed against the live API at Part 5b.
-- [ ] Tests: a well-formed `ready` parses; unknown properties rejected; `ready` with `concept: null` rejected; `questionsUz` longer than 2 rejected; oversized strings rejected; the downgraded JSON Schema contains no unsupported keyword and no `optional`.
+- [x] `src/ai/public/` — the output schema, the brief schema (Q-P1-4), the provider port and its DI token. Nothing else imports across the module line.
+- [x] `src/ai/prompt|targets|providers` stay module-internal. **No directory named `schema/`** — the word is already a boundaries element type meaning something else, and that trap costs the next reader an hour.
+- [x] The output shape per source 01 §26, **without `editingAssets`** (D-017): strict objects, no unknown properties, explicit nullability, bounded arrays and strings, enums for `status` and `style`.
+- [x] **The trusted envelope (source 01 §26).** "Persist separately as trusted server metadata: prompt version; model; usage; request ID; capability version; gallery inspiration ID. *Do not let the model author these as trusted facts.*" The model's JSON is wrapped in a server-stamped `{ promptVersion, provider, model, targetId, targetConfigVersion, requestId, usage, galleryInspirationId }`. Everything downstream — the Part 6 report, the Part 8a table — reads provenance from the envelope, never from the model's own output.
+- [x] **The JSON Schema downgrade.** zod v4's `toJSONSchema` emits `maxItems`/`maxLength`; OpenAI's strict Structured Outputs rejects those keywords, requires every property in `required` (so `.optional()` is unusable — nullable unions only) and `additionalProperties: false` throughout. A tested downgrade step strips the unsupported keywords and asserts none remain. **Consequence, stated plainly:** the bounds are then enforced only by our own zod parse, so a bound violation becomes a Part 5 repair rather than a provider-side rejection. The exact keyword list is confirmed against the live API at Part 5b.
+- [x] Tests: a well-formed `ready` parses; unknown properties rejected; `ready` with `concept: null` rejected; `questionsUz` longer than 2 rejected; oversized strings rejected; the downgraded JSON Schema contains no unsupported keyword and no `optional`.
 
-**Verify:** `pnpm test`, and `pnpm lint` passes with the real `ai` module present.
+**Verify:** done 2026-09-11 — 72 tests passing (20 new), lint, typecheck and build clean.
+
+Two things the build itself proved:
+- The boundary error the review predicted **happened**: `src/ai/public/*` importing `ASPECT_RATIOS` from `src/ai/targets/` is `port → module` and lint refused it. The shared vocabulary moved into `src/ai/public/video-format.ts`, which is where the contract belongs anyway.
+- A test caught a real bug in the downgrade walker: it treated a *property named* `pattern` as a schema keyword, so a brief field called `format` or `default` would have been stripped from the schema silently. `properties` maps are now walked as names, not keywords.
 
 ### Part 3 — Deterministic validators
 
@@ -218,11 +221,15 @@ Source 01 §49, plus the gallery case the first draft asserted without providing
 
 ### Part 8b — The Flow pilot that picks the config
 
-- [ ] Jakhongir generates **3 configs × 3 products = 9 videos** in Flow and judges them.
-- [ ] The winning length and beat default are set in the target config and the provisional marks removed.
-- [ ] The provider and model pick recorded as a decision (D-029, as amended by D-043), using D-029's stated criterion: prompt quality by the §51 rubric first, then **cost per successful package** — cost divided by the packages that cleared the rubric, not by all of them.
+Judged, not counted. No predetermined sample size: this is Doston and Jakhongir looking at videos and deciding which prompt reads better, and a fixed *n* would be false precision.
 
-**Verify:** the nine results recorded, and a settled config.
+- [ ] Take one product's candidate prompts from 8a and generate it in Flow at **each word setting (300 / 500 / 700)**, then at each beat setting.
+- [ ] **The same product across configs.** Comparing a 300-word bottle against a 700-word shoe measures the product, not the prompt length — this is the only real constraint on this part.
+- [ ] Look at them. If the better setting is obvious, stop. If it is not, add another product and repeat.
+- [ ] Set the winning length and beat default in the target config and remove the provisional marks.
+- [ ] Record the provider and model pick as a decision (D-029 as amended by D-043), on D-029's stated criterion: prompt quality by the §51 rubric first, then cost per **successful** package — cost divided by the packages that cleared the rubric, not by all of them.
+
+**Verify:** the comparisons recorded in `docs/PROGRESS.md` — product, config, which won and why — and a settled, no-longer-provisional target config.
 
 ### Part 9 — Jakhongir's go/no-go
 
@@ -251,7 +258,6 @@ Source 01 §49, plus the gallery case the first draft asserted without providing
 | Prompts good, Flow videos not | Exactly what the go/no-go is for. Two fix rounds, then an honest decision including stopping (D-019). |
 | Flow's real limits differ from our config | Part 0 confirms them with Jakhongir before anything is built. |
 | Flow's paste box truncates a 700-word prompt | Part 0 tests it. The whole length premise depends on it. |
-| Jakhongir's Google credits run out | Part 0 counts the ~20–40 generations first. They are his credits; the app never touches them. |
 | Live costs run away | Pre-call cap from a measured per-call cost, refuses to start without one. |
 | One-provider comparison | Recorded as one provider, not dressed up as three (D-043). |
 | Our token count is an estimate, not Veo's own | Both ceilings enforced per D-012; the ratio measured at p95 in Part 8a, the estimator and its error documented in the config, and Part 0 gets the empirical truth from Flow itself. |
