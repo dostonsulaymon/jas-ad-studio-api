@@ -24,6 +24,13 @@ export const envSchema = z.object({
    * at the point of use, so a missing key fails the generate command, not the boot.
    */
   OPENAI_API_KEY: z.string().min(1).optional(),
+
+  /**
+   * Source 01 §27 forbids hard-coding an unverified model name. Optional in P1 because
+   * the CLI's --model overrides it; the provider refuses a model it has no pricing for
+   * rather than reporting every generation as free.
+   */
+  OPENAI_MODEL: z.string().min(1).optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

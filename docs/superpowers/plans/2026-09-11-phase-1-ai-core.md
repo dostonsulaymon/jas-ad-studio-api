@@ -155,22 +155,22 @@ Pure functions, the largest test surface in P1. Source 01 §28 and §50.
 
 ### Part 5 — Provider interface and the OpenAI adapter
 
-- [ ] `src/ai/public/provider.port.ts` — `generate(input): Promise<ProviderResult>` and the DI token (R-7).
-- [ ] **Plain classes with constructor injection, not a Nest application context.** The CLI constructs them directly; a Nest module wrapper is added in P4 when the worker needs it. A script with no HTTP does not need `NestFactory`, and P0 already showed how that fails under a non-compiling runner.
-- [ ] `OPENAI_MODEL` added to `env.schema.ts` and `.env.example`; `--model` overrides it. Source 01 §27 forbids hard-coding an unverified model name.
-- [ ] `store: false` where supported — **without claiming it guarantees zero provider retention** (source 01 §27). These are sellers' product photos.
-- [ ] **`maxRetries` and `timeout` set explicitly.** The SDK retries twice by default, so one "call" is silently up to three billed requests — which also contradicts source 01 §28's "usually one multimodal AI call". Transport retry and the §28 repair call are different things and are named differently in the code.
-- [ ] **The repair path, fully specified.** Call → schema check → validators → at most one repair carrying the validator errors → terminal. Plus the four cases the first draft left undefined:
+- [x] `src/ai/public/provider.port.ts` — `generate(input): Promise<ProviderResult>` and the DI token (R-7).
+- [x] **Plain classes with constructor injection, not a Nest application context.** The CLI constructs them directly; a Nest module wrapper is added in P4 when the worker needs it. A script with no HTTP does not need `NestFactory`, and P0 already showed how that fails under a non-compiling runner.
+- [x] `OPENAI_MODEL` added to `env.schema.ts` and `.env.example`; `--model` overrides it. Source 01 §27 forbids hard-coding an unverified model name.
+- [x] `store: false` where supported — **without claiming it guarantees zero provider retention** (source 01 §27). These are sellers' product photos.
+- [x] **`maxRetries` and `timeout` set explicitly.** The SDK retries twice by default, so one "call" is silently up to three billed requests — which also contradicts source 01 §28's "usually one multimodal AI call". Transport retry and the §28 repair call are different things and are named differently in the code.
+- [x] **The repair path, fully specified.** Call → schema check → validators → at most one repair carrying the validator errors → terminal. Plus the four cases the first draft left undefined:
   - the spend check is **pre-call**, against a worst-case estimate of the call plus its possible repair, reconciled afterwards with real usage;
   - if the repair itself fails, the result carries **both** the original validator errors and the repair failure, or Part 8a debugging is blind;
   - an explicit state table for (first status × repair status) — a repair that answers `needs_input` is schema-valid and passes every validator, and must not be reported as success;
   - **whether the repair resends the images** — see Q-P1-5 below.
-- [ ] Error mapping: refusal, timeout, truncation, network failure, malformed structured response → `AI_REFUSED`, `AI_TIMEOUT`, `AI_TRUNCATED`, `AI_MALFORMED` (spec §9).
-- [ ] `FakeProvider` with scripted responses.
-- [ ] **A guard, not a convention:** `vitest.setup.ts` overrides `fetch` to throw on any request to a provider host. "No test calls out" as a rule is a hope; as a guard it is a fact.
-- [ ] Tests against the fake: a clean response passes; a validation failure triggers exactly one repair; a second failure ends `failed`, not a third call; a repair returning `needs_input` is not reported as success; timeouts and malformed bodies map correctly; usage and cost recorded; the pre-call cap refuses a call that could exceed it.
+- [x] Error mapping: refusal, timeout, truncation, network failure, malformed structured response → `AI_REFUSED`, `AI_TIMEOUT`, `AI_TRUNCATED`, `AI_MALFORMED` (spec §9).
+- [x] `FakeProvider` with scripted responses.
+- [x] **A guard, not a convention:** `vitest.setup.ts` overrides `fetch` to throw on any request to a provider host. "No test calls out" as a rule is a hope; as a guard it is a fact.
+- [x] Tests against the fake: a clean response passes; a validation failure triggers exactly one repair; a second failure ends `failed`, not a third call; a repair returning `needs_input` is not reported as success; timeouts and malformed bodies map correctly; usage and cost recorded; the pre-call cap refuses a call that could exceed it.
 
-**Verify:** `pnpm test`. **No live call yet.**
+**Verify:** done 2026-09-11 — 159 tests passing (20 new), lint, typecheck, build clean. **No live call yet.**
 
 > **Q-P1-5 · Does the repair call resend the product images?** Resending 3–4 images roughly doubles image cost per repair; not resending them means the model rewrites the prompt without seeing the product, which is a product-lock risk. **Recommendation: resend.** A cheaper prompt that invents a product surface is worthless, and the repair is capped at one. Recorded as a decision either way.
 

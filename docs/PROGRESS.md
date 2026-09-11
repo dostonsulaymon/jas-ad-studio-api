@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 Parts 1–4 done. Next: Part 5, the provider interface and the OpenAI adapter, then Part 5b's one capped live smoke call — the first spend. |
+| Doing now | P1 Parts 1–5 done. Next: Part 5b, one capped live smoke call — the first spend of the project. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -172,6 +172,30 @@ Content is the union of both sources, not a compromise between them. From §25: 
 High-energy camera work is permitted only when the target allows it **and** the seller chose an energetic style, and a test covers the case where the target forbids it regardless of style.
 
 **Verified:** 139 tests passing (21 new), lint, typecheck, build, contract clean. No AI call, no spend.
+
+## 2026-09-11 — P1 Part 5 done: provider interface and the OpenAI adapter
+
+Dependencies `openai` and `sharp` added under the standing gate, with Doston's go.
+
+`src/ai/public/provider.port.ts` is the seam (D-043): the interface is real and tested, and adding Claude or Gemini later is one file against a proven contract. The adapter uses the Responses API with strict structured output and `store: false` — noted in the code as *not* a guarantee of zero retention, which source 01 §27 is explicit about.
+
+**The SDK's default `maxRetries: 2` is overridden to 0.** Left alone, one "call" is silently up to three billed requests, which both misreports cost and contradicts source 01 §28's "usually one multimodal AI call". Transport retry and the §28 repair call are different things and are named differently in the code.
+
+A model with no configured pricing is refused rather than called: an unpriced model would report every generation as costing nothing and quietly defeat the spend cap.
+
+**The repair path, with the four behaviours the review found undefined:**
+- The spend check is **pre-call**. A test proves the provider is never reached when the cap would be exceeded, and another proves the repair call is counted against the cap too.
+- A repair failure keeps **both** attempts' errors, so it is not debugged blind.
+- A repair that answers `needs_input` instead of fixing the package is reported as `AI_REPAIR_CHANGED_STATUS`, not as success — it is schema-valid and passes every validator, so without this it would look like the work succeeded. A first answer that is legitimately `needs_input` still succeeds with no repair, and both are tested.
+- The repair **resends the images** (Q-P1-5): a rewrite that cannot see the product is a product-lock risk.
+
+Failed calls settle at zero spend rather than guessing at a charge we cannot verify.
+
+**A guard, not a convention:** `vitest.setup.ts` now rejects any fetch to a provider host, so a live call from a test is impossible rather than merely discouraged. It rejects rather than throws, since a synchronous throw from `fetch` would escape a caller's try/catch and read as a different failure.
+
+`OPENAI_MODEL` added to the env schema and `.env.example` (source 01 §27: never hard-code an unverified model name).
+
+**Verified:** 159 tests passing (20 new), lint, typecheck, build clean. **No live call yet** — that is Part 5b.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 
