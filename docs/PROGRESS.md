@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 Parts 1–5b done; the AI core works end to end against the real API. Next: Part 6, the CLI harness. **One prompt change is waiting on Doston** — see the TARGET_MISMATCH finding below. |
+| Doing now | P1 Parts 1–5b done and the TARGET_MISMATCH fix is in (D-044). Next: Part 6, the CLI harness. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -218,7 +218,7 @@ Both were fixed by the single repair call, and the second attempt was clean.
 
 **A measurement withdrawn.** The first run reported "observed output tokens/word: 3.372" against the config's 1.6 estimator. That figure is meaningless: output tokens cover the entire JSON response — the Uzbek shot plan, the product analysis, everything — not `promptEn` alone. It is not evidence about the estimator and is no longer printed. Part 8a needs a real tokenizer run over `promptEn` by itself.
 
-**Waiting on Doston — a prompt change.** The `TARGET_MISMATCH` failure happens because the TARGET block names the target but never says "echo this id exactly". A one-line clarification would likely remove a repair call from every generation, which is real money across a sweep. Changing the assembled system prompt is a standing-gate change, so it is not being made unilaterally.
+**The prompt fix, approved and measured (D-044).** The `TARGET_MISMATCH` happened because the TARGET block named the target but never said to echo it back, so the model invented a plausible id from the brief's platform. Doston approved one added line. On the same input and model, attempts went 2 → 1, cost $0.00697 → $0.00335, elapsed 35.9s → 15.4s. `AD_DIRECTOR_SYSTEM_PROMPT_V2` itself is untouched; the line lives in the config-assembled target block.
 
 **Observed, not yet acted on:** `gpt-4.1-mini`'s Uzbek has rough patches — "raundak", "progrestiv", "Qarama-qarshi sloy" are not words. Uzbek quality is a model-selection criterion for Part 8a, not a bug to fix here.
 

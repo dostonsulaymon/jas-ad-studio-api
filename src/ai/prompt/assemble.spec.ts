@@ -225,3 +225,10 @@ describe('the assembled system prompt', () => {
     expect(system.indexOf('TARGET\n')).toBeGreaterThan(system.indexOf('PRIORITIES'));
   });
 });
+
+describe('the targetId echo instruction', () => {
+  it('tells the model to echo the exact target id', () => {
+    // Both live smoke runs returned "instagram-story" and needed a repair call.
+    expect(buildTargetBlock(target, brief)).toContain('Echo this exact targetId');
+  });
+});

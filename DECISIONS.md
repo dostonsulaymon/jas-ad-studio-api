@@ -403,6 +403,27 @@ D-029 asked for a 2–3 provider comparison. Only an OpenAI key exists (D-041), 
 Why: Doston chose this when asked. It keeps D-029's real goal — never being locked to one vendor — without pretending to a comparison we cannot run.
 
 
+### D-044 · 2026-09-11 · The TARGET block tells the model to echo the target id exactly
+
+The first two live calls both returned `targetId: "instagram-story"` instead of `flow-veo-3.1`, failing the source 01 §50 capability check and costing a repair call every time. The TARGET block named the target but never said to echo it back, so the model invented a plausible-sounding identifier from the platform in the brief.
+
+One line added to the assembled TARGET block in `src/ai/prompt/assemble.ts`:
+
+> Echo this exact targetId in the target field. Do not substitute a platform, a format name, or any other identifier.
+
+**Measured before and after on the same input and model (`gpt-4.1-mini`):**
+
+| | before | after |
+|---|---|---|
+| attempts | 2 | 1 |
+| cost | $0.00697 | $0.00335 |
+| elapsed | 35.9s | 15.4s |
+
+This is a standing-gate change to the AI system prompt. Doston approved it. `AD_DIRECTOR_SYSTEM_PROMPT_V2` itself is untouched — the line lives in the target block, which is assembled from config, so it stays out of the versioned prompt constant.
+
+Why: the repair call exists for problems we cannot design out. An invented target id is one we can, and paying twice per generation for it in production would be a permanent tax.
+
+
 ---
 
 ## Inputs recorded but not yet decided

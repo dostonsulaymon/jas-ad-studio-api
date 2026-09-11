@@ -30,6 +30,9 @@ export function buildTargetBlock(target: VideoTarget, brief: Brief): string {
   return [
     'TARGET',
     `Generator target: ${target.id} (config version ${String(target.version)}).`,
+    // Both live smoke runs returned an invented targetId ("instagram-story") and had to
+    // be repaired. The block named the target but never said to echo it back.
+    `Echo this exact targetId in the target field. Do not substitute a platform, a format name, or any other identifier.`,
     `Clip duration: ${String(brief.durationSeconds)} seconds.`,
     `Aspect ratio: ${brief.aspectRatio}.`,
     `Reference mode: ${target.referenceMode}; up to ${String(target.referenceImages.max)} reference images.`,
