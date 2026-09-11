@@ -186,14 +186,14 @@ The first draft made the first live call at Part 8, after eight parts built on a
 
 ### Part 6 — The CLI harness
 
-- [ ] `src/p1-generate.ts`, compiled — `nest build && node dist/p1-generate.js` (tsx exits silently on decorator metadata; learned in P0). A `p1:generate` script is added to `package.json`.
-- [ ] `pnpm p1:generate --product fixtures/<name> --model <id> --target flow-veo-3.1 --max-spend-usd <n>`
-- [ ] Photos are downsized and stripped of metadata with sharp before the model sees them (spec §7).
-- [ ] Output: a markdown report per run — prompt, Uzbek shot plan, every validator result, usage, cost, and provenance **read from the trusted envelope**. Reports are written to a **git-ignored `out/`**: they contain the full brief and the full prompt.
-- [ ] Refuses to run without `--max-spend-usd`.
-- [ ] Tests: argument parsing; a missing cap refuses; a missing brief refuses; the report renders from a fake result.
+- [x] `src/p1-generate.ts`, compiled — `nest build && node dist/p1-generate.js` (tsx exits silently on decorator metadata; learned in P0). A `p1:generate` script is added to `package.json`.
+- [x] `pnpm p1:generate --product fixtures/<name> --model <id> --target flow-veo-3.1 --max-spend-usd <n>`
+- [x] Photos are downsized and stripped of metadata with sharp before the model sees them (spec §7).
+- [x] Output: a markdown report per run — prompt, Uzbek shot plan, every validator result, usage, cost, and provenance **read from the trusted envelope**. Reports are written to a **git-ignored `out/`**: they contain the full brief and the full prompt.
+- [x] Refuses to run without `--max-spend-usd`.
+- [x] Tests: argument parsing; a missing cap refuses; a missing brief refuses; the report renders from a fake result.
 
-**Verify:** the CLI runs end to end against the fake provider and writes a real report.
+**Verify:** done 2026-09-11 — 182 tests passing (20 new), lint, typecheck, build clean, and the CLI ran end to end **against the real API** on the unbranded-bottle fixture: `ready`, 249 words, $0.00656, report written to the git-ignored `out/`.
 
 ### Part 7 — The seven safety fixtures
 

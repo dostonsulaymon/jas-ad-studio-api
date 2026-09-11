@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ASPECT_RATIOS, REFERENCE_MODES } from '../public/video-format';
+export { countWords, estimateTokens } from '../public/text';
 
 const isoDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'must be an ISO date (YYYY-MM-DD)');
 
@@ -53,11 +54,3 @@ export const videoTargetSchema = z
 
 export type VideoTarget = z.infer<typeof videoTargetSchema>;
 
-export function estimateTokens(text: string, tokensPerWord: number): number {
-  return Math.ceil(countWords(text) * tokensPerWord);
-}
-
-export function countWords(text: string): number {
-  const trimmed = text.trim();
-  return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
-}

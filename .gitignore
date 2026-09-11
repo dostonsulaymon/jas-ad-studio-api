@@ -21,3 +21,6 @@ pnpm-debug.log*
 
 storage/
 tmp/
+
+# P1 run reports: they contain the full brief and the full generated prompt.
+out/

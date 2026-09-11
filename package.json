@@ -25,7 +25,9 @@
     "infra:down": "docker compose -p jas-ad-studio-dev -f docker-compose.dev.yml down",
     "infra:logs": "docker compose -p jas-ad-studio-dev -f docker-compose.dev.yml logs -f",
     "openapi:generate": "nest build && node dist/openapi.js write",
-    "openapi:check": "nest build && node dist/openapi.js check"
+    "openapi:check": "nest build && node dist/openapi.js check",
+    "p1:generate": "nest build && node dist/p1-generate.js",
+    "p1:smoke": "nest build && node dist/p1-smoke.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

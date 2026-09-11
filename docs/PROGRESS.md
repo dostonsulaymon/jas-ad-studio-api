@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 Parts 1–5b done and the TARGET_MISMATCH fix is in (D-044). Next: Part 6, the CLI harness. |
+| Doing now | P1 Parts 1–6 done; the CLI generates a full package from a product folder. Next: Part 7, the seven safety fixtures and the recorded-response replay. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -223,6 +223,33 @@ Both were fixed by the single repair call, and the second attempt was clean.
 **Observed, not yet acted on:** `gpt-4.1-mini`'s Uzbek has rough patches — "raundak", "progrestiv", "Qarama-qarshi sloy" are not words. Uzbek quality is a model-selection criterion for Part 8a, not a bug to fix here.
 
 **Verified:** 161 tests passing, lint, typecheck, build clean.
+
+## 2026-09-11 — P1 Part 6 done: the CLI harness
+
+`pnpm p1:generate --product <dir> --max-spend-usd <n> [--model <id>]`. Compiled by `nest build`, never run through tsx.
+
+It **refuses to start without `--max-spend-usd`**, and refuses a zero, negative or non-numeric one — a run that cannot exceed a cap it was never given is not capped. Photos are downsized to the 1024px model-input copy and stripped of metadata before the model sees them (spec §7), and a test confirms the EXIF is gone. Reports go to a git-ignored `out/`: they carry the full brief and the full generated prompt.
+
+The report reads provenance from the trusted envelope, never from the model's JSON (source 01 §26), and prints a **Repaired from** section so a silent second call is visible rather than hidden in the cost.
+
+**The boundary rule caught another one.** `src/cli/` importing `countWords` and `ValidationIssue` from inside the `ai` module is `module → module` and lint refused it. Both are genuinely contract — a consumer needs to count words and render issues — so they moved into the port as `public/text.ts` and `public/validation.types.ts`. The rule keeps pushing shared things into the place they belonged anyway.
+
+**End-to-end run on the unbranded-bottle fixture (source 01 §49 #1), against the real API:**
+
+| | |
+|---|---|
+| Status | `ready`, 2 attempts |
+| promptEn | 249 words, within the 640 ceiling |
+| Cost | $0.00656 |
+| Elapsed | 28.4s |
+
+`TARGET_MISMATCH` is **gone** — the D-044 fix held. The product lock read exactly as the fixture demands: *"no labels or logos"*, *"no added labels, color changes, reflections or alternate shapes"*, *"avoid reveal of any other product sides not in reference"*.
+
+**A recurring failure mode worth naming:** the model wrote a voiceover into `promptEn` again, and the repair removed it. That is three of four live runs. The forbidden-direction validator is doing its job as a safety net, but paying for a repair on every generation is the same tax D-044 just removed. Strengthening the audio wording is a system-prompt change, so it goes on the Part 8a tuning list rather than being changed now.
+
+**Spend to date across all live runs: $0.027.**
+
+**Verified:** 182 tests passing, lint, typecheck, build clean. Fixture photo is synthetic, carries no EXIF, and `out/` is git-ignored.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 

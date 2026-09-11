@@ -1,23 +1,10 @@
 import type { VideoTarget } from '../targets/target.schema';
-import { countWords, estimateTokens } from '../targets/target.schema';
+import { countWords, estimateTokens } from '../public/text';
+import type { Severity, ValidationIssue, ValidationReport } from '../public/validation.types';
 import type { GenerationResult } from '../public/result.schema';
 import { englishFunctionWordRatio, hasCyrillic, normalizeUzbek } from './uzbek-text';
 
-export type Severity = 'error' | 'warning';
-
-export interface ValidationIssue {
-  code: string;
-  field: string;
-  message: string;
-  severity: Severity;
-}
-
-export interface ValidationReport {
-  issues: ValidationIssue[];
-  errors: ValidationIssue[];
-  warnings: ValidationIssue[];
-  ok: boolean;
-}
+export type { Severity, ValidationIssue, ValidationReport };
 
 interface ValidationContext {
   target: VideoTarget;
