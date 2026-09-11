@@ -10,10 +10,10 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0 built, awaiting Doston's review.** Nothing is committed. |
+| Phase | **P0 complete.** Committed on branch `p0-foundations`, pushed, CI green. Not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-0-foundations.md` — every task checked |
-| Doing now | Nothing. Waiting on Doston's review of the P0 working tree. |
-| Next | Doston reviews and commits P0 → write the P1 plan (AI core + go/no-go) → his approval → build. Session B's kickoff prompt is written before the P1 go (D-026). |
+| Doing now | Writing the P1 plan (AI core + go/no-go). |
+| Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
 ## Current position
@@ -111,7 +111,15 @@ Doston asked for the five review tests to be run and the results written up. Eve
 
 Afterwards the deployed stack was torn down with its volumes, the dev api process was stopped, and kitobnarx was confirmed untouched. The dev datastores (5437 / 6384) were left up so Doston can run the same checks himself.
 
-Still not verified: GitHub Actions. Nothing changed there.
+### CI verified — the last P0 gap closed
+
+`gh auth login` succeeded (scopes: `gist`, `read:org`, `repo`, `workflow`), so the old setup token's missing `read:org` is no longer a blocker. The nine P0 commits were pushed to branch `p0-foundations` and **the workflow ran for the first time and passed every step**: install, lint, typecheck, test, build, `openapi:check` — 1m17s against real Postgres and Redis services.
+
+One annotation, not a failure: GitHub is deprecating Node 20 for actions, and `actions/checkout@v4`, `actions/setup-node@v4` and `pnpm/action-setup@v4` are being forced onto Node 24. They still work. Bumping to the v5 actions is a small chore for P7 hardening, or sooner if it starts warning louder.
+
+**With this, P0 has nothing left unverified.** The branch is not merged to `main` — that is Doston's call.
+
+Doston's remaining housekeeping: revoke the old setup token, which no longer has a use.
 
 ## Next
 
@@ -131,5 +139,5 @@ Still not verified: GitHub Actions. Nothing changed there.
 
 ## Blocked
 
-- **`gh` CLI login:** still expired. The token supplied for setup lacks the `read:org` scope, so it could create repos but can't log in. Pushing works over SSH, so this blocks nothing until the GitHub Actions setup in P0 (D-034). Doston revokes that setup token once setup is finished.
+- ~~**`gh` CLI login**~~ — **resolved 2026-09-11.** `gh auth login` over the browser flow granted `read:org` and `workflow`. CI has run and passed. Doston still needs to revoke the old setup token, which has no remaining use.
 - **AI keys:** `.env` holds `OPENAI_API_KEY`, Doston's key for development (D-029). **The variable was renamed from `OPEN_AI_API_KEY` in P0 (D-041)**, with the value carried over; it is the name the OpenAI SDK reads by default. It is optional in the env schema, so CI and a fresh checkout boot without it. The P1 comparison also needs a Claude (Anthropic) key and a Gemini key; without them, P1 compares OpenAI models only. `.env` is git-ignored. Production billing moves to Jakhongir before launch (D-004).
