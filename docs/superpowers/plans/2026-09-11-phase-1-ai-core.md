@@ -1,6 +1,6 @@
 # P1 — AI core and the real-world go/no-go
 
-**Status:** REVISED after review, awaiting Doston's answer to Q-P1-1 and Q-P1-4
+**Status:** APPROVED to build. Every open question is answered (Q-P1-1 to Q-P1-5). Part 0 still needs four answers from Jakhongir before the target config's values can be called final.
 **Repo:** `jas-ad-studio-api` only (D-026)
 **Built from:** design spec §5, §12 · source 01 §25, §26, §27, §28, §49, §50, §51, §52 · source 02 in full · D-012, D-013, D-017, D-019, D-029, D-043
 **Review:** a review agent checked this draft against the sources and the locked decisions on 2026-09-11. Its findings are folded in below; the two it raised that only Doston can settle are Q-P1-1 and Q-P1-4.
@@ -48,23 +48,25 @@ No tokenizer dependency — see Q-P1-1. No Claude or Gemini SDK (D-043).
 
 ## Open questions
 
-### Q-P1-1 · How do we enforce Veo's 1,024-token ceiling? **Needs Doston — this supersedes part of a locked decision.**
+### Q-P1-1 · How do we enforce Veo's 1,024-token ceiling? — **ANSWERED: follow D-012 as written**
 
-Veo's tokenizer is not published, so we cannot count its tokens. But D-012 locks "**maximum prompt tokens** and words" as config fields, spec §5 locks `maxPromptTokens: 1024`, and `docs/BRIEF.md` records C-4 as "each target's **token ceiling is enforced by validators**." Changing that is a standing-gate change, not a design preference — which is what the first draft got wrong.
+Doston, correctly: follow the decision we made. The first draft treated "we cannot call Veo's tokenizer" as "we cannot enforce a token ceiling", which does not follow. D-012 says the config carries "**maximum prompt tokens and words**, and the recommended word range" and that validators enforce them. It never required Google's own tokenizer.
 
-| | Approach | Honest? |
-|---|---|---|
-| **A (recommended)** | Enforce a **word and character ceiling**. Keep `sourceTokenLimit: 1024` in the config with its URL and `checkedAt` as the documented origin, and name the enforced field `maxWords` so it never claims precision we don't have. During Part 8a, measure the real tokens-per-word distribution across the generated corpus as a **diagnostic**, and set `maxWords` from the observed p95 rather than from a guessed 1.3 ratio. | Yes — it says what it measures |
-| B | Count with an OpenAI tokenizer and call it the token count | No — a different model's BPE, presented as fact |
-| C | Keep D-012 exactly as written | Not implementable; there is no Veo tokenizer to call |
+So, implementing D-012 literally:
 
-**If Doston approves A, it is written as a decision superseding the token-counting part of D-012 and spec §5, and Part 1 does not start until that entry exists.** The rest of D-012 — no numbers in the prompt, everything per target — is untouched.
+- `maxPromptTokens: 1024` stays in the config, with `sourceUrl` and `checkedAt` (D-012, spec §5).
+- `maxWords` stays too — D-012 asks for both.
+- **The validator enforces both.**
+- The tokens-per-word ratio linking them is **measured** in Part 8a across the real generated corpus and taken at p95, rather than guessed. Until then it ships conservative and marked provisional.
+- The estimator's method and its measured error bound are written into the config file, so the number is never mistaken for Veo's own count.
 
-### Q-P1-4 · What is `brief.json`? **Needs Doston.**
+**No decision is superseded. Nothing new is written to `DECISIONS.md`.** The one honest limit — that our token figure is an estimate — is handled with headroom and documented in place, and Part 0 asks Jakhongir for the empirical ground truth: whether Flow's paste box actually truncates a long prompt.
+
+### Q-P1-4 · What is `brief.json`? — **ANSWERED: design it properly now**
 
 The CLI takes "a product folder with photos and `brief.json`". That file encodes goal, audience, style, offer, confirmed claims, duration, aspect ratio and gallery inspiration — which is exactly source 01's step-1 and step-2 wizard input, the thing P2–P4 build the UI against and Session B consumes through `openapi.json` (D-031). Inventing it by accident here and re-deciding it in P4 is guaranteed rework across two repos.
 
-**Recommended:** define it in Part 2 as a zod schema in the `ai` module's public port, deliberately, as the first draft of the real brief contract — reviewed now with P2–P4 in mind, not improvised.
+Doston: design it properly now. It is defined in Part 2 as a zod schema in the `ai` module's public port, written with P2–P4 and Session B's generated client in mind, and reviewed as the first draft of the real brief contract rather than improvised for fixtures.
 
 ### Q-P1-2 · Which provider adapters? — **ANSWERED (D-043)**
 
@@ -96,11 +98,11 @@ Each part stops for review. **Every part ends by updating `docs/PROGRESS.md`, ti
 ### Part 1 — Video target configuration
 
 - [ ] `src/ai/targets/` — a versioned config file, reviewed like code (D-012, D-013).
-- [ ] The `flow-veo-3.1` entry: `id`, `version`, `sourceUrl`, `checkedAt`, `maxWords`, `maxChars`, `recommendedWords`, `sourceTokenLimit`, `beats: { default, max }`, `durations`, `aspectRatios`, `referenceImages`, `referenceMode`, `highEnergyCameraAllowed`.
+- [ ] The `flow-veo-3.1` entry: `id`, `version`, `sourceUrl`, `checkedAt`, **`maxPromptTokens`** (1024, D-012 and spec §5), `maxWords`, `maxChars`, `recommendedWords`, `tokensPerWord` (the estimator ratio, provisional until Part 8a measures it), `beats: { default, max }`, `durations`, `aspectRatios`, `referenceImages`, `referenceMode`, `highEnergyCameraAllowed`.
 - [ ] `version` is required: without it the Part 8a results table cannot say which config produced which prompt, and the Part 7 recordings cannot be invalidated when the config changes.
 - [ ] A zod schema for the config itself, so a malformed target fails at import.
 - [ ] `recommendedWords` and `beats.default` ship provisional, marked as such, and are settled by Part 8b.
-- [ ] Tests: the shipped config parses; `beats.default > beats.max` is rejected; an unknown target id is rejected; empty `durations` or `aspectRatios` are rejected; a missing `version` is rejected.
+- [ ] Tests: the shipped config parses; `beats.default > beats.max` is rejected; an unknown target id is rejected; empty `durations` or `aspectRatios` are rejected; a missing `version` is rejected; `maxWords × tokensPerWord` must not exceed `maxPromptTokens`, so the two ceilings can never contradict each other.
 
 **Verify:** `pnpm test`. No AI call.
 
@@ -122,7 +124,7 @@ Each part stops for review. **Every part ends by updating `docs/PROGRESS.md`, ti
 Pure functions, the largest test surface in P1. Source 01 §28 and §50.
 
 - [ ] **Target and capability (§50):** the target exists; `durationSeconds` and `aspectRatio` are supported; reference mode is supported; **the model's echoed target matches the server-requested one** — a model that renegotiates its own duration is the §51 hard failure "unsupported provider mode".
-- [ ] **Length:** `promptEn` within `maxWords` and `maxChars`; non-empty on `ready`.
+- [ ] **Length (D-012):** `promptEn` within **`maxPromptTokens`** — estimated as `words × tokensPerWord`, with the estimator named in the error so nobody reads it as Veo's own count — and within `maxWords` and `maxChars`; non-empty on `ready`.
 - [ ] **Timeline:** first shot starts at 0; contiguous, no overlap, no gap; last shot ends at the duration; beat count ≤ `beats.max`.
 - [ ] **Forbidden directions (§50 + D-017):** `promptEn` must not carry voiceover, narration, subtitles, burned-in captions, on-screen text or music cues. Source 01 §25 sets default audio to foley and room tone with no music, dialogue or narration, and D-017 defers voiceover and overlays entirely. Cheap, deterministic, and it protects a locked decision from silent drift.
 - [ ] **Placeholders:** no `[PRODUCT]`, `{…}`, `TBD`, `Lorem`.
@@ -209,7 +211,7 @@ Source 01 §49, plus the gallery case the first draft asserted without providing
 - [ ] Matrix, defined before the cap is set: **6 configs** (word count 300 / 500 / 700 at the baseline beat count, then beats 2 / 3 / 4 at the baseline word count) **× 7 fixtures = 42 runs**, up to 84 billed calls with repairs.
 - [ ] Cap computed from Part 5b's measured per-call cost × 84, with headroom. Passed explicitly; the CLI refuses without it.
 - [ ] Results table: product, category, model, prompt version, **target config version**, word count, measured tokens-per-word, validator pass, **§51 rubric score** (the nine criteria at source 01 §51), cost.
-- [ ] Tokens-per-word p95 across the corpus sets `maxWords` (Q-P1-1).
+- [ ] Tokens-per-word p95 across the corpus sets `tokensPerWord`, and `maxWords` is re-derived from `maxPromptTokens` with it. The provisional marks come off (Q-P1-1, D-012).
 - [ ] **No conclusions about video quality here.** Word count and validator pass cannot tell you whether 300 or 700 words makes a better video. This part produces candidate prompts; 8b judges them.
 
 **Verify:** the table in `docs/PROGRESS.md` with real numbers, and the cap never exceeded.
@@ -252,7 +254,7 @@ Source 01 §49, plus the gallery case the first draft asserted without providing
 | Jakhongir's Google credits run out | Part 0 counts the ~20–40 generations first. They are his credits; the app never touches them. |
 | Live costs run away | Pre-call cap from a measured per-call cost, refuses to start without one. |
 | One-provider comparison | Recorded as one provider, not dressed up as three (D-043). |
-| `maxWords` is a proxy for a tokenizer we can't call | Named for what it measures, set from a measured p95, origin documented (Q-P1-1). |
+| Our token count is an estimate, not Veo's own | Both ceilings enforced per D-012; the ratio measured at p95 in Part 8a, the estimator and its error documented in the config, and Part 0 gets the empirical truth from Flow itself. |
 | Fixture recordings leak keys or photos | Allowlist recorder, a CI secret grep, metadata stripped before commit. |
 
 ## Code style

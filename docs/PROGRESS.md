@@ -11,8 +11,8 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 | | |
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
-| Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — DRAFT, under review. P0's plan is complete and closed. |
-| Doing now | P1 plan revised after review. Blocked on Doston: **Q-P1-1** (enforcing a token ceiling whose tokenizer is not published — supersedes part of D-012 and spec §5, so it is a standing-gate change) and **Q-P1-4** (the shape of `brief.json`, which is really the seller wizard's contract). Part 0 also needs four answers from Jakhongir before Part 1. |
+| Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
+| Doing now | P1 plan approved. Building Part 1 (the video target config). Part 0's four questions are outstanding with Jakhongir, so the target's values ship provisional until he confirms them. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -101,6 +101,18 @@ A review agent checked the draft against source 01 §25–§52, source 02, the d
 **New Part 0:** four things from Jakhongir before any code. Which Flow mode and its real durations, aspect ratios and reference rules (D-013 says his test runs confirm these); whether Flow's paste box truncates a 700-word prompt, which nobody has tested and the whole length premise rests on; his Flow generation quota, since Part 8b and Part 9 need roughly 20–40 videos on **his** Google credits; and the ~10 pilot products, which are not on his owed list.
 
 Nothing built. No code, no live call, no spend.
+
+## 2026-09-11 — P1 open questions answered; plan approved
+
+**Q-P1-1 corrected.** The revised plan proposed dropping the token ceiling for a word ceiling, framed as superseding D-012. Doston pushed back — follow the decisions we made — and he was right. The draft had treated "we cannot call Veo's tokenizer" as "we cannot enforce a token ceiling", which does not follow. D-012 asks the config to carry *maximum prompt tokens **and** words* and for validators to enforce them; it never required Google's own tokenizer.
+
+So D-012 is implemented as written: `maxPromptTokens: 1024` stays, `maxWords` stays, the validator enforces **both**, and the tokens-per-word ratio linking them is measured at p95 across the real corpus in Part 8a instead of guessed. The estimator and its error bound are documented in the config file so the figure is never mistaken for Veo's own count, and Part 0 gets the empirical truth from Flow itself. **No decision superseded, no new entry written.**
+
+**Q-P1-4 answered:** `brief.json` is designed properly now, as a zod schema in the `ai` module's public port, written with P2–P4 and Session B's generated client in mind — not improvised for fixtures and re-decided in P4.
+
+**Q-P1-5 settled inside the plan:** the repair call resends the product images. A cheaper repair that rewrites the prompt without seeing the product is a product-lock risk, and the repair is capped at one either way.
+
+The plan is approved. Part 1 starts. Part 0's four questions are outstanding with Jakhongir, so the target config's values ship marked provisional.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 
