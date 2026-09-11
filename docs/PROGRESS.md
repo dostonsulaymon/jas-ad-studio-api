@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | P1 plan approved. Building Part 1 (the video target config). Part 0's four questions are outstanding with Jakhongir, so the target's values ship provisional until he confirms them. |
+| Doing now | P1 Part 1 done (video target config). Next: Part 2, the output contract — the §26 shape, the trusted envelope, `brief.json`, and the JSON Schema downgrade. |
 | Next | P1 plan → Doston reviews it (a subagent reviews it first, at his request) → build one part at a time, testing each → the go/no-go. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
@@ -113,6 +113,18 @@ So D-012 is implemented as written: `maxPromptTokens: 1024` stays, `maxWords` st
 **Q-P1-5 settled inside the plan:** the repair call resends the product images. A cheaper repair that rewrites the prompt without seeing the product is a product-lock risk, and the repair is capped at one either way.
 
 The plan is approved. Part 1 starts. Part 0's four questions are outstanding with Jakhongir, so the target config's values ship marked provisional.
+
+## 2026-09-11 — P1 Part 1 done: video target configuration
+
+`src/ai/targets/`. The launch target `flow-veo-3.1` (D-013) as a versioned config entry, parsed by its own zod schema at import so a malformed target cannot reach a generation.
+
+**D-012 implemented as written:** the entry carries **both** `maxPromptTokens: 1024` and `maxWords`, and a schema rule asserts `maxWords × tokensPerWord ≤ maxPromptTokens`, so the two ceilings can never contradict each other — without it a prompt could satisfy one validator while breaching the other.
+
+`tokensPerWord` is 1.6, deliberately pessimistic: ordinary English prose runs about 1.3, and cinematographic compounds and punctuation push it higher. It is our estimator, not Google's tokenizer, and the file says so. Part 8a replaces it with the p95 measured across the real corpus and re-derives `maxWords` from it.
+
+The target is marked `provisional: true` until Jakhongir confirms the Flow mode, durations, aspect ratios and reference rules (Part 0). A test asserts the flag is still true, so it fails the day that changes and forces the value to be re-read rather than assumed.
+
+**Verified:** `pnpm lint`, `pnpm typecheck`, `pnpm test` (52 passing, 19 new), `pnpm build`, `pnpm openapi:check` — all clean. No AI call and no spend; nothing in Part 1 touches a provider.
 
 ## 2026-09-11 — P0 built (api repo), not committed
 

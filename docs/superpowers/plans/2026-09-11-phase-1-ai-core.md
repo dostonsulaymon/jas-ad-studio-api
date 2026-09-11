@@ -97,14 +97,14 @@ Each part stops for review. **Every part ends by updating `docs/PROGRESS.md`, ti
 
 ### Part 1 — Video target configuration
 
-- [ ] `src/ai/targets/` — a versioned config file, reviewed like code (D-012, D-013).
-- [ ] The `flow-veo-3.1` entry: `id`, `version`, `sourceUrl`, `checkedAt`, **`maxPromptTokens`** (1024, D-012 and spec §5), `maxWords`, `maxChars`, `recommendedWords`, `tokensPerWord` (the estimator ratio, provisional until Part 8a measures it), `beats: { default, max }`, `durations`, `aspectRatios`, `referenceImages`, `referenceMode`, `highEnergyCameraAllowed`.
-- [ ] `version` is required: without it the Part 8a results table cannot say which config produced which prompt, and the Part 7 recordings cannot be invalidated when the config changes.
-- [ ] A zod schema for the config itself, so a malformed target fails at import.
-- [ ] `recommendedWords` and `beats.default` ship provisional, marked as such, and are settled by Part 8b.
-- [ ] Tests: the shipped config parses; `beats.default > beats.max` is rejected; an unknown target id is rejected; empty `durations` or `aspectRatios` are rejected; a missing `version` is rejected; `maxWords × tokensPerWord` must not exceed `maxPromptTokens`, so the two ceilings can never contradict each other.
+- [x] `src/ai/targets/` — a versioned config file, reviewed like code (D-012, D-013).
+- [x] The `flow-veo-3.1` entry: `id`, `version`, `sourceUrl`, `checkedAt`, **`maxPromptTokens`** (1024, D-012 and spec §5), `maxWords`, `maxChars`, `recommendedWords`, `tokensPerWord` (the estimator ratio, provisional until Part 8a measures it), `beats: { default, max }`, `durations`, `aspectRatios`, `referenceImages`, `referenceMode`, `highEnergyCameraAllowed`.
+- [x] `version` is required: without it the Part 8a results table cannot say which config produced which prompt, and the Part 7 recordings cannot be invalidated when the config changes.
+- [x] A zod schema for the config itself, so a malformed target fails at import.
+- [x] `recommendedWords` and `beats.default` ship provisional, marked as such, and are settled by Part 8b.
+- [x] Tests: the shipped config parses; `beats.default > beats.max` is rejected; an unknown target id is rejected; empty `durations` or `aspectRatios` are rejected; a missing `version` is rejected; `maxWords × tokensPerWord` must not exceed `maxPromptTokens`, so the two ceilings can never contradict each other.
 
-**Verify:** `pnpm test`. No AI call.
+**Verify:** done 2026-09-11 — `pnpm lint`, `pnpm typecheck`, `pnpm test` (52 passing, 19 of them new), `pnpm build` and `pnpm openapi:check` all clean. No AI call, no spend.
 
 ### Part 2 — The output contract
 
