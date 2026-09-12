@@ -63,3 +63,34 @@ describe('validateEnv', () => {
     expect(error).toThrow(/REDIS_URL/);
   });
 });
+
+describe('google sign-in and storage config', () => {
+  it('parses OWNER_EMAILS into a lowercased, trimmed list', () => {
+    const env = validateEnv({ ...valid, OWNER_EMAILS: 'A@b.com, c@d.com ' });
+    expect(env.OWNER_EMAILS).toEqual(['a@b.com', 'c@d.com']);
+  });
+
+  it('defaults OWNER_EMAILS to empty rather than inventing an owner', () => {
+    expect(validateEnv({ ...valid }).OWNER_EMAILS).toEqual([]);
+  });
+
+  it('refuses a GOOGLE_REDIRECT_URI that is not an absolute URL', () => {
+    expect(() => validateEnv({ ...valid, GOOGLE_REDIRECT_URI: 'not-a-url' })).toThrow(
+      /GOOGLE_REDIRECT_URI/,
+    );
+  });
+
+  it('refuses an empty GOOGLE_CLIENT_SECRET rather than treating it as absent', () => {
+    expect(() => validateEnv({ ...valid, GOOGLE_CLIENT_SECRET: '' })).toThrow(
+      /GOOGLE_CLIENT_SECRET/,
+    );
+  });
+
+  it('defaults STORAGE_ROOT under the app directory', () => {
+    expect(validateEnv({ ...valid }).STORAGE_ROOT).toBe('./storage/photos');
+  });
+
+  it('defaults WEB_ORIGIN to the dev api origin', () => {
+    expect(validateEnv({ ...valid }).WEB_ORIGIN).toBe('http://localhost:3040');
+  });
+});
