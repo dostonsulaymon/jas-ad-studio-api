@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Pool } from 'pg';
 import { PG_POOL } from '../common/db/tokens';
+import { generationResultSchema } from '../ai/public/result.schema';
 import type { Executor } from '../common/db/transaction';
 import type { GenerationDetail, GenerationView, JobStatus } from './public/generation.port';
 
@@ -242,7 +243,14 @@ export class GenerationsRepo {
           : {
               generationId: row.id,
               promptEn: row.pkg_prompt,
-              result: row.pkg_result,
+              /**
+               * Parsed on the way out, not cast. jsonb comes back as `unknown`, and the
+               * contract now promises the web app a real §26 shape — so the promise is
+               * checked rather than asserted. A package is validated before it is
+               * stored, so a failure here means the schema changed incompatibly with
+               * rows a seller already paid for, which should be loud.
+               */
+              result: generationResultSchema.parse(row.pkg_result),
               createdAt: row.pkg_created.toISOString(),
             },
     };

@@ -10,12 +10,30 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0–P3 closed and merged. P4 built and tested on `p4-generation-pipeline`, uncommitted.** |
+| Phase | **P0–P4 closed and merged.** P5's backend side is done; its front side belongs to Session B. |
 | Branch | **`p3-credits-orders`**, cut from `main` on 2026-09-12. One branch per phase, merged only after the exit check and Doston's review (D-070). |
-| Active plan | `docs/superpowers/plans/2026-09-12-phase-4-generation-pipeline.md` — **all 11 tasks and 49 steps done**, including the real-provider hand-walk. Uncommitted. |
-| Doing now | Nothing in flight. P4 awaits Doston's review. **Claude does not commit (D-071).** |
-| Next | Doston's review, then the merge. After that P5 (studio UI, web repo) — but **D-082 first**: a real generation costs 4x what Q-02's pricing assumed, and Jakhongir is setting prices against that figure. |
+| Active plan | None in this repo. `docs/superpowers/plans/2026-09-12-phase-5-studio-ui.md` is **Session B's**, and every file it creates is in `../jas-ad-studio-web` (D-025). P6 has no plan yet. |
+| Doing now | Nothing in flight. `p5-backend-contract` holds the contract fix (D-083). **Claude does not commit unless told (D-071).** |
+| Next | Session B runs `pnpm api:generate` in the web repo and builds P5's generation slice. On this side: P6 (gallery) needs a plan, and **D-082 needs Jakhongir** — a generation costs 4x what the pack prices assume. |
 | Last verified state | 2026-09-12 17:11 on `p3-credits-orders`: the full gate green — `lint` and `typecheck` silent, `pnpm test` **471 passed in 35 files**, `build` clean, `openapi:check` up to date (29 operations, 18 component schemas). The whole money flow also walked by hand against the running server, which found one defect (D-076). Earlier, 16:21 on `main` after the merge: the full gate green — `lint` and `typecheck` silent, `test` **376 passed in 26 files** (including the 16-test isolation gate), `build` clean, `openapi:check` “`openapi.json` is up to date”. `components.schemas` holds 4 shapes, so the contract is no longer a list of bare URLs. `jas-api` and `jas-worker` both `online` under pm2 on Node 24.19.0, and the live server answers. |
+
+## 2026-09-12 — P4 merged, and P5's backend side closed
+
+**P4 is on `main` as `bdfaec2`**, nine commits, gate green after the merge: 525 tests in 40 files. `openapi.json` now carries `POST /api/projects/{id}/generations` and `GET /api/generations/{id}`, which is what unblocks P5's generation slice.
+
+### P5, backend side
+
+P5 is Session B's phase in the web repo (D-025, R-8, and its own plan says *"Session B never edits the api repo except for this one file"*). What was left on this side was making sure the contract it consumes is actually usable — and it was not.
+
+**One hole, in the worst place (D-083).** A sweep for untyped fields found exactly one: `GenerationDetailDto.package.result` was `z.unknown()`, so `openapi.json` described the **ad package** as `{}`. The web client generates from that file, so the concept, the Uzbek shot plan and the prompt — the entire payload the studio exists to show — would have arrived as `any`. Now `generationResultSchema`, imported from the ai port so it cannot drift, and **parsed** on the way out of jsonb rather than cast.
+
+`src/contract.spec.ts` keeps it shut: it walks every schema and fails on any empty field, names the ad package's fields, and demands a request body on every state-changing route. It caught a real exemption while being written — `POST .../generations` takes only a path id and an `Idempotency-Key` header — so the four bodyless writes are an explicit list rather than a regex.
+
+**The handoff is verified without touching Session B's files:** `pnpm api:check` in the web repo now reports *"out of date with main, run pnpm api:generate"*. Their lint, typecheck and 44 tests are green, and their client was pinned at `dec385d` (the P3 merge), which is why the admin panel and the whole P3 slice are already built there.
+
+### What is still not ours to do
+
+The generate action, job polling, the inline result, copy-with-fallback, TXT export, the Flow handoff and the `AI_*` error screens are all in Session B's plan and all in their repo. Merging P4 and fixing the contract is the whole of this side's contribution.
 
 ## 2026-09-12 — P4 done: the generation pipeline, proven with a real model call
 

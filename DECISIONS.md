@@ -993,6 +993,17 @@ The result itself was good: a 2,251-word English prompt, three contiguous shots 
 Not yet known: whether a cheaper model, or a shorter prompt for the simpler formats, would hold the quality D-055 closed P1 on. Worth measuring before repricing — but that is a P1-style experiment, not a P4 task.
 
 
+### D-083 · 2026-09-12 · The ad package is typed in the contract, and a test keeps it that way
+
+P5's backend pass found one hole, and it was in the worst possible place.
+
+`GenerationDetailDto.package.result` was `z.unknown()`, which put `"result": {}` in `openapi.json` — an empty schema. The web repo generates its client from that file (D-031), so **the ad package would have arrived as `any` on the one screen the studio exists to render**: the concept, the Uzbek shot plan and the prompt. Every other field in the contract was typed; this one was not.
+
+It is now `generationResultSchema`, imported from the ai port rather than restated, so it cannot drift from what the validators actually enforce. The repo **parses** the stored jsonb on the way out instead of casting it: the contract now promises a real §26 shape, so the promise is checked. A package is validated before it is stored, so a failure there would mean the schema changed incompatibly with rows a seller already paid for — which should be loud.
+
+This is T-09's defect one level down: a route can carry a documented body and still describe its most important field as `any`. So `src/contract.spec.ts` now walks every schema and fails on any empty field, checks the ad package's fields by name, and requires a request body on every state-changing route — with a short explicit allowlist for the four that genuinely take only a path and headers, listed so adding one is a decision rather than a regex quietly widening.
+
+
 ---
 
 ## Inputs recorded but not yet decided
