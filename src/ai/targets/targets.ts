@@ -1,3 +1,4 @@
+import { LAUNCH_TARGET_ID } from '../public/generator.port';
 import { videoTargetSchema, type VideoTarget } from './target.schema';
 
 /**
@@ -18,7 +19,9 @@ import { videoTargetSchema, type VideoTarget } from './target.schema';
  * whether the chosen style earns high-energy camera work.
  */
 const GOOGLE_FLOW = {
-  id: 'google-flow',
+  // Single source: the port publishes this id because callers outside the ai module have
+  // to name a target, and two copies of the string would drift apart silently.
+  id: LAUNCH_TARGET_ID,
   version: 5,
   sourceUrl: 'https://labs.google/flow',
   checkedAt: '2026-09-12',
