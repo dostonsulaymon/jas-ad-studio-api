@@ -2,6 +2,7 @@
  * The generation module's public contract (R-7). Types and DI tokens only.
  */
 import { z } from 'zod';
+import { generationResultSchema } from '../../ai/public/result.schema';
 
 /**
  * The JOB's states (source 01 §32). Named JOB_STATUSES, not GENERATION_STATUSES, because
@@ -41,12 +42,22 @@ export const generationViewSchema = z.object({
 });
 export type GenerationView = z.infer<typeof generationViewSchema>;
 
-/** Present only on a ready generation. This is the thing the seller paid for. */
+/**
+ * Present only on a ready generation. This is the thing the seller paid for.
+ *
+ * `result` is the real §26 schema, not `z.unknown()`. It was unknown first, and that
+ * left `"result": {}` in the contract — so the generated client (D-031) typed the ad
+ * package as `any` on the one screen P5 exists to render: the concept, the Uzbek shot
+ * plan and the prompt. That is the T-09 defect again, on the most important payload in
+ * the app.
+ *
+ * The shape is the ai module's, so it is imported rather than restated and cannot drift
+ * from what the validators actually enforce.
+ */
 export const adPackageViewSchema = z.object({
   generationId: z.uuid(),
   promptEn: z.string(),
-  /** The validated §26 envelope. Opaque here; the web app renders it. */
-  result: z.unknown(),
+  result: generationResultSchema,
   createdAt: z.iso.datetime(),
 });
 export type AdPackageView = z.infer<typeof adPackageViewSchema>;

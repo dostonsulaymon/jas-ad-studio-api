@@ -1832,7 +1832,242 @@
               "promptEn": {
                 "type": "string"
               },
-              "result": {},
+              "result": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "ready",
+                      "needs_input",
+                      "refused"
+                    ]
+                  },
+                  "questionsUz": {
+                    "maxItems": 2,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  },
+                  "messageUz": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 400,
+                    "nullable": true
+                  },
+                  "product": {
+                    "type": "object",
+                    "properties": {
+                      "category": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "observedDetails": {
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "confirmedClaims": {
+                        "maxItems": 10,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "unknownDetails": {
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "referenceConflicts": {
+                        "maxItems": 6,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "fidelityConstraints": {
+                        "maxItems": 12,
+                        "type": "array",
+                        "items": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      }
+                    },
+                    "required": [
+                      "category",
+                      "observedDetails",
+                      "confirmedClaims",
+                      "unknownDetails",
+                      "referenceConflicts",
+                      "fidelityConstraints"
+                    ],
+                    "additionalProperties": false
+                  },
+                  "concept": {
+                    "type": "object",
+                    "properties": {
+                      "titleUz": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "rationaleUz": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 400
+                      },
+                      "formatId": {
+                        "type": "string",
+                        "enum": [
+                          "product-film",
+                          "high-energy",
+                          "lifestyle-story",
+                          "ugc-authentic"
+                        ]
+                      },
+                      "hookUz": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      },
+                      "ctaUz": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 200
+                      }
+                    },
+                    "required": [
+                      "titleUz",
+                      "rationaleUz",
+                      "formatId",
+                      "hookUz",
+                      "ctaUz"
+                    ],
+                    "additionalProperties": false,
+                    "nullable": true
+                  },
+                  "target": {
+                    "type": "object",
+                    "properties": {
+                      "targetId": {
+                        "type": "string",
+                        "minLength": 1
+                      },
+                      "durationSeconds": {
+                        "type": "number",
+                        "exclusiveMinimum": true,
+                        "minimum": 0
+                      },
+                      "aspectRatio": {
+                        "type": "string",
+                        "enum": [
+                          "9:16",
+                          "16:9",
+                          "1:1"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "targetId",
+                      "durationSeconds",
+                      "aspectRatio"
+                    ],
+                    "additionalProperties": false,
+                    "nullable": true
+                  },
+                  "shots": {
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "startSeconds": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "endSeconds": {
+                          "type": "number",
+                          "exclusiveMinimum": true,
+                          "minimum": 0
+                        },
+                        "descriptionUz": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 400
+                        },
+                        "cameraUz": {
+                          "type": "string",
+                          "minLength": 1,
+                          "maxLength": 200
+                        }
+                      },
+                      "required": [
+                        "startSeconds",
+                        "endSeconds",
+                        "descriptionUz",
+                        "cameraUz"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "promptEn": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 30000,
+                    "nullable": true
+                  },
+                  "assumptionsUz": {
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  },
+                  "reviewNotesUz": {
+                    "maxItems": 8,
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    }
+                  }
+                },
+                "required": [
+                  "status",
+                  "questionsUz",
+                  "messageUz",
+                  "product",
+                  "concept",
+                  "target",
+                  "shots",
+                  "promptEn",
+                  "assumptionsUz",
+                  "reviewNotesUz"
+                ],
+                "additionalProperties": false
+              },
               "createdAt": {
                 "type": "string",
                 "format": "date-time",
