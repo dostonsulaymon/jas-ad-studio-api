@@ -7,6 +7,7 @@ import { PROJECT_OWNERSHIP, type ProjectOwnership } from '../projects/public/pro
 import { processUpload, type RenderedCopy } from './image.pipeline';
 import type { AssetKind, StoredAsset } from './public/assets.port';
 import { FileStorage } from './storage';
+import type { ReferenceImage } from '../ai/public/provider.port';
 
 export class AssetNotFoundError extends DomainError {
   readonly code = 'ASSET_NOT_FOUND';
@@ -117,6 +118,31 @@ export class AssetsService {
     if (!path) throw new AssetNotFoundError('No reference asset with that id for this user');
 
     return { bytes: await this.storage.read(path), contentType: 'image/jpeg' };
+  }
+
+  /**
+   * The bytes the model sees: the 1024 px model-input copies, primary photo first.
+   * Ownership is enforced by getOwned() before a single file is touched.
+   */
+  async readModelInputs(userId: string, projectId: string): Promise<ReferenceImage[]> {
+    await this.projects.getOwned(userId, projectId);
+
+    const rows = await this.query<{ path: string }>(
+      `SELECT a.path FROM assets a
+         JOIN projects p ON p.id = a.project_id
+        WHERE a.project_id = $2 AND a.user_id = $1 AND a.kind = 'model_input'
+          AND p.deleted_at IS NULL
+        ORDER BY a.is_primary DESC, a.created_at ASC`,
+      [userId, projectId],
+    );
+
+    return Promise.all(
+      rows.map(async (row) => ({
+        bytes: await this.storage.read(row.path),
+        // The pipeline writes both copies as JPEG q90 (R-6), whatever came in.
+        mimeType: 'image/jpeg' as const,
+      })),
+    );
   }
 
   async listFor(userId: string, projectId: string): Promise<StoredAsset[]> {
