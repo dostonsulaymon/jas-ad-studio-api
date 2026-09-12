@@ -90,7 +90,7 @@ export function buildDataBlock(input: AssembleInput): string {
     `Product name: ${brief.productName}`,
     `Seller description: ${brief.description}`,
     `Goal: ${brief.goal}`,
-    `Requested style: ${brief.style}`,
+    `Requested creative format: ${brief.formatId}`,
     `Platform: ${brief.platform}`,
     `Audience: ${brief.audience ?? '(not stated)'}`,
     '',

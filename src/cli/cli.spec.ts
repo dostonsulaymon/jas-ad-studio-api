@@ -86,7 +86,7 @@ const validBrief = {
   productName: 'Termos',
   description: 'Oddiy kulrang termos.',
   goal: 'sales',
-  style: 'clean-studio',
+  formatId: 'product-film',
   platform: 'instagram',
   aspectRatio: '9:16',
   durationSeconds: 8,
@@ -171,7 +171,7 @@ const envelope: GenerationEnvelope = {
     concept: {
       titleUz: 'Soddalik',
       rationaleUz: 'Foydani koʻrsatadi.',
-      style: 'clean-studio',
+      formatId: 'product-film',
       hookUz: 'Bugʻ',
       ctaUz: 'Buyurtma bering',
     },

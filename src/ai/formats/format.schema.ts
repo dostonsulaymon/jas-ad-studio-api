@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { AD_STYLES } from '../public/brief.schema';
 
 /**
  * How energetic a format's camera and cutting may be. This is the dial that source 01
@@ -12,10 +11,10 @@ export const creativeFormatSchema = z
   .object({
     id: z.string().min(1),
     version: z.number().int().positive(),
+    /** Shown in the wizard's format picker. The seller chooses from these (D-065). */
     labelUz: z.string().min(1),
-
-    /** Which styles from the seller's brief resolve to this format. */
-    styles: z.array(z.enum(AD_STYLES)).min(1),
+    /** One plain Uzbek sentence telling the seller what this format looks like. */
+    descriptionUz: z.string().min(10),
 
     /** One line telling the model what kind of film this is. */
     intent: z.string().min(20),

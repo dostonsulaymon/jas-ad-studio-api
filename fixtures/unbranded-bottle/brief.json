@@ -2,7 +2,7 @@
   "productName": "Termos",
   "description": "Oddiy kulrang termos. Yorliq va logotip yo'q. Po'lat korpus, burama qopqoq.",
   "goal": "sales",
-  "style": "clean-studio",
+  "formatId": "product-film",
   "platform": "instagram",
   "aspectRatio": "9:16",
   "durationSeconds": 8,

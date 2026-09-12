@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { FORMAT_IDS } from './creative-format';
 import { ASPECT_RATIOS } from './video-format';
 
 /**
@@ -9,13 +10,6 @@ import { ASPECT_RATIOS } from './video-format';
  */
 
 export const AD_GOALS = ['awareness', 'sales', 'launch', 'trust'] as const;
-export const AD_STYLES = [
-  'clean-studio',
-  'lifestyle',
-  'ugc',
-  'premium-cinematic',
-  'energetic-social',
-] as const;
 export const PLATFORMS = ['instagram', 'telegram', 'tiktok', 'youtube-shorts'] as const;
 
 const shortText = z.string().trim().min(1).max(200);
@@ -47,7 +41,13 @@ export const briefSchema = z
     productName: shortText,
     description: longText,
     goal: z.enum(AD_GOALS),
-    style: z.enum(AD_STYLES),
+    /**
+     * D-065. The seller names the creative format themselves. This replaced `style`,
+     * which asked nearly the same question one level of indirection away: two of the
+     * five styles resolved to the same format, so the picker could not express three of
+     * the four formats and nine of ten test products silently landed on one (D-063).
+     */
+    formatId: z.enum(FORMAT_IDS),
     platform: z.enum(PLATFORMS),
     aspectRatio: z.enum(ASPECT_RATIOS),
     /**

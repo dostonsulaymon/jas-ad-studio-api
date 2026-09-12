@@ -1,16 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import type { Brief } from '../public/brief.schema';
 import { creativeFormatSchema } from './format.schema';
+import { FORMAT_IDS } from '../public/creative-format';
 import { DEFAULT_FORMAT_ID, findFormat, formatForBrief, listFormats } from './formats';
 
-const brief = (style: Brief['style']): Brief => ({
+const brief = (formatId: Brief['formatId']): Brief => ({
   productName: 'X',
   description: 'Y',
   goal: 'sales',
-  style,
+  formatId,
   platform: 'instagram',
   aspectRatio: '9:16',
-  durationSeconds: 8,
+  durationSeconds: 10,
   audience: null,
   confirmedClaims: [],
   offer: null,
@@ -52,30 +53,31 @@ describe('the shipped formats', () => {
     }
   });
 
-  it('maps every style to exactly one format', () => {
-    const styles = listFormats().flatMap((f) => f.styles);
+  it('gives every format a unique id, so the picker cannot show two of the same', () => {
+    const ids = listFormats().map((f) => f.id);
 
-    expect(new Set(styles).size).toBe(styles.length);
+    expect(new Set(ids).size).toBe(ids.length);
   });
 });
 
 describe('formatForBrief', () => {
   it.each([
-    ['clean-studio', 'product-film'],
-    ['premium-cinematic', 'product-film'],
-    ['energetic-social', 'high-energy'],
-    ['lifestyle', 'lifestyle-story'],
-    ['ugc', 'ugc-authentic'],
-  ] as const)('resolves %s to %s', (style, expected) => {
-    expect(formatForBrief(brief(style)).id).toBe(expected);
+    ['product-film', 'product-film'],
+    ['high-energy', 'high-energy'],
+    ['lifestyle-story', 'lifestyle-story'],
+    ['ugc-authentic', 'ugc-authentic'],
+  ] as const)('resolves %s to %s', (formatId, expected) => {
+    expect(formatForBrief(brief(formatId)).id).toBe(expected);
   });
 
   it('falls back to the restrained format, never to an energetic one', () => {
-    // An unmapped style must not silently gain permission to whip-pan a product.
-    const unmapped = { ...brief('clean-studio'), style: 'not-a-style' } as unknown as Brief;
+    // The brief's zod enum should make this unreachable through the API. It guards the
+    // CLI and any caller that builds a brief by hand — an id nothing defines must not
+    // silently gain permission to whip-pan a product.
+    const unknown = { ...brief('product-film'), formatId: 'not-a-format' } as unknown as Brief;
 
-    expect(formatForBrief(unmapped).id).toBe(DEFAULT_FORMAT_ID);
-    expect(formatForBrief(unmapped).energy).toBe('restrained');
+    expect(formatForBrief(unknown).id).toBe(DEFAULT_FORMAT_ID);
+    expect(formatForBrief(unknown).energy).toBe('restrained');
   });
 });
 
@@ -84,7 +86,7 @@ describe('creativeFormatSchema', () => {
     id: 't',
     version: 1,
     labelUz: 'Test',
-    styles: ['clean-studio'],
+    descriptionUz: 'Toza fonda sokin kamera bilan mahsulotni ko‘rsatadigan reklama.',
     intent: 'A test format used only by this specification file.',
     sections: ['Product reference and source of truth', 'Product lock', 'Camera', 'Hero ending'],
     beats: { default: 3, max: 4 },
@@ -118,5 +120,49 @@ describe('creativeFormatSchema', () => {
 
   it('rejects an unknown property', () => {
     expect(creativeFormatSchema.safeParse({ ...valid, vibe: 'cool' }).success).toBe(false);
+  });
+});
+
+describe('D-065: the seller picks the format directly', () => {
+  it('every format carries Uzbek text, because the seller now reads this list', () => {
+    for (const format of listFormats()) {
+      expect(format.labelUz.length).toBeGreaterThan(0);
+      expect(format.descriptionUz.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('keeps the seller-facing text in Latin script (D-014)', () => {
+    for (const format of listFormats()) {
+      expect(format.labelUz).not.toMatch(/[Ѐ-ӿ]/);
+      expect(format.descriptionUz).not.toMatch(/[Ѐ-ӿ]/);
+    }
+  });
+
+  it('the registry covers exactly the ids the contract allows, in both directions', () => {
+    // The port declares FORMAT_IDS and the registry implements it (R-7). Without this,
+    // a format could be added to one and not the other and nothing would say so.
+    expect([...listFormats().map((f) => f.id)].sort()).toEqual([...FORMAT_IDS].sort());
+
+    for (const id of FORMAT_IDS) {
+      expect(findFormat(id)).toBeDefined();
+    }
+  });
+
+  it('no format claims a style any more', () => {
+    for (const format of listFormats()) {
+      expect(format).not.toHaveProperty('styles');
+    }
+  });
+
+  it('resolves a brief to the format it names', () => {
+    for (const format of listFormats()) {
+      expect(formatForBrief({ formatId: format.id } as never).id).toBe(format.id);
+    }
+  });
+
+  it('falls back to the restrained format for an id nothing defines', () => {
+    // An unknown format must never silently gain permission to whip-pan a product.
+    expect(formatForBrief({ formatId: 'no-such-format' } as never).id).toBe(DEFAULT_FORMAT_ID);
+    expect(findFormat(DEFAULT_FORMAT_ID)?.energy).toBe('restrained');
   });
 });

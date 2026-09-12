@@ -1,7 +1,7 @@
 {
   "productName": "Sport butilka",
   "description": "Sport uchun butilka. Ikkita surat yuborildi.",
-  "goal": "sales", "style": "energetic-social", "platform": "instagram",
+  "goal": "sales", "formatId": "high-energy", "platform": "instagram",
   "aspectRatio": "9:16", "durationSeconds": 8,
   "audience": "Sportchilar",
   "confirmedClaims": [], "offer": null, "galleryInspirationId": null

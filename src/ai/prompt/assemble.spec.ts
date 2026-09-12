@@ -12,7 +12,7 @@ const brief: Brief = {
   productName: 'Termos 500ml',
   description: 'Po‘lat termos.',
   goal: 'sales',
-  style: 'clean-studio',
+  formatId: 'product-film',
   platform: 'instagram',
   aspectRatio: '9:16',
   durationSeconds: 8,
@@ -270,7 +270,7 @@ describe('the format block (D-056)', () => {
 
   it('selects the format from the seller’s style, not from a default', () => {
     const energetic = buildSystemPrompt({
-      brief: { ...brief, style: 'energetic-social' },
+      brief: { ...brief, formatId: 'high-energy' },
       target,
       inspiration: null,
     });
