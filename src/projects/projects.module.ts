@@ -1,8 +1,14 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ProjectsController } from './projects.controller';
 import { ProjectsService } from './projects.service';
 import { PROJECT_OWNERSHIP } from './public/projects.port';
 
+/**
+ * Global for the same reason AuthModule is: R-7 forbids assets/assets.module.ts from
+ * importing this file, so the ownership port reaches it through the global scope
+ * instead. Only PROJECT_OWNERSHIP is exported — assets gets the check and nothing else.
+ */
+@Global()
 @Module({
   controllers: [ProjectsController],
   providers: [

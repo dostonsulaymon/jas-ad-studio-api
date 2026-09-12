@@ -180,6 +180,96 @@
           "Projects"
         ]
       }
+    },
+    "/api/projects/{projectId}/assets": {
+      "post": {
+        "operationId": "AssetsController_upload",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Assets"
+        ]
+      },
+      "get": {
+        "operationId": "AssetsController_list",
+        "parameters": [
+          {
+            "name": "projectId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Assets"
+        ]
+      }
+    },
+    "/api/assets/{id}/reference": {
+      "get": {
+        "operationId": "AssetsController_reference",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Assets"
+        ]
+      }
+    },
+    "/api/assets/{id}": {
+      "delete": {
+        "operationId": "AssetsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Assets"
+        ]
+      }
     }
   },
   "info": {

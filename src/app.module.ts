@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { AssetsModule } from './assets/assets.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './common/config/config.module';
 import { DatabaseModule } from './common/db/database.module';
@@ -12,7 +13,7 @@ import { ALLOWED_ORIGINS } from './auth/auth.tokens';
 import { CsrfGuard } from './auth/csrf.guard';
 
 @Module({
-  imports: [ConfigModule, LoggerModule, DatabaseModule, RedisModule, HealthModule, AuthModule, ProjectsModule],
+  imports: [ConfigModule, LoggerModule, DatabaseModule, RedisModule, HealthModule, AuthModule, ProjectsModule, AssetsModule],
   providers: [
     { provide: APP_FILTER, useClass: ApiErrorFilter },
     // Spec §10: every state-changing request is checked, so a new controller cannot
