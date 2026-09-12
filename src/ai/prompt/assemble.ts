@@ -1,4 +1,6 @@
 import type { Brief } from '../public/brief.schema';
+import type { CreativeFormat } from '../formats/format.schema';
+import { formatForBrief } from '../formats/formats';
 import type { VideoTarget } from '../targets/target.schema';
 import { AD_DIRECTOR_SYSTEM_PROMPT_V2 } from './ad-director.v2';
 
@@ -15,6 +17,8 @@ export interface AssembleInput {
   brief: Brief;
   target: VideoTarget;
   inspiration: GalleryInspiration | null;
+  /** Overrides the format the seller's style would select. Used to compare formats. */
+  format?: CreativeFormat;
 }
 
 /**
@@ -22,10 +26,6 @@ export interface AssembleInput {
  * means editing a config entry rather than this prompt.
  */
 export function buildTargetBlock(target: VideoTarget, brief: Brief): string {
-  const highEnergy =
-    target.highEnergyCameraAllowed && brief.style === 'energetic-social'
-      ? 'permitted, while the product stays understandable'
-      : 'not permitted';
 
   return [
     'TARGET',
@@ -40,9 +40,7 @@ export function buildTargetBlock(target: VideoTarget, brief: Brief): string {
     // the choices to build for rather than as limits of the tool.
     `The seller will generate at ${String(brief.durationSeconds)} seconds, ${brief.aspectRatio}. Build the sequence and framing for exactly that.`,
     `Reference images supplied: up to ${String(target.maxReferenceImages)}.`,
-    `Beats: aim for ${String(target.beats.default)}, never more than ${String(target.beats.max)}.`,
     `English prompt length: aim for about ${String(target.recommendedWords)} words, never more than ${String(target.maxWords)}.`,
-    `High-energy camera treatment: ${highEnergy}.`,
   ].join('\n');
 }
 
@@ -107,7 +105,34 @@ export function buildDataBlock(input: AssembleInput): string {
   ].join('\n');
 }
 
+/**
+ * D-056: the sections, the beat count and the camera vocabulary all come from here, so a
+ * new creative format is a config entry rather than a prompt rewrite.
+ */
+export function buildFormatBlock(format: CreativeFormat): string {
+  const [low, high] = format.shotSecondsRange;
+
+  return [
+    'FORMAT',
+    `Creative format: ${format.id} (version ${String(format.version)}).`,
+    `Intent: ${format.intent}`,
+    `Energy: ${format.energy}.`,
+    `Beats: aim for ${String(format.beats.default)}, never more than ${String(format.beats.max)}.`,
+    `Typical shot length: ${String(low)} to ${String(high)} seconds.`,
+    `Camera vocabulary to draw from: ${format.cameraVocabulary.join(', ')}.`,
+    `Transitions to draw from: ${format.transitions.join(', ')}.`,
+    'Sections to write, in this order:',
+    ...format.sections.map((section) => `  - ${section}`),
+  ].join('\n');
+}
+
 /** The instruction half. The DATA block is sent as a separate user message. */
 export function buildSystemPrompt(input: AssembleInput): string {
-  return `${AD_DIRECTOR_SYSTEM_PROMPT_V2}\n\n${buildTargetBlock(input.target, input.brief)}`;
+  const format = input.format ?? formatForBrief(input.brief);
+
+  return [
+    AD_DIRECTOR_SYSTEM_PROMPT_V2,
+    buildTargetBlock(input.target, input.brief),
+    buildFormatBlock(format),
+  ].join('\n\n');
 }

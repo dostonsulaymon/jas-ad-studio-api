@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { Brief } from '../public/brief.schema';
 import { DEFAULT_TARGET_ID, findTarget } from '../targets/targets';
 import { AD_DIRECTOR_SYSTEM_PROMPT_V2 } from './ad-director.v2';
-import { buildDataBlock, buildSystemPrompt, buildTargetBlock } from './assemble';
+import { findFormat } from '../formats/formats';
+import { buildDataBlock, buildFormatBlock, buildSystemPrompt, buildTargetBlock } from './assemble';
 
 const target = findTarget(DEFAULT_TARGET_ID);
 if (!target) throw new Error('launch target missing');
@@ -70,30 +71,27 @@ describe('the system prompt itself (D-012)', () => {
     }
   });
 
-  it('carries source 02’s full prompt architecture', () => {
-    const sections = [
-      'Product reference and source of truth',
-      'Product lock',
-      'Commercial concept',
-      'Creative direction',
-      'Opening hook',
-      'Camera',
-      'Product motion',
-      'Environment',
-      'Lighting',
-      'Material and texture treatment',
-      'Sequence',
-      'Editing rhythm',
-      'Audio',
-      'Hero ending',
-      'Visual quality',
-      'Fidelity requirements',
-      'Avoidance',
-    ];
-
-    for (const section of sections) {
-      expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain(section);
+  it('names no section list of its own — the format supplies it (D-056)', () => {
+    // The seventeen sections were hard-coded here until D-056. Eight of nine generated
+    // prompts came out with the identical section list in identical order.
+    for (const section of ['Product reference and source of truth', 'Hero ending', 'Avoidance']) {
+      expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).not.toContain(section);
     }
+
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('the FORMAT block lists');
+  });
+
+  it('keeps the fidelity rules unconditional, whatever a format permits (C-6, D-057)', () => {
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('never relaxed');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('Never trade product identity for spectacle');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain(
+      'reveal a surface the reference never established',
+    );
+  });
+
+  it('defers pacing and camera vocabulary to the format', () => {
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('come from the FORMAT block');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('that is what the seller asked for');
   });
 
   it('carries source 02’s quality bar, the product’s stated differentiator', () => {
@@ -122,7 +120,6 @@ describe('the target block', () => {
   it('injects the target’s numbers rather than hard-coding them', () => {
     const block = buildTargetBlock(target, brief);
 
-    expect(block).toContain(String(target.beats.default));
     expect(block).toContain(String(target.maxWords));
     expect(block).toContain(String(target.recommendedWords));
     expect(block).toContain(String(target.maxReferenceImages));
@@ -140,19 +137,6 @@ describe('the target block', () => {
     expect(block).toContain('The seller will generate at 8 seconds, 16:9');
   });
 
-  it('permits high-energy camera work only when the seller chose an energetic style', () => {
-    expect(buildTargetBlock(target, brief)).toContain('High-energy camera treatment: not permitted');
-    expect(buildTargetBlock(target, { ...brief, style: 'energetic-social' })).toContain(
-      'High-energy camera treatment: permitted',
-    );
-  });
-
-  it('never permits high energy when the target forbids it, whatever the style', () => {
-    const restrained = { ...target, highEnergyCameraAllowed: false };
-    const block = buildTargetBlock(restrained, { ...brief, style: 'energetic-social' });
-
-    expect(block).toContain('not permitted');
-  });
 });
 
 describe('the data block', () => {
@@ -244,5 +228,54 @@ describe('the targetId echo instruction', () => {
 
   it('marks the config version as not for echoing', () => {
     expect(buildTargetBlock(target, brief)).toContain('do not echo');
+  });
+});
+
+describe('the format block (D-056)', () => {
+  const film = findFormat('product-film');
+  const fast = findFormat('high-energy');
+  if (!film || !fast) throw new Error('formats missing');
+
+  it('lists the format’s own sections, in its own order', () => {
+    const block = buildFormatBlock(film);
+
+    for (const section of film.sections) expect(block).toContain(section);
+    expect(block.indexOf('Product lock')).toBeLessThan(block.indexOf('Hero ending'));
+  });
+
+  it('gives different formats different sections', () => {
+    expect(buildFormatBlock(film)).not.toBe(buildFormatBlock(fast));
+    expect(film.sections).not.toEqual(fast.sections);
+  });
+
+  it('carries the beat count and shot length, which left the target block', () => {
+    const block = buildFormatBlock(fast);
+
+    expect(block).toContain(`aim for ${String(fast.beats.default)}`);
+    expect(block).toContain('Typical shot length');
+  });
+
+  it('offers an energetic vocabulary only to the energetic format', () => {
+    expect(buildFormatBlock(fast)).toContain('whip pan');
+    expect(buildFormatBlock(film)).not.toContain('whip pan');
+  });
+
+  it('puts the format into the assembled system prompt', () => {
+    const system = buildSystemPrompt({ brief, target, inspiration: null, format: fast });
+
+    expect(system).toContain('FORMAT');
+    expect(system).toContain('high-energy');
+    expect(system.indexOf('TARGET')).toBeLessThan(system.indexOf('FORMAT'));
+  });
+
+  it('selects the format from the seller’s style, not from a default', () => {
+    const energetic = buildSystemPrompt({
+      brief: { ...brief, style: 'energetic-social' },
+      target,
+      inspiration: null,
+    });
+
+    expect(energetic).toContain('high-energy');
+    expect(buildSystemPrompt({ brief, target, inspiration: null })).toContain('product-film');
   });
 });

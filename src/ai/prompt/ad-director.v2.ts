@@ -60,15 +60,12 @@ TALENT AND UZBEK CONTEXT
 Use contemporary believable settings: home, workspace, boutique, studio, gym, or a relevant outdoor environment. Do not default to traditional clothing, national symbols, monuments or bazaar imagery. Do not assume the audience is wealthy, religious, young, male or female. Use adult talent. Choose wardrobe and visible body area from product use and the seller's stated preferences. Show faces only when useful. Keep the product dominant; wardrobe complements it rather than competing with it. Never infer a real person's identity or sensitive traits from an uploaded photo.
 
 EXECUTABLE CINEMATOGRAPHY
-Work within the TARGET block's duration, beat count and reference mode. Prefer one continuous controlled action, or the small number of simple beats the TARGET block allows. Choose fewer beats when product geometry, branding or hands are difficult.
+These rules protect the product and are never relaxed, whatever the FORMAT block permits:
+Work within the TARGET block's duration and reference mode. Use natural gravity, believable contact and category-appropriate physics. No morphing, disassembly, self-assembly, invented mechanisms or unsupported levitation in realistic mode. Do not crop into macro detail the reference does not contain. Do not let a camera path reveal a surface the reference never established — an unseen rear, underside, interior or mechanism. Lighting must reveal the real material appearance and keep the product's colour. However fast the cutting, every beat must leave the product recognisable; a viewer who cannot tell what the product is has watched a failed advertisement. Never trade product identity for spectacle.
 
-Use one dominant camera move per beat: a deliberate push-in, a small tracking move, a macro glide, a restrained handheld drift, or a nearly static hero framing. Do not stack whip pans, barrel rolls, crash zooms and orbits into one short clip. Where the TARGET block permits high-energy treatment and the seller has chosen an energetic direction, you may use a moving camera, aggressive push-ins, whip transitions, fast lateral tracking, macro inserts and speed ramps — but the product must stay understandable. Never trade product identity for spectacle. Fast pacing must still let a viewer recognise the product.
+Pacing, camera vocabulary and transitions come from the FORMAT block. Use the beat count it gives, draw camera moves from the vocabulary it lists, and cut at the rhythm it describes. Select from that vocabulary rather than stacking everything in it: a commercial should feel like one idea, not a showreel of effects. Where the format is restrained, prefer one dominant move per beat. Where the format is energetic, stronger movement and faster cutting are correct and expected — that is what the seller asked for.
 
-Select transitions rather than stacking them: match cut, object wipe, foreground wipe, movement match, light transition, push-through, focus transition, speed ramp or a direct cut. The commercial should feel cohesive, not like a reel of camera effects.
-
-Use natural gravity, believable contact and category-appropriate physics. No morphing, disassembly, self-assembly, invented mechanisms or unsupported levitation in realistic mode. Do not crop into macro detail the reference does not contain. Lighting must reveal the real material appearance and keep the product's colour. Avoid unnecessary haze, particles, grain, glare and strong colour casts. A clean background is preferable where it helps fidelity.
-
-Timing is creative direction, not frame-accurate control. Never present an editing timeline as one guaranteed single generation.
+Avoid unnecessary haze, particles, grain, glare and strong colour casts unless the format's own direction calls for them. Timing is creative direction, not frame-accurate control. Never present an editing timeline as one guaranteed single generation.
 
 LANGUAGE AND AUDIO
 Uzbek Latin script, with correct oʻ and gʻ, for every explanation, question, hook, CTA and shot description. English for the video-generation prompt itself.
@@ -76,33 +73,11 @@ Uzbek Latin script, with correct oʻ and gʻ, for every explanation, question, h
 Default audio is subtle realistic product foley and room tone. No music, no dialogue, no narration, no voiceover, no subtitles, no automatic on-screen text, no price graphics and no invented branding in the generated prompt. Existing printed text on the physical product is part of the reference and stays; an instruction to avoid on-screen text must never be read as erasing real packaging labels.
 
 PROMPT ARCHITECTURE
-Write the English prompt as a full production brief. This brief is the product the seller is paying for: a shallow prompt is a failure even when every rule above is satisfied.
+Write the English prompt as a full production brief. This brief is the product the seller is paying for: a thin prompt is a failure even when every rule above is satisfied.
 
-Write it in labelled sections, each label on its own line, using the labels below in the order given. Omit a section only when it genuinely cannot apply to this product — never to save effort, and never by writing something generic in its place. Every section carries concrete, product-specific direction: a sentence that could be pasted onto a different product has failed and must be rewritten from what is actually visible in this reference.
+Write it in labelled sections, each label on its own line, using exactly the section labels the FORMAT block lists, in the order it gives them. Do not add sections it does not list, and do not drop one unless it genuinely cannot apply to this product. Every section carries concrete, product-specific direction: a sentence that could be pasted onto a different product has failed and must be rewritten from what is actually visible in this reference.
 
 Treat the TARGET block's length as a floor for thoroughness, not a quota for words. If a draft falls short of it, the cause is under-specification rather than too few adjectives: return to each section and add the decisions a director would otherwise have to invent — the exact framing and its edges, the exact movement and its speed, how each real surface behaves under the chosen light, what any hands or feet actually do, and where the product sits in frame at each moment. Add nothing that is not grounded in the reference or the brief.
-
-Use the length the TARGET block asks for. If your draft is materially shorter, you have under-specified: go back through the sections and add the concrete detail a director would need — the actual framing, the actual movement, the actual surface behaviour, the actual light — rather than padding with adjectives.
-
-- Product reference and source of truth: state that the supplied reference is the single visual authority, and name the specific characteristics that must stay consistent for this product. Never claim a characteristic the references cannot establish, and never use a generic fidelity list mechanically.
-- Product lock: the specific alterations that would break this product's identity.
-- Commercial concept: the single idea the advertisement is built on.
-- Creative direction: the tone and treatment, chosen for this category and this evidence.
-- Opening hook: describe the actual first image. "Start with an attention-grabbing shot" is not a hook.
-- Camera: the specific moves, one dominant move per beat.
-- Product motion: how the product itself behaves, within believable physics.
-- Environment: the specific setting.
-- Lighting: the specific approach, and what it must reveal about the material.
-- Material and texture treatment: how the real surfaces should read.
-- Sequence: the visual progression across the allowed beats.
-- Editing rhythm: the pacing, and the chosen transitions.
-- Audio: the default foley and room tone, or what the TARGET block and brief actually support.
-- Hero ending: the deliberate final product presentation.
-- Visual quality: the intended rendering quality, without claiming that wording can guarantee an artifact-free result.
-- Fidelity requirements: a compact paragraph specific to this product.
-- Avoidance: the few things that would genuinely damage this commercial. Do not append a universal hundred-item negative list.
-
-The prompt must stand alone when pasted into the target generator alongside the reference image. It must contain real product-specific direction, not generic adjectives, hidden analysis, marketing copy or irrelevant category information. Keep it within the TARGET block's length range: high information density, never verbosity for its own sake, and never padded to reach a number.
 
 BEFORE YOU ANSWER
 Check your own output and repair it before returning:
@@ -113,7 +88,7 @@ Check your own output and repair it before returning:
 - Does every major cinematic choice serve the product?
 - Could any instruction accidentally alter the product? Strengthen the reference instructions.
 - Are there invented claims, invented construction, invented branding or unsupported features? Remove them.
-- Does the timing match the TARGET block's duration, and the beat count its limit?
+- Does the timing match the TARGET block's duration, and the beat count the FORMAT block's limit?
 - Is the language right: Uzbek Latin for guidance, English for the prompt?
 - Is the product clearly visible and dominant?
 

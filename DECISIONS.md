@@ -612,6 +612,50 @@ Measured: **8 of 9 generated prompts carry the identical 17 sections in the iden
 **Not built now.** P1 is closed (D-055) and Doston asked for no more code. Recorded as the open design question for a later phase.
 
 
+### D-057 · 2026-09-12 · C-6 resolved: fidelity is unconditional, pacing belongs to the format
+
+Source 01 §25 protects two different things in one sentence, and conflating them is why every advertisement came out the same (D-056).
+
+| §25 protects | Now |
+|---|---|
+| **Product legibility** — no revealing unseen surfaces, no impossible physics, no cropping into detail the reference lacks, the product stays recognisable in every beat | **Unconditional.** No format relaxes it. |
+| **Pacing and transition vocabulary** — one move per beat, no whip pans, no crash zooms, no speed ramps | **Format-dependent.** This is taste, and source 02's HIGH-ENERGY COMMERCIAL MODE explicitly allows the opposite. |
+
+A whip pan does not endanger a product; revealing an invented sole does. `EXECUTABLE CINEMATOGRAPHY` now states the first group as never relaxed and defers the second to the FORMAT block.
+
+**Resolves C-6** in `docs/BRIEF.md`.
+
+### D-058 · 2026-09-12 · Creative formats decide the prompt's shape
+
+A **creative format** is a versioned config entry, like a video target. It carries the section list *and its order*, the beat count, the shot-length range, the camera vocabulary and the transition vocabulary, plus an energy level that is what unlocks §25's pacing rules (D-057).
+
+`AD_DIRECTOR_SYSTEM_PROMPT_V2` no longer names a single section. It says: use the sections the FORMAT block lists, in that order. Same principle as D-012 — nothing numbered or enumerated in the prompt, everything from config, so a new format is a config entry rather than a prompt rewrite.
+
+Four formats ship, mapped from the `style` the seller already picks (source 01 §9), so no brief changes:
+
+| Format | Styles | Sections | Beats | Shot length | Energy |
+|---|---|---|---|---|---|
+| `product-film` | clean-studio, premium-cinematic | 17 | 3 | 2–3.5s | restrained |
+| `high-energy` | energetic-social | 14 | 5 | 0.6–1.8s | high |
+| `lifestyle-story` | lifestyle | 15 | 3 | 1.8–3.5s | moderate |
+| `ugc-authentic` | ugc | 12 | 3 | 1.5–3s | moderate |
+
+Every format begins with the same two sections — *Product reference and source of truth* and *Product lock* — whatever else it changes. A test enforces it. An unmapped style falls back to `product-film`, never to an energetic one: a style nobody defined must not silently gain permission to whip-pan around a product.
+
+**Verified on the same car, one photo, four styles:**
+
+| Format | Sections written | Beats | Words |
+|---|---|---|---|
+| `product-film` | 17 of 17 | 3 | 1,859 |
+| `high-energy` | 14 of 14 | 4 | 1,533 |
+| `lifestyle-story` | 15 of 15 | 3 | 2,321 |
+| `ugc-authentic` | 12 of 12 | 3 | 2,072 |
+
+The high-energy prompt opens *"a sharp flash cut from black"* and uses *"a very quick crash zoom"* — then immediately: *"the grille, left headlamp, and part of the front bumper must remain readable as a car, not just reflections."* Energy and fidelity at once, which is the whole point of D-057.
+
+**The risk, unchanged:** faster cutting gives a video model more room to drift, which is how `gpt-5.6-terra` invented a strap (D-054). The seven §49 safety fixtures still pass. The real test is Flow — one high-energy prompt judged against its reference photo before this direction is trusted.
+
+
 ---
 
 ## Inputs recorded but not yet decided

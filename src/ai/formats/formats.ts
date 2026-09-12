@@ -1,0 +1,200 @@
+import type { Brief } from '../public/brief.schema';
+import { creativeFormatSchema, type CreativeFormat } from './format.schema';
+
+/**
+ * D-056: ten real videos came out in one shape because the prompt hard-coded seventeen
+ * sections in a fixed order. A format now decides which sections appear, in what order,
+ * how many beats, and how energetic the camera may be.
+ *
+ * Adding a format is a config entry, never a prompt rewrite — the same principle D-012
+ * applies to video targets.
+ */
+
+const FIDELITY_SECTIONS = ['Product reference and source of truth', 'Product lock'] as const;
+
+const PRODUCT_FILM = {
+  id: 'product-film',
+  version: 1,
+  labelUz: 'Studiya reklamasi',
+  styles: ['clean-studio', 'premium-cinematic'],
+  intent:
+    'A composed product film that lets the viewer study the object. Restraint is the point: the product is the subject and the camera serves it.',
+  sections: [
+    ...FIDELITY_SECTIONS,
+    'Commercial concept',
+    'Creative direction',
+    'Opening hook',
+    'Camera',
+    'Product motion',
+    'Environment',
+    'Lighting',
+    'Material and texture treatment',
+    'Sequence',
+    'Editing rhythm',
+    'Audio',
+    'Hero ending',
+    'Visual quality',
+    'Fidelity requirements',
+    'Avoidance',
+  ],
+  beats: { default: 3, max: 4 },
+  shotSecondsRange: [2, 3.5],
+  energy: 'restrained',
+  cameraVocabulary: [
+    'slow push-in',
+    'controlled dolly',
+    'macro glide',
+    'lateral tracking',
+    'restrained handheld drift',
+    'nearly static hero framing',
+    'focus pull',
+  ],
+  transitions: ['direct cut', 'match cut', 'focus transition', 'light transition'],
+} as const satisfies Record<string, unknown>;
+
+const HIGH_ENERGY = {
+  id: 'high-energy',
+  version: 1,
+  labelUz: 'Tezkor reklama',
+  styles: ['energetic-social'],
+  intent:
+    'A fast product launch film with the pacing of a music video. It must grab attention in the first half second and never let the product become unreadable while doing it.',
+  sections: [
+    ...FIDELITY_SECTIONS,
+    'Commercial concept',
+    'Opening hook',
+    'Camera',
+    'Product motion',
+    'Environment',
+    'Lighting',
+    'Sequence',
+    'Editing rhythm',
+    'Audio',
+    'Hero ending',
+    'Visual quality',
+    'Avoidance',
+  ],
+  beats: { default: 5, max: 7 },
+  shotSecondsRange: [0.6, 1.8],
+  energy: 'high',
+  cameraVocabulary: [
+    'whip pan',
+    'snap zoom',
+    'crash zoom',
+    'fast orbit',
+    'aggressive push-in',
+    'fast lateral tracking',
+    'macro insert',
+    'speed ramp',
+    'low-angle hero tracking',
+    'parallax move',
+  ],
+  transitions: [
+    'whip transition',
+    'match cut on movement',
+    'object wipe',
+    'speed ramp',
+    'flash cut',
+    'push-through transition',
+  ],
+} as const satisfies Record<string, unknown>;
+
+const LIFESTYLE_STORY = {
+  id: 'lifestyle-story',
+  version: 1,
+  labelUz: 'Hayotiy lavha',
+  styles: ['lifestyle'],
+  intent:
+    'A small believable moment from someone’s day in which the product is used. The product stays dominant; the person is context, never the subject.',
+  sections: [
+    ...FIDELITY_SECTIONS,
+    'Commercial concept',
+    'Creative direction',
+    'Opening hook',
+    'Talent and interaction',
+    'Camera',
+    'Environment',
+    'Lighting',
+    'Sequence',
+    'Editing rhythm',
+    'Audio',
+    'Hero ending',
+    'Fidelity requirements',
+    'Avoidance',
+  ],
+  beats: { default: 3, max: 4 },
+  shotSecondsRange: [1.8, 3.5],
+  energy: 'moderate',
+  cameraVocabulary: [
+    'handheld drift',
+    'gentle tracking',
+    'over-the-shoulder framing',
+    'slow push-in',
+    'natural reframe',
+    'focus pull',
+  ],
+  transitions: ['direct cut', 'match cut on movement', 'soft foreground wipe'],
+} as const satisfies Record<string, unknown>;
+
+const UGC_AUTHENTIC = {
+  id: 'ugc-authentic',
+  version: 1,
+  labelUz: 'Tabiiy UGC',
+  styles: ['ugc'],
+  intent:
+    'Footage that looks filmed by a real customer on a phone, not by a crew. Slight imperfection is the point, but the product must still read clearly.',
+  sections: [
+    ...FIDELITY_SECTIONS,
+    'Commercial concept',
+    'Opening hook',
+    'Talent and interaction',
+    'Camera',
+    'Environment',
+    'Lighting',
+    'Sequence',
+    'Audio',
+    'Hero ending',
+    'Avoidance',
+  ],
+  beats: { default: 3, max: 4 },
+  shotSecondsRange: [1.5, 3],
+  energy: 'moderate',
+  cameraVocabulary: [
+    'handheld phone framing',
+    'quick reframe',
+    'arm-length selfie framing',
+    'casual pan',
+    'close handheld detail',
+  ],
+  transitions: ['direct cut', 'quick handheld reframe'],
+} as const satisfies Record<string, unknown>;
+
+const REGISTRY: ReadonlyMap<string, CreativeFormat> = new Map(
+  [PRODUCT_FILM, HIGH_ENERGY, LIFESTYLE_STORY, UGC_AUTHENTIC].map((entry) => {
+    const format = creativeFormatSchema.parse(entry);
+    return [format.id, format];
+  }),
+);
+
+export const DEFAULT_FORMAT_ID = PRODUCT_FILM.id;
+
+export function listFormats(): CreativeFormat[] {
+  return [...REGISTRY.values()];
+}
+
+export function findFormat(id: string): CreativeFormat | undefined {
+  return REGISTRY.get(id);
+}
+
+/**
+ * The seller picks a style (source 01 §9); the format follows from it. Falling back to
+ * the restrained format is deliberate: an unmapped style must not silently gain
+ * permission to whip-pan around a product.
+ */
+export function formatForBrief(brief: Brief): CreativeFormat {
+  for (const format of REGISTRY.values()) {
+    if ((format.styles as readonly string[]).includes(brief.style)) return format;
+  }
+
+  return REGISTRY.get(DEFAULT_FORMAT_ID) as CreativeFormat;
+}
