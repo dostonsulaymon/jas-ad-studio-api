@@ -199,7 +199,13 @@ function validateTarget(result: GenerationResult, context: ValidationContext): V
   return issues;
 }
 
-/** D-012: the config carries both ceilings, so both are enforced. */
+/**
+ * Length is reported, not enforced (D-045). The whole point of the product is a deep
+ * production brief, and a validator that fails a long prompt would be throwing away the
+ * thing the seller is paying for. The target's ceilings stay in the config as the
+ * documented generator limit and surface here as warnings, so a prompt that really would
+ * be truncated is visible without being destroyed.
+ */
 function validateLength(result: GenerationResult, target: VideoTarget): ValidationIssue[] {
   if (result.promptEn === null) return [];
 
@@ -207,28 +213,12 @@ function validateLength(result: GenerationResult, target: VideoTarget): Validati
   const words = countWords(result.promptEn);
   const tokens = estimateTokens(result.promptEn, target.tokensPerWord);
 
-  if (words > target.maxWords) {
-    issues.push(
-      error('PROMPT_TOO_LONG', 'promptEn', `${String(words)} words, limit ${String(target.maxWords)}`),
-    );
-  }
-
   if (tokens > target.maxPromptTokens) {
     issues.push(
-      error(
-        'PROMPT_TOKEN_LIMIT',
+      warning(
+        'PROMPT_OVER_TARGET_LIMIT',
         'promptEn',
-        `about ${String(tokens)} tokens (estimated at ${String(target.tokensPerWord)} per word), limit ${String(target.maxPromptTokens)}`,
-      ),
-    );
-  }
-
-  if (result.promptEn.length > target.maxChars) {
-    issues.push(
-      error(
-        'PROMPT_TOO_MANY_CHARS',
-        'promptEn',
-        `${String(result.promptEn.length)} characters, limit ${String(target.maxChars)}`,
+        `about ${String(tokens)} tokens from ${String(words)} words (estimated at ${String(target.tokensPerWord)} per word), above ${target.id}'s documented ${String(target.maxPromptTokens)}-token limit — check whether the generator truncates it`,
       ),
     );
   }

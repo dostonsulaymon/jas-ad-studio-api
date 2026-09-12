@@ -16,13 +16,24 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
   'gpt-4o-mini': { inputPerMillion: 0.15, outputPerMillion: 0.6 },
 };
 
-export function pricingFor(model: string): ModelPricing | undefined {
-  return MODEL_PRICING[model];
+/**
+ * Used when a model is not in the table above. Deliberately expensive: an unpriced model
+ * must never make a run look cheaper than it is, because the spend cap is computed from
+ * these numbers. A reported cost carrying this fallback is an estimate, and
+ * `isPricingKnown` says so.
+ */
+export const FALLBACK_PRICING: ModelPricing = { inputPerMillion: 15, outputPerMillion: 60 };
+
+export function pricingFor(model: string): ModelPricing {
+  return MODEL_PRICING[model] ?? FALLBACK_PRICING;
+}
+
+export function isPricingKnown(model: string): boolean {
+  return model in MODEL_PRICING;
 }
 
 export function costUsd(model: string, inputTokens: number, outputTokens: number): number {
   const pricing = pricingFor(model);
-  if (!pricing) return 0;
 
   return (
     (inputTokens / 1_000_000) * pricing.inputPerMillion +

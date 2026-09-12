@@ -37,16 +37,6 @@ export const videoTargetSchema = z
     message: 'beats.default must not exceed beats.max',
     path: ['beats', 'default'],
   })
-  .refine((t) => t.recommendedWords <= t.maxWords, {
-    message: 'recommendedWords must not exceed maxWords',
-    path: ['recommendedWords'],
-  })
-  // D-012 puts both a token ceiling and a word ceiling in the config. If maxWords could
-  // exceed the token ceiling, a prompt could satisfy one validator and violate the other.
-  .refine((t) => Math.ceil(t.maxWords * t.tokensPerWord) <= t.maxPromptTokens, {
-    message: 'maxWords x tokensPerWord must not exceed maxPromptTokens',
-    path: ['maxWords'],
-  })
   .refine((t) => !t.referenceImages.supported || t.referenceImages.max > 0, {
     message: 'a target supporting reference images must accept at least one',
     path: ['referenceImages', 'max'],

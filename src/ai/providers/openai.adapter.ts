@@ -6,7 +6,7 @@ import {
   type ProviderRequest,
   type ProviderResponse,
 } from '../public/provider.port';
-import { costUsd, pricingFor } from './cost';
+import { costUsd } from './cost';
 
 export interface OpenAiAdapterOptions {
   apiKey: string;
@@ -76,12 +76,6 @@ export class OpenAiAdapter implements AiProvider {
   }
 
   private async call(request: ProviderRequest): Promise<OpenAI.Responses.Response> {
-    if (!pricingFor(request.model)) {
-      // Source 01 §27 forbids hard-coding an unverified model name, and an unpriced model
-      // would report every generation as costing nothing.
-      throw new ProviderError('AI_UNAVAILABLE', `No pricing configured for model ${request.model}`);
-    }
-
     try {
       return await this.client.responses.create({
         model: request.model,

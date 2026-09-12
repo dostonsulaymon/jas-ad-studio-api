@@ -1,0 +1,15 @@
+{
+  "productName": "Yengil trikotaj krossovka",
+  "description": "Bej rangli trikotaj (to'qima) ustki qismli krossovka. Oq qalin taglik. Bog'ichlari ham bej rangda. Hech qanday logotip yoki yozuv ko'rinmaydi. Suratda juftligi bilan berilgan: biri yonboshlab yotibdi, biri tik turibdi.",
+  "goal": "sales",
+  "style": "lifestyle",
+  "platform": "instagram",
+  "aspectRatio": "9:16",
+  "durationSeconds": 8,
+  "audience": "Kundalik kiyim uchun qulaylik izlaydigan 20-35 yoshli xaridorlar",
+  "confirmedClaims": [
+    { "claim": "Yengil va nafas oladigan trikotaj material", "verified": false }
+  ],
+  "offer": null,
+  "galleryInspirationId": null
+}

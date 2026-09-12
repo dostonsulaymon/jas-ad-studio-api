@@ -41,23 +41,6 @@ describe('videoTargetSchema', () => {
     expect(JSON.stringify(result.error?.issues)).toContain('beats.default must not exceed');
   });
 
-  it('rejects recommendedWords above maxWords', () => {
-    expect(parse({ recommendedWords: 900 }).success).toBe(false);
-  });
-
-  it('rejects a word ceiling that would breach the token ceiling (D-012)', () => {
-    // 700 x 1.6 = 1120 estimated tokens, above the 1024 ceiling. Without this rule a
-    // prompt could satisfy maxWords and violate maxPromptTokens at the same time.
-    const result = parse({ maxWords: 700 });
-
-    expect(result.success).toBe(false);
-    expect(JSON.stringify(result.error?.issues)).toContain('must not exceed maxPromptTokens');
-  });
-
-  it('accepts a word ceiling exactly at the token ceiling', () => {
-    expect(parse({ maxWords: 640 }).success).toBe(true);
-  });
-
   it('rejects empty durations', () => {
     expect(parse({ durations: [] }).success).toBe(false);
   });

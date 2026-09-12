@@ -19,16 +19,16 @@ import { videoTargetSchema, type VideoTarget } from './target.schema';
  */
 const FLOW_VEO_31 = {
   id: 'flow-veo-3.1',
-  version: 2,
+  version: 3,
   sourceUrl: 'https://deepmind.google/models/veo/',
   checkedAt: '2026-09-11',
   provisional: true,
 
   maxPromptTokens: 1024,
   tokensPerWord: 1.4,
-  maxWords: 730,
+  maxWords: 2000,
   maxChars: 4500,
-  recommendedWords: 500,
+  recommendedWords: 900,
 
   beats: { default: 3, max: 4 },
 

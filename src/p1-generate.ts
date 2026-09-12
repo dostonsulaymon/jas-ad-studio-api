@@ -21,8 +21,17 @@ async function main(): Promise<void> {
     throw new CliArgsError('No model: pass --model or set OPENAI_MODEL');
   }
 
-  const target = findTarget(args.target);
-  if (!target) throw new CliArgsError(`Unknown target "${args.target}"`);
+  const base = findTarget(args.target);
+  if (!base) throw new CliArgsError(`Unknown target "${args.target}"`);
+
+  // The overrides exist for the Part 8b comparison. maxWords is raised alongside a
+  // larger request so the ceiling never silently caps the experiment.
+  const target = {
+    ...base,
+    recommendedWords: args.words ?? base.recommendedWords,
+    maxWords: Math.max(base.maxWords, args.words ?? 0),
+    beats: args.beats === undefined ? base.beats : { default: args.beats, max: Math.max(base.beats.max, args.beats) },
+  };
 
   const { brief, images } = await loadProductFolder(args.product, target.referenceImages.max);
   const spend = createSpendTracker(args.maxSpendUsd);

@@ -424,6 +424,32 @@ This is a standing-gate change to the AI system prompt. Doston approved it. `AD_
 Why: the repair call exists for problems we cannot design out. An invented target id is one we can, and paying twice per generation for it in production would be a permanent tax.
 
 
+### D-045 · 2026-09-12 · Prompt length is reported, not enforced; the model is the lever
+
+Doston: "no need for limit for word size at all, we can have a prompt like that example ones, the reason why our product exists is because we need such long prompts" — and then, on being shown that the cap was not what was limiting output: "change the model".
+
+**Both done.**
+
+- **The length cap is removed.** `validateLength` no longer fails a long prompt. The target's `maxPromptTokens` stays in the config as the generator's documented limit and now surfaces as a **warning** (`PROMPT_OVER_TARGET_LIMIT`) rather than an error, so a prompt that might be truncated is visible without being destroyed. The config's internal "maxWords × tokensPerWord ≤ maxPromptTokens" rule is gone with it.
+- **The model is the real lever.** The cap was never binding: with a 730-word ceiling, `gpt-4.1-mini` produced 342 words and `gpt-4.1` 464. Measured on one real product at the same brief and system prompt:
+
+| Model | Words |
+|---|---|
+| `gpt-4.1-mini` | 342 |
+| `gpt-4.1` | 464 |
+| `gpt-5.4` | 907 |
+| `gpt-5.6-terra` | 1,009 |
+| `gpt-5.5` | **1,101** |
+
+`gpt-5.5` is the working default. Its output is not merely longer: it observes detail the smaller models miss (heel pull tab, almond toe shape, centre seam line, darker interior collar) and writes a product-specific lock rather than a generic one.
+
+**Supersedes** the enforcement half of D-012. The rest of D-012 stands: no numbers in the system prompt, every figure from the target config, so switching generator is a config edit.
+
+**Two things this leaves open, both untested:**
+1. A 1,101-word prompt is about 1,542 estimated tokens, **above Veo 3.1's documented 1,024-token limit**. If Flow truncates, the tail — which carries the fidelity constraints — is lost, and a longer prompt would be actively worse. Nobody has tested this. It is now the most important open question in P1.
+2. gpt-5.x is not in the pricing table, so reported costs use a deliberately high fallback ($15/$60 per million) and are **overestimates**. Real rates are needed before cost per successful package can inform D-029.
+
+
 ---
 
 ## Inputs recorded but not yet decided

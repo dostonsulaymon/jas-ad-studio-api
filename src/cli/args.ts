@@ -4,12 +4,28 @@ export interface CliArgs {
   target: string;
   maxSpendUsd: number;
   outDir: string;
+  /** Overrides the target's recommendedWords, for the Part 8b length comparison. */
+  words: number | undefined;
+  /** Overrides the target's default beat count. */
+  beats: number | undefined;
 }
 
 export class CliArgsError extends Error {}
 
 const USAGE = `Usage:
-  pnpm p1:generate --product fixtures/<name> --max-spend-usd <n> [--model <id>] [--target <id>] [--out <dir>]`;
+  pnpm p1:generate --product fixtures/<name> --max-spend-usd <n>
+    [--model <id>] [--target <id>] [--out <dir>] [--words <n>] [--beats <n>]`;
+
+function positiveInt(raw: string | undefined, flag: string): number | undefined {
+  if (raw === undefined) return undefined;
+
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value <= 0) {
+    throw new CliArgsError(`${flag} must be a positive whole number, got "${raw}"`);
+  }
+
+  return value;
+}
 
 export function parseArgs(argv: string[], defaults: { target: string }): CliArgs {
   const flags = new Map<string, string>();
@@ -49,5 +65,7 @@ export function parseArgs(argv: string[], defaults: { target: string }): CliArgs
     target: flags.get('target') ?? defaults.target,
     maxSpendUsd,
     outDir: flags.get('out') ?? 'out',
+    words: positiveInt(flags.get('words'), '--words'),
+    beats: positiveInt(flags.get('beats'), '--beats'),
   };
 }

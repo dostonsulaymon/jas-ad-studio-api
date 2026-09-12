@@ -133,33 +133,35 @@ describe('target and capability (source 01 §50)', () => {
   });
 });
 
-describe('length, against both ceilings (D-012)', () => {
-  it('rejects a prompt past the word ceiling', () => {
-    expect(codes(resultWith({ promptEn: 'word '.repeat(target.maxWords + 1) }))).toContain(
-      'PROMPT_TOO_LONG',
-    );
+describe('length is reported, not enforced (D-045)', () => {
+  it('accepts a prompt far longer than the target ceiling', () => {
+    // The product exists to produce deep production briefs. A validator that failed a
+    // long prompt would throw away the thing the seller is paying for.
+    const long = 'word '.repeat(target.maxWords + 500);
+
+    expect(validateGeneration(resultWith({ promptEn: long }), context).ok).toBe(true);
   });
 
-  it('accepts a prompt exactly at the word ceiling', () => {
-    const atLimit = Array.from({ length: target.maxWords }, () => 'word').join(' ');
+  it('warns when a prompt would exceed the generator’s documented token limit', () => {
+    const long = 'word '.repeat(2000);
+    const report = validateGeneration(resultWith({ promptEn: long }), context);
 
-    expect(codes(resultWith({ promptEn: atLimit }))).not.toContain('PROMPT_TOO_LONG');
+    expect(report.warnings.map((w) => w.code)).toContain('PROMPT_OVER_TARGET_LIMIT');
+    expect(report.errors).toEqual([]);
   });
 
-  it('names the estimator in the token error, so it is never read as Veo’s own count', () => {
-    const report = validateGeneration(
-      resultWith({ promptEn: 'word '.repeat(target.maxWords + 200) }),
-      context,
-    );
-    const tokenIssue = report.errors.find((issue) => issue.code === 'PROMPT_TOKEN_LIMIT');
+  it('names the estimator in the warning, so it is never read as the generator’s own count', () => {
+    const report = validateGeneration(resultWith({ promptEn: 'word '.repeat(2000) }), context);
+    const issue = report.warnings.find((w) => w.code === 'PROMPT_OVER_TARGET_LIMIT');
 
-    expect(tokenIssue?.message).toContain('estimated at');
+    expect(issue?.message).toContain('estimated at');
+    expect(issue?.message).toContain('truncates');
   });
 
-  it('rejects a prompt past the character ceiling even when the word count fits', () => {
-    const fewLongWords = Array.from({ length: 10 }, () => 'x'.repeat(600)).join(' ');
+  it('stays silent for a prompt comfortably inside the limit', () => {
+    const report = validateGeneration(resultWith(), context);
 
-    expect(codes(resultWith({ promptEn: fewLongWords }))).toContain('PROMPT_TOO_MANY_CHARS');
+    expect(report.warnings.map((w) => w.code)).not.toContain('PROMPT_OVER_TARGET_LIMIT');
   });
 });
 
