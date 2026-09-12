@@ -30,10 +30,11 @@ Still no HTTP API, no database, no accounts, no credits, no uploads — those ar
 
 A new session must not guess. Do this, in order:
 
-1. Read `docs/PROGRESS.md` → **Resume here**: the current phase, the active plan file, the next task, and the last verified state.
-2. Open the active plan in `docs/superpowers/plans/` and find the first unchecked task.
-3. Check `DECISIONS.md` for anything that touches that task.
-4. Tell Doston what you're about to do, then wait for his go.
+1. Read `docs/PROGRESS.md` → **Resume here**: the current phase, the branch it belongs on, the active plan file, the next task, and the last verified state.
+2. Check you are on that branch (`git branch --show-current`). A new phase gets a new branch cut from `main` (D-070); never build it on the last phase's branch.
+3. Open the active plan in `docs/superpowers/plans/` and find the first unchecked task.
+4. Check `DECISIONS.md` for anything that touches that task.
+5. Tell Doston what you're about to do, then wait for his go.
 
 At the end of every step, update **Resume here** so the next session starts from the truth (D-018). Plans are written so that a session with no memory can carry them out: exact file paths, commands, expected output, and checkboxes.
 
@@ -45,7 +46,8 @@ At the end of every step, update **Resume here** so the next session starts from
 2. Every phase follows the same order: write the plan in `docs/superpowers/plans/`, Doston reviews it, we discuss, he approves, then we build.
 3. Deliver code **one part at a time**. Stop after each part for review.
 4. Record every answer in `DECISIONS.md`. Once recorded, it is locked. Changing it takes a new entry that supersedes it.
-5. Ask, don't assume.
+5. **One branch per phase.** A phase is built on its own branch, named `p<n>-<short-slug>` after the phase title in `docs/PLAN.md` — `p2-accounts-uploads`, `p3-credits-orders`. Cut it from `main` before the first task and never build a new phase on the branch of the one before it. It merges to `main` only after the phase's exit check passes and Doston has reviewed it. `main` stays a line of closed phases (D-070).
+6. Ask, don't assume.
 
 **Standing gate. Never do these without asking:** add a dependency · change the database schema · delete or rewrite data · deploy · change an existing `DECISIONS.md` entry · change the AI system prompt · touch anything that moves money or credits.
 

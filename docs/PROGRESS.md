@@ -10,7 +10,8 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0, P1, P1b and P2 all closed.** |
+| Phase | **P0, P1, P1b and P2 all closed.** P3 is next. |
+| Branch | **`p3-credits-orders`**, cut from `main` on 2026-09-12. One branch per phase, merged only after the exit check and Doston's review (D-070). |
 | Active plan | None. `docs/superpowers/plans/2026-09-12-phase-2-accounts-uploads.md` is finished — all 12 tasks and the four fixes are committed and merged to `main` as `7481855`. P3 has no plan yet. |
 | Doing now | Nothing in flight. Working tree clean on `main`. |
 | Next | **T-09 is answered and done** (the contract has shapes in it). Next is P3: credits, orders, the ledger. Write its plan first. |

@@ -841,6 +841,17 @@ There was no browsable contract at all — `openapi.ts` generated `openapi.json`
 **Off when `NODE_ENV=production`,** unless `SWAGGER_ENABLED=true`. Default chosen, not asked: D-032 puts the API on one public origin behind the tunnel, and the docs page lists every route and request shape. Doston can flip it with one env var if he wants it public.
 
 
+### D-070 · 2026-09-12 · One branch per phase, cut from `main`
+
+Asked by Doston after P2 merged. Until now the convention was only a habit, and it had already slipped: P0 and P1 were both built on `p0-foundations`, so the branch name stopped describing what was on it.
+
+**Every phase is built on its own branch, `p<n>-<short-slug>`, cut from `main` before its first task.** The slug comes from the phase title in `docs/PLAN.md`: `p3-credits-orders`, `p4-generation-pipeline`. A new phase never continues the previous phase's branch.
+
+It merges to `main` only after the phase's exit check in `docs/PLAN.md` passes and Doston has reviewed it. So `main` is a line of closed phases, each merge is one reviewable phase, and reverting a phase is one commit rather than an archaeology exercise.
+
+`p3-credits-orders` is the first branch cut under this rule.
+
+
 ---
 
 ## Inputs recorded but not yet decided
