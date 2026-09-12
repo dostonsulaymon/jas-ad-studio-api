@@ -1028,6 +1028,29 @@ So `repairNullableFields` in `bootstrap.ts` rewrites `{ marker, type: 'array', i
 **The lesson is not about zod.** `openapi:check` was green through all of this, and so were 525 tests: nothing on this side reads the contract as a client. The bug was only visible from the web repo, by generating the client and looking at the types it produced.
 
 
+### D-085 · 2026-09-12 · P5's generation slice, built by Session A at Doston's instruction
+
+P5 is Session B's phase (D-025). Doston asked this session to finish it with one condition: *"designing parts should be done by the second one not by you."* So the logic, the wiring, the copy and the tests are here; the visual treatment of the two new panels is deliberately plain and left for Session B.
+
+**Recorded here rather than as W-00x** because the web repo has no `DECISIONS.md` and its own `CLAUDE.md` says to record decisions in this file. Establishing the W-series is Session B's call, not this session's.
+
+The decisions that are not obvious from the diff:
+
+- **One idempotency key per attempt, held in the studio and reused by a retry.** The API returns the same job for a repeated key and charges once (§32), so generating a fresh key on retry is the single mistake that could charge a seller twice. The key is cleared when an attempt reaches a terminal state — and deliberately **kept** when a poll fails, because the job may well be running and retrying with the same key rejoins it.
+- **`Idempotency-Key` is a named option on the fetch wrapper,** not a generic headers bag. That file exists so that what the API demands of a caller lives in one place.
+- **The save happens before the generate.** The worker reads the brief from the project row, not from the request, so generating without saving would produce a package for a brief the seller is no longer looking at.
+- **Polling backs off: 1s, then 2s, then 3s, giving up after about three minutes.** A measured generation took 60 seconds (D-082); a fixed 1s poll would make sixty requests for one result.
+- **A single failed poll is swallowed; five in a row give up.** The credit is already spent and the job is safe in Postgres, so telling a seller their generation failed while their package sits on the server would be the worst available answer. A 404 or 401 is terminal, because neither fixes itself.
+- **Only the prompt goes on the clipboard** (source 01 §48) — not the concept, not the shot plan. A seller pasting into Flow must get exactly what Flow should read.
+- **Copy failure is an expected path, not an error.** The Clipboard API needs a secure context and is simply absent in some in-app browsers, which is where a seller arriving from a Telegram link actually is. The prompt is rendered `select-all` in a scrollable block for exactly that case, so it can never be truncated or collapsed.
+- **Step 3 states the price before the button, not after.** Addendum A §A2/§16: one press spends a credit, and a seller should not discover that afterwards.
+- **`generationLater` is gone.** The step used to carry a note apologising for a missing action. That note was honest when generation had no endpoint and would be a lie now.
+
+**Session B's own guard caught a real gap.** `src/lib/i18n/errors.test.ts` reads the api's `main` branch and fails when a seller-facing code has no Uzbek copy — it found five P4 codes with none: `GENERATION_NOT_FOUND`, `IDEMPOTENCY_KEY_REQUIRED`, `JOB_IN_FLIGHT`, `NEEDS_INPUT_CAP`, `NO_ASSETS`. All five now have a message, an action and, where it matters, the reassurance that the credit was not spent.
+
+**Left undone on purpose:** an end-to-end test of the generation flow needs a signed-in seller with a credit, and no sign-in fixture exists in the web repo. Building one is real infrastructure and belongs with the session that owns those tests. Their 18 Playwright checks pass at 360, 390 and 1440 against the new build.
+
+
 ---
 
 ## Inputs recorded but not yet decided

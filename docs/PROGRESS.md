@@ -10,12 +10,60 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0–P4 closed and merged.** P5's backend side is done; its front side belongs to Session B. |
+| Phase | **P0–P4 closed and merged. P5's generation slice built**, in both repos, uncommitted on the web side. |
 | Branch | **`p3-credits-orders`**, cut from `main` on 2026-09-12. One branch per phase, merged only after the exit check and Doston's review (D-070). |
 | Active plan | None in this repo. `docs/superpowers/plans/2026-09-12-phase-5-studio-ui.md` is **Session B's**, and every file it creates is in `../jas-ad-studio-web` (D-025). P6 has no plan yet. |
-| Doing now | Nothing in flight. `p5-backend-contract` holds the contract fix (D-083). **Claude does not commit unless told (D-071).** |
-| Next | Session B runs `pnpm api:generate` in the web repo and builds P5's generation slice. On this side: P6 (gallery) needs a plan, and **D-082 needs Jakhongir** — a generation costs 4x what the pack prices assume. |
+| Doing now | Nothing in flight. `p5-generation-slice` holds D-085 here; the web repo's changes sit uncommitted on `p5-studio-ui` for Session B. **Claude does not commit unless told (D-071).** |
+| Next | Session B reviews `HANDOFF-P5-generation.md` in the web repo, designs the two new panels and commits. Then P6 (gallery), which needs a plan. **D-082 still needs Jakhongir.** |
 | Last verified state | 2026-09-12 17:11 on `p3-credits-orders`: the full gate green — `lint` and `typecheck` silent, `pnpm test` **471 passed in 35 files**, `build` clean, `openapi:check` up to date (29 operations, 18 component schemas). The whole money flow also walked by hand against the running server, which found one defect (D-076). Earlier, 16:21 on `main` after the merge: the full gate green — `lint` and `typecheck` silent, `test` **376 passed in 26 files** (including the 16-test isolation gate), `build` clean, `openapi:check` “`openapi.json` is up to date”. `components.schemas` holds 4 shapes, so the contract is no longer a list of bare URLs. `jas-api` and `jas-worker` both `online` under pm2 on Node 24.19.0, and the live server answers. |
+
+## 2026-09-12 — P5's generation slice, built to the point where only design is left
+
+Doston asked this session to finish P5 with one condition: *"designing parts should be
+done by the second one not by you."* So the logic, wiring, copy and tests are done and
+the visual treatment of the two new panels is deliberately plain. Recorded as **D-085**;
+the web repo carries `HANDOFF-P5-generation.md` pointing at it.
+
+**Two contract bugs found first, by doing the web repo's job for a moment and reading
+what the generator produced.** Nothing on the api side reads its own contract as a
+client, so `openapi:check` and 525 tests were green through both:
+
+- **D-083:** the ad package was `z.unknown()`, so `openapi.json` described it as `{}` and
+  the client typed the concept, shot plan and prompt as `any` — the whole payload the
+  studio exists to render.
+- **D-084:** **every nullable field was published as an array of its own type.** zod 4
+  emits a nullable as `type: ["string","null"]`, illegal in OpenAPI 3.0, and the
+  conversion read that array as `type: "array"`. `payerReference` and `rejectionReason`
+  have been `string[]` since P3 merged. OpenAPI 3.1 does not help — the information is
+  already gone — but nestjs-zod leaves a marker on exactly what it mangled and not on
+  real arrays, which is what made the repair decidable. Verified against seven variants.
+
+`src/contract.spec.ts` now fails on an untyped field, on a nullable spelled as an array,
+on a real array wrongly repaired, and on a state-changing route with no documented body.
+
+### The web side
+
+`src/lib/generation.ts` holds the logic with no React in it: start, poll with backoff
+(1s → 2s → 3s, giving up near three minutes, because a measured run takes 60s), the TXT
+export, copy-with-fallback, the Flow link. Nine tests, including the two that matter —
+**a single failed poll is swallowed** because the credit is already spent and the job is
+safe in Postgres, and **five in a row give up**.
+
+The pieces worth knowing: one idempotency key per attempt, reused on retry and kept when
+a poll fails, because a fresh key is the one mistake that could charge twice; the save
+runs before the generate, because the worker reads the brief from the row; only the
+prompt reaches the clipboard (§48); and step 3 states the price before the button, not
+after (§A2 §16).
+
+**Session B's own guard caught a real gap of mine.** Their `errors.test.ts` reads this
+repo's `main` and fails when a seller-facing code has no Uzbek copy — five P4 codes had
+none. Fixed, with the credit reassurance where it matters.
+
+**Left for Session B, deliberately:** the visual pass on both panels, and an e2e test of
+the gated flow, which needs a sign-in fixture that does not exist in that repo.
+
+Verified there: lint, typecheck, 53 tests, a clean build, `api:check` matching `main`,
+and their 18 Playwright checks passing at 360, 390 and 1440.
 
 ## 2026-09-12 — P4 merged, and P5's backend side closed
 
