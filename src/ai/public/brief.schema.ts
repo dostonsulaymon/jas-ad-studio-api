@@ -50,7 +50,12 @@ export const briefSchema = z
     style: z.enum(AD_STYLES),
     platform: z.enum(PLATFORMS),
     aspectRatio: z.enum(ASPECT_RATIOS),
-    durationSeconds: z.number().positive(),
+    /**
+     * Default 10, because Flow generates 10-second clips: every one of the eight judged
+     * videos measured 10.00s against an 8s brief, leaving two unscripted seconds that
+     * Flow filled by holding the last framing (D-063, D-064).
+     */
+    durationSeconds: z.number().positive().default(10),
     audience: shortText.nullable(),
     /** Empty is normal and honest; the product lock depends on not inventing claims. */
     confirmedClaims: z.array(confirmedClaim).max(10),
