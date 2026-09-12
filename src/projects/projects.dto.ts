@@ -8,7 +8,8 @@
  */
 import { createZodDto } from 'nestjs-zod';
 import { briefSchema } from '../ai/public/brief.schema';
-import { projectSummarySchema } from './public/projects.port';
+import { projectSummarySchema, projectDetailSchema } from './public/projects.port';
 
 export class BriefDto extends createZodDto(briefSchema) {}
 export class ProjectSummaryDto extends createZodDto(projectSummarySchema) {}
+export class ProjectDetailDto extends createZodDto(projectDetailSchema) {}

@@ -340,10 +340,31 @@ describe("Alice against Bob's money", () => {
   });
 });
 
+describe('the owner reports', () => {
+  it('lists generations and daily spend, and never calls cost a credit', async () => {
+    const generations = await send('/api/owner/generations', { cookie: ownerCookie });
+    expect(generations.status).toBe(200);
+    expect(Array.isArray(await json(generations))).toBe(true);
+
+    const spend = await send('/api/owner/spend', { cookie: ownerCookie });
+    expect(spend.status).toBe(200);
+    const days = await json<Record<string, unknown>[]>(spend);
+    expect(Array.isArray(days)).toBe(true);
+    // Spend is USD cost, not credits. A row that conflated them would be a lie the
+    // owner would act on.
+    for (const day of days) {
+      expect(day).not.toHaveProperty('credits');
+      expect(typeof day.estCostUsd).toBe('number');
+    }
+  });
+});
+
 describe('the owner route tree', () => {
   const ownerRoutes: [string, string][] = [
     ['GET', '/api/owner/orders'],
     ['GET', '/api/owner/users'],
+    ['GET', '/api/owner/generations'],
+    ['GET', '/api/owner/spend'],
     ['POST', '/api/owner/grants'],
     ['PATCH', '/api/owner/packs/pack_1'],
     ['PATCH', '/api/owner/settings/payment-instructions'],

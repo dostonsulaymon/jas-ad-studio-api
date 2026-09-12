@@ -3,7 +3,7 @@
  * ownership before touching a file.
  */
 import { z } from 'zod';
-import type { Brief } from '../../ai/public/brief.schema';
+import { briefSchema, type Brief } from '../../ai/public/brief.schema';
 
 /**
  * The TypeScript type is derived from the schema rather than written beside it, so the
@@ -24,6 +24,20 @@ export const projectSummarySchema = z.object({
 });
 
 export type ProjectSummary = z.infer<typeof projectSummarySchema>;
+
+/**
+ * One project, with the brief it was saved from.
+ *
+ * The summary alone cannot round-trip: PATCH requires all 11 brief fields and the
+ * summary carries 3, so a client that read a project back and saved it would silently
+ * wipe the other 8. Source 01 §20 asks for exactly that flow, so the detail shape
+ * exists to make it possible.
+ */
+export const projectDetailSchema = projectSummarySchema.extend({
+  brief: briefSchema,
+});
+
+export type ProjectDetail = z.infer<typeof projectDetailSchema>;
 
 /** DI token for the ownership check `assets` depends on. */
 export const PROJECT_OWNERSHIP = Symbol('PROJECT_OWNERSHIP');

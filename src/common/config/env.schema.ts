@@ -44,7 +44,13 @@ export const envSchema = z.object({
     .default('http://localhost:3040/api/auth/google/callback'),
 
   /** Where a completed sign-in lands, and the only origin CSRF accepts (spec §10). */
-  WEB_ORIGIN: z.url('WEB_ORIGIN must be an absolute URL').default('http://localhost:3040'),
+  /**
+   * Where the web app is served from. Not this API's own address: the CSRF guard
+   * checks the browser's Origin against it and the sign-in callback redirects to it,
+   * so pointing it here refuses every write and lands sign-in on the API. The default
+   * is the web repo's dev port (jas-ad-studio-web runs `next dev -p 3042`).
+   */
+  WEB_ORIGIN: z.url('WEB_ORIGIN must be an absolute URL').default('http://localhost:3042'),
 
   /**
    * D-037. Role `owner` comes only from here, never from a request. Empty means nobody is

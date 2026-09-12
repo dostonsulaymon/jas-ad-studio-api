@@ -6,6 +6,7 @@ import { briefSchema, type Brief } from '../ai/public/brief.schema';
 import type {
   ProjectBriefReader,
   ProjectOwnership,
+  ProjectDetail,
   ProjectSummary,
 } from './public/projects.port';
 
@@ -108,6 +109,19 @@ export class ProjectsService implements ProjectOwnership, ProjectBriefReader {
     if (!rows[0]) throw new ProjectNotFoundError('No live project with that id for this user');
 
     return toSummary(rows[0]);
+  }
+
+  /**
+   * One project with the brief it was saved from, so a client can read a project back
+   * and PATCH it without losing the eight fields the summary does not carry.
+   *
+   * Both halves come from queries that already filter on user_id and deleted_at, so the
+   * ownership rule is unchanged: another user's id is a 404, never a 403.
+   */
+  async getOwnedDetail(userId: string, projectId: string): Promise<ProjectDetail> {
+    const summary = await this.getOwned(userId, projectId);
+    const brief = await this.readBrief(userId, projectId);
+    return { ...summary, brief };
   }
 
   async update(userId: string, projectId: string, input: ProjectInput): Promise<ProjectSummary> {

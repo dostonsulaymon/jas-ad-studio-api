@@ -90,7 +90,9 @@ describe('google sign-in and storage config', () => {
     expect(validateEnv({ ...valid }).STORAGE_ROOT).toBe('./storage/photos');
   });
 
-  it('defaults WEB_ORIGIN to the dev api origin', () => {
-    expect(validateEnv({ ...valid }).WEB_ORIGIN).toBe('http://localhost:3040');
+  it('defaults WEB_ORIGIN to the web app dev origin, not this API own port', () => {
+    // Not 3040: that is this API's own port, and pointing WEB_ORIGIN here makes the
+    // CSRF guard refuse every browser write and sends sign-in back to the API.
+    expect(validateEnv({ ...valid }).WEB_ORIGIN).toBe('http://localhost:3042');
   });
 });

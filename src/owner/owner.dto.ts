@@ -5,6 +5,10 @@
  */
 import { createZodDto } from 'nestjs-zod';
 import {
+  ownerGenerationSchema,
+  ownerSpendDaySchema,
+} from './public/owner-reports.port';
+import {
   paymentInstructionsSchema,
   supportContactsSchema,
 } from '../settings/public/settings.port';
@@ -27,6 +31,8 @@ export class CreditBalanceDto extends createZodDto(creditBalanceSchema) {}
 export class PackEditDto extends createZodDto(packEditSchema) {}
 export class AdminPackDto extends createZodDto(adminPackSchema) {}
 export class OwnerUserDto extends createZodDto(ownerUserSchema) {}
+export class OwnerGenerationDto extends createZodDto(ownerGenerationSchema) {}
+export class OwnerSpendDayDto extends createZodDto(ownerSpendDaySchema) {}
 
 /**
  * Declared here rather than imported from `settings/settings.dto.ts`: R-7 lets a module
