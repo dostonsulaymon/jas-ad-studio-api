@@ -30,7 +30,9 @@
     "p1:smoke": "nest build && node dist/p1-smoke.js",
     "p1:record": "nest build && node dist/p1-record.js",
     "p1:sweep": "nest build && node dist/p1-sweep.js",
-    "p1:handoff": "nest build && node dist/p1-handoff.js"
+    "p1:handoff": "nest build && node dist/p1-handoff.js",
+    "p1:pack": "nest build && node dist/p1-pack.js",
+    "p1:check": "node tools/check-videos.mjs"
   },
   "dependencies": {
     "@nestjs/common": "^11.2.3",

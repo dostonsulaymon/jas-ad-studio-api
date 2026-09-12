@@ -656,6 +656,22 @@ The high-energy prompt opens *"a sharp flash cut from black"* and uses *"a very 
 **The risk, unchanged:** faster cutting gives a video model more room to drift, which is how `gpt-5.6-terra` invented a strap (D-054). The seven §49 safety fixtures still pass. The real test is Flow — one high-energy prompt judged against its reference photo before this direction is trusted.
 
 
+### D-059 · 2026-09-12 · Video generation stays manual; the tooling removes the friction instead
+
+Doston asked whether generation could be automated — testing ten products by hand means copying a photo, copying a prompt, waiting, repeating. A fair ask, and the rule "the app never automates Google Flow" is about the shipped product, not about his own test harness. That distinction was mine to make and I initially got it wrong.
+
+**Checked, and rejected on cost:** Veo 3.1 is available through the Gemini API with a documented `generateVideos` method taking an image and a prompt — same model family, no browser scraping. But it bills per second: $0.75 for Veo 3, $0.40 for Veo 3 Fast, so an 8-second clip is $3.20–$6.00 and ten products $32–$60. Flow bills against an existing subscription. Doston: "no api, i already spend more money."
+
+**Rejected on risk:** scripting Flow's browser UI with Playwright. It would use the existing subscription and cost nothing extra, but it runs against Doston's own Google account, Google detects automation on consumer properties, and the failure mode is a flagged account rather than a failed test. Available if he ever wants it; not built.
+
+**Built instead — two commands that remove the manual work without generating anything:**
+
+- `pnpm p1:pack` lays out a numbered folder per product holding the photo and the prompt as bare `prompt.txt`, plus an index table. No markdown to pick through, nothing to select around.
+- `pnpm p1:check` finds every `video.mp4` dropped into those folders and builds one comparison sheet each: the reference photo beside six frames sampled across the clip, timestamped. Judging ten videos becomes ten glances.
+
+The expensive part was never the clicking — it was comparing frames against the reference by hand, which is how the invented strap and the knit drift were caught (D-054). That part is now one command.
+
+
 ---
 
 ## Inputs recorded but not yet decided
