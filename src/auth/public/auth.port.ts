@@ -1,6 +1,6 @@
 /**
- * The auth module's only export to other modules (R-7). Types and constants, no
- * implementation and no database access.
+ * The auth module's public contract (R-7). Types, tokens, and the guard other modules
+ * put on their routes — never an implementation and never a database query.
  */
 
 export type UserRole = 'seller' | 'owner';
@@ -17,3 +17,10 @@ export interface CurrentUser {
  */
 export const SESSION_COOKIE = 'jas_session';
 export const SESSION_TTL_DAYS = 30;
+
+/** What the guard needs from the session store. SessionService implements it. */
+export const SESSION_RESOLVER = Symbol('SESSION_RESOLVER');
+
+export interface SessionResolver {
+  resolve(token: string): Promise<CurrentUser | null>;
+}

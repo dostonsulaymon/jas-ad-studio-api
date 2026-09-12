@@ -1,19 +1,28 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Env } from '../common/config/env.schema';
 import { AuthController } from './auth.controller';
 import { ALLOWED_ORIGINS, GOOGLE_CONFIG, OWNER_EMAILS, WEB_ORIGIN } from './auth.tokens';
 import { CsrfGuard } from './csrf.guard';
 import type { GoogleConfig } from './google.client';
-import { SessionGuard } from './session.guard';
+import { SessionGuard } from './public/session.guard';
+import { SESSION_RESOLVER } from './public/auth.port';
 import { SessionService } from './session.service';
 import { UserService } from './user.service';
 
+/**
+ * Global so that every module can guard its routes with SessionGuard without importing
+ * auth — a module-to-module import R-7 forbids, and rightly: a controller needing a
+ * session should not gain access to the user table along the way.
+ */
+@Global()
 @Module({
   controllers: [AuthController],
   providers: [
     SessionService,
     UserService,
+    // The guard depends on this interface, never on SessionService directly.
+    { provide: SESSION_RESOLVER, useExisting: SessionService },
     SessionGuard,
     CsrfGuard,
     {
@@ -55,6 +64,6 @@ import { UserService } from './user.service';
       ],
     },
   ],
-  exports: [SessionService, SessionGuard, ALLOWED_ORIGINS],
+  exports: [SessionService, SessionGuard, SESSION_RESOLVER, ALLOWED_ORIGINS],
 })
 export class AuthModule {}

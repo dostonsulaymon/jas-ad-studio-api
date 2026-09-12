@@ -1,5 +1,5 @@
 import { createParamDecorator, type ExecutionContext } from '@nestjs/common';
-import type { CurrentUser } from './public/auth.port';
+import type { CurrentUser } from './auth.port';
 import type { RequestWithUser } from './session.guard';
 
 /**

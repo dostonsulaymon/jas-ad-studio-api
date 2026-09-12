@@ -1,6 +1,6 @@
 import type { ExecutionContext } from '@nestjs/common';
 import { expect, it } from 'vitest';
-import { CrossOriginRefusedError } from './auth.errors';
+import { CrossOriginRefusedError } from './public/auth.errors';
 import { CsrfGuard } from './csrf.guard';
 
 function context(method: string, headers: Record<string, string>): ExecutionContext {

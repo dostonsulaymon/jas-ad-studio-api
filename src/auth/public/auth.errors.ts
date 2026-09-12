@@ -1,8 +1,8 @@
-import { DomainError } from '../common/errors/app.error';
+import { DomainError } from '../../common/errors/app.error';
 
 /**
- * Spec §9 names the codes the web app translates. A bare Nest HttpException would arrive
- * at the filter as "UNAUTHORIZED", losing the distinction the Uzbek copy depends on.
+ * Spec §9 names the codes the web app translates into Uzbek. A bare Nest HttpException
+ * reaches the filter as "UNAUTHORIZED" and throws the distinction away.
  */
 
 export class SessionExpiredError extends DomainError {

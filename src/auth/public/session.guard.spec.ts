@@ -2,7 +2,7 @@ import type { ExecutionContext } from '@nestjs/common';
 import { describe, expect, it, vi } from 'vitest';
 import { SessionExpiredError } from './auth.errors';
 import { readCookie, SessionGuard, type RequestWithUser } from './session.guard';
-import type { SessionService } from './session.service';
+import type { SessionResolver } from './auth.port';
 
 describe('readCookie', () => {
   it('finds a cookie among several', () => {
@@ -39,14 +39,14 @@ describe('SessionGuard', () => {
   }
 
   it('refuses a request with no cookie', async () => {
-    const sessions = { resolve: vi.fn() } as unknown as SessionService;
+    const sessions = { resolve: vi.fn() } as unknown as SessionResolver;
     await expect(new SessionGuard(sessions).canActivate(context())).rejects.toBeInstanceOf(
       SessionExpiredError,
     );
   });
 
   it('refuses a cookie the session service does not recognise', async () => {
-    const sessions = { resolve: vi.fn().mockResolvedValue(null) } as unknown as SessionService;
+    const sessions = { resolve: vi.fn().mockResolvedValue(null) } as unknown as SessionResolver;
     await expect(
       new SessionGuard(sessions).canActivate(context('jas_session=stale')),
     ).rejects.toBeInstanceOf(SessionExpiredError);
@@ -54,7 +54,7 @@ describe('SessionGuard', () => {
 
   it('attaches the user to the request on success', async () => {
     const user = { id: 'u1', email: 'a@b.uz', role: 'seller' as const };
-    const sessions = { resolve: vi.fn().mockResolvedValue(user) } as unknown as SessionService;
+    const sessions = { resolve: vi.fn().mockResolvedValue(user) } as unknown as SessionResolver;
     const ctx = context('jas_session=good');
 
     await expect(new SessionGuard(sessions).canActivate(ctx)).resolves.toBe(true);

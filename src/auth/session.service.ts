@@ -2,10 +2,15 @@ import { createHash, randomBytes } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
 import { Pool } from 'pg';
 import { PG_POOL } from '../common/db/tokens';
-import { SESSION_TTL_DAYS, type CurrentUser, type UserRole } from './public/auth.port';
+import {
+  SESSION_TTL_DAYS,
+  type CurrentUser,
+  type SessionResolver,
+  type UserRole,
+} from './public/auth.port';
 
 @Injectable()
-export class SessionService {
+export class SessionService implements SessionResolver {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async issue(userId: string): Promise<{ token: string; expiresAt: Date }> {

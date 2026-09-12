@@ -7,11 +7,12 @@ import { ApiErrorFilter } from './common/filters/api-error.filter';
 import { LoggerModule } from './common/logger/logger.module';
 import { RedisModule } from './common/redis/redis.module';
 import { HealthModule } from './health/health.module';
+import { ProjectsModule } from './projects/projects.module';
 import { ALLOWED_ORIGINS } from './auth/auth.tokens';
 import { CsrfGuard } from './auth/csrf.guard';
 
 @Module({
-  imports: [ConfigModule, LoggerModule, DatabaseModule, RedisModule, HealthModule, AuthModule],
+  imports: [ConfigModule, LoggerModule, DatabaseModule, RedisModule, HealthModule, AuthModule, ProjectsModule],
   providers: [
     { provide: APP_FILTER, useClass: ApiErrorFilter },
     // Spec §10: every state-changing request is checked, so a new controller cannot

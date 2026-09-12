@@ -2,10 +2,10 @@ import { randomBytes } from 'node:crypto';
 import { Controller, Get, Inject, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import type { CookieOptions, Response } from 'express';
 import { GOOGLE_CONFIG, WEB_ORIGIN } from './auth.tokens';
-import { User } from './current-user.decorator';
+import { User } from './public/current-user.decorator';
 import { buildAuthorizeUrl, exchangeCode, GoogleAuthError, type GoogleConfig } from './google.client';
 import { SESSION_COOKIE, SESSION_TTL_DAYS, type CurrentUser } from './public/auth.port';
-import { readCookie, SessionGuard, type RequestWithUser } from './session.guard';
+import { readCookie, SessionGuard, type RequestWithUser } from './public/session.guard';
 import { SessionService } from './session.service';
 import { UserService } from './user.service';
 

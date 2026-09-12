@@ -1,5 +1,5 @@
 import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
-import { CrossOriginRefusedError } from './auth.errors';
+import { CrossOriginRefusedError } from './public/auth.errors';
 import { ALLOWED_ORIGINS } from './auth.tokens';
 
 const SAFE_METHODS = new Set(['GET', 'HEAD', 'OPTIONS']);

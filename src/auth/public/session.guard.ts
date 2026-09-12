@@ -1,7 +1,11 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { CanActivate, ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { SessionExpiredError } from './auth.errors';
-import { SESSION_COOKIE, type CurrentUser } from './public/auth.port';
-import { SessionService } from './session.service';
+import {
+  SESSION_COOKIE,
+  SESSION_RESOLVER,
+  type CurrentUser,
+  type SessionResolver,
+} from './auth.port';
 
 export interface RequestWithUser {
   headers: Record<string, string | undefined>;
@@ -10,7 +14,9 @@ export interface RequestWithUser {
 
 @Injectable()
 export class SessionGuard implements CanActivate {
-  constructor(private readonly sessions: SessionService) {}
+  // Injected as an interface, not as SessionService: a guard that other modules put
+  // on their routes must not drag the auth module's implementation across the boundary.
+  constructor(@Inject(SESSION_RESOLVER) private readonly sessions: SessionResolver) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithUser>();
