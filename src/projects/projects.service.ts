@@ -174,6 +174,6 @@ function toSummary(row: ProjectDbRow | undefined): ProjectSummary {
     formatId: row.format_id,
     durationSeconds: row.duration_seconds,
     aspectRatio: row.aspect_ratio,
-    createdAt: row.created_at,
+    createdAt: row.created_at.toISOString(),
   };
 }

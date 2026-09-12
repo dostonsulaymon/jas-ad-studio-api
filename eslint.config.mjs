@@ -13,6 +13,7 @@ export default tseslint.config(
       'vitest.config.ts',
       'vitest.setup.ts',
       'drizzle.config.ts',
+      'ecosystem.config.cjs',
       'tools/**',
     ],
   },

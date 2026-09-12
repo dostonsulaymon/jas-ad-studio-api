@@ -62,6 +62,12 @@ export const envSchema = z.object({
 
   /** R-6. Private photo volume root, mounted at /app/storage/photos in the container. */
   STORAGE_ROOT: z.string().min(1).default('./storage/photos'),
+
+  /** Serves the docs page in production too. Off by default: it lists every route. */
+  SWAGGER_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((raw) => raw === 'true'),
 });
 
 export type Env = z.infer<typeof envSchema>;

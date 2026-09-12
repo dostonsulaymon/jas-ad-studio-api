@@ -11,6 +11,16 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiProduces,
+} from '@nestjs/swagger';
+import { StoredAssetDto } from './assets.dto';
 import type { Response } from 'express';
 import { User } from '../auth/public/current-user.decorator';
 import type { CurrentUser } from '../auth/public/auth.port';
@@ -28,6 +38,25 @@ export class AssetsController {
   // The multer limit is a first gate so a 2 GB body is dropped at the socket rather than
   // buffered into memory. processUpload checks the same limit again on the bytes it gets.
   @UseInterceptors(FileInterceptor('photo', { limits: { fileSize: MAX_UPLOAD_BYTES, files: 1 } }))
+  // The body is multipart, so there is no zod DTO for @nestjs/swagger to read. Without
+  // these the operation appears in the contract with no request body at all: no file
+  // picker in the docs, and nothing for the web repo's generated client to send (D-031).
+  @ApiOperation({
+    summary: 'Upload one product photo. At most four per project.',
+    description:
+      'The format is decided by decoding, never by filename or content-type. Two copies' +
+      ' are stored — a 2048px reference and a 1024px model input — with all metadata' +
+      ' stripped. width and height describe the reference copy (D-066).',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['photo'],
+      properties: { photo: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiCreatedResponse({ type: StoredAssetDto })
   upload(
     @User() user: CurrentUser,
     @Param('projectId') projectId: string,
@@ -39,6 +68,8 @@ export class AssetsController {
   }
 
   @Get('projects/:projectId/assets')
+  @ApiOperation({ summary: "A project's reference photos, oldest first." })
+  @ApiOkResponse({ type: StoredAssetDto, isArray: true })
   list(
     @User() user: CurrentUser,
     @Param('projectId') projectId: string,
@@ -47,6 +78,12 @@ export class AssetsController {
   }
 
   @Get('assets/:id/reference')
+  @ApiOperation({
+    summary: 'Download the 2048px reference copy.',
+    description: 'Private: never cached, and 404 once the project is deleted (D-068).',
+  })
+  @ApiProduces('image/jpeg')
+  @ApiOkResponse({ schema: { type: 'string', format: 'binary' } })
   async reference(
     @User() user: CurrentUser,
     @Param('id') id: string,
@@ -63,6 +100,8 @@ export class AssetsController {
 
   @Delete('assets/:id')
   @HttpCode(204)
+  @ApiOperation({ summary: 'Delete a photo. Both stored copies go, and the files with them.' })
+  @ApiNoContentResponse()
   remove(@User() user: CurrentUser, @Param('id') id: string): Promise<void> {
     return this.assets.delete(user.id, id);
   }

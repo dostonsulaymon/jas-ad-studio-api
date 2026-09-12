@@ -3,13 +3,18 @@
  * put on their routes — never an implementation and never a database query.
  */
 
-export type UserRole = 'seller' | 'owner';
+import { z } from 'zod';
 
-export interface CurrentUser {
-  id: string;
-  email: string;
-  role: UserRole;
-}
+export const USER_ROLES = ['seller', 'owner'] as const;
+export type UserRole = (typeof USER_ROLES)[number];
+
+export const currentUserSchema = z.object({
+  id: z.uuid(),
+  email: z.email(),
+  role: z.enum(USER_ROLES),
+});
+
+export type CurrentUser = z.infer<typeof currentUserSchema>;
 
 /**
  * D-036: an opaque id in an httpOnly cookie, never a JWT, so a session can be revoked

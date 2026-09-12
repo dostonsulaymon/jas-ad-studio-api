@@ -15,10 +15,8 @@ import 'reflect-metadata';
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { NestFactory } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { cleanupOpenApiDoc } from 'nestjs-zod';
 import { AppModule } from './app.module';
-import { applyGlobalSetup } from './bootstrap';
+import { applyGlobalSetup, buildOpenApiDocument } from './bootstrap';
 
 const OUTPUT = join(process.cwd(), 'openapi.json');
 
@@ -27,16 +25,7 @@ async function buildDocument(): Promise<string> {
   applyGlobalSetup(app);
   await app.init();
 
-  const config = new DocumentBuilder()
-    .setTitle('JAS Ad Studio API')
-    .setDescription('Ad concepts and Google Flow prompts for Uzbek sellers.')
-    .setVersion('0.0.1')
-    .build();
-
-  // cleanupOpenApiDoc resolves the zod schemas @nestjs/swagger collected from
-  // createZodDto classes into real component schemas, so the zod definitions stay the
-  // single source for every request and response shape (D-031).
-  const document = cleanupOpenApiDoc(SwaggerModule.createDocument(app, config));
+  const document = buildOpenApiDocument(app);
   await app.close();
 
   return `${JSON.stringify(document, null, 2)}\n`;
