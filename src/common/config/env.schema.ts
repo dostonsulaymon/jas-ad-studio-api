@@ -66,6 +66,24 @@ export const envSchema = z.object({
    */
   ORDERS_PER_DAY_LIMIT: z.coerce.number().int().positive().default(5),
 
+  /**
+   * Spec §10. Summed from generations.est_cost_usd, so the cap counts what was really
+   * spent rather than what we guessed. Deliberately low: this is the number that stands
+   * between a bug and a bill.
+   */
+  DAILY_AI_SPEND_LIMIT_USD: z.coerce.number().positive().default(2),
+
+  /** Source 01 §33: account-level limits, so one seller cannot burn a whole day's budget. */
+  GENERATIONS_PER_DAY_LIMIT: z.coerce.number().int().positive().default(20),
+
+  /** §29: "cap repeated free analysis attempts to prevent abuse". Misses, not cache hits. */
+  NEEDS_INPUT_PER_PROJECT_PER_DAY: z.coerce.number().int().positive().default(5),
+
+  /** How long a worker owns a job. Longer than the slowest plausible call plus a repair. */
+  JOB_LEASE_MINUTES: z.coerce.number().int().positive().default(5),
+
+  WORKER_CONCURRENCY: z.coerce.number().int().positive().default(2),
+
   /** R-6. Private photo volume root, mounted at /app/storage/photos in the container. */
   STORAGE_ROOT: z.string().min(1).default('./storage/photos'),
 
