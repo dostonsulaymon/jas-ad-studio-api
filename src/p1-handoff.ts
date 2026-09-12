@@ -13,7 +13,13 @@ import { loadProductFolder } from './cli/product-folder';
  * Jakhongir can paste each into Flow and judge them side by side. It draws no
  * conclusion — that is the point of the part.
  */
-const LENGTHS = [300, 500, 700];
+/**
+ * The lengths worth comparing in Flow. 300/500/700 lived here until D-046: they came
+ * from spec §5, written when a 1,024-token ceiling was believed to cap prompts at ~730
+ * words. That ceiling was never real, and models now produce 800-1,650 words against a
+ * 2,400 target, so the old values compared the wrong end of the range.
+ */
+const LENGTHS = [800, 1600, 2400];
 
 async function main(): Promise<void> {
   const env = validateEnv(process.env);

@@ -35,9 +35,11 @@ interface Row {
 
 function configs(base: VideoTarget): [string, VideoTarget][] {
   return [
-    ['words-300', { ...base, recommendedWords: 300 }],
-    ['words-500', { ...base, recommendedWords: 500 }],
-    ['words-700', { ...base, recommendedWords: 640, maxWords: 640 }],
+    // Same correction as the handoff pack (D-046). The old 300/500/700 row also pinned
+    // maxWords to 640, which would have capped the experiment it was meant to measure.
+    ['words-800', { ...base, recommendedWords: 800 }],
+    ['words-1600', { ...base, recommendedWords: 1600 }],
+    ['words-2400', { ...base, recommendedWords: 2400 }],
     ['beats-2', { ...base, beats: { default: 2, max: 4 } }],
     ['beats-3', { ...base, beats: { default: 3, max: 4 } }],
     ['beats-4', { ...base, beats: { default: 4, max: 4 } }],
