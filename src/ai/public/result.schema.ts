@@ -69,7 +69,7 @@ export const generationResultSchema = z
     concept: concept.nullable(),
     target: targetEcho.nullable(),
     shots: z.array(shot).max(8),
-    promptEn: z.string().trim().min(1).max(8000).nullable(),
+    promptEn: z.string().trim().min(1).max(30000).nullable(),
     assumptionsUz: z.array(uzLine).max(8),
     reviewNotesUz: z.array(uzLine).max(8),
   })

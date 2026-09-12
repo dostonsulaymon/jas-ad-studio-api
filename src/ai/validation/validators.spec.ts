@@ -143,7 +143,7 @@ describe('length is reported, not enforced (D-045)', () => {
   });
 
   it('warns when a prompt would exceed the generator’s documented token limit', () => {
-    const long = 'word '.repeat(2000);
+    const long = 'word '.repeat(5000);
     const report = validateGeneration(resultWith({ promptEn: long }), context);
 
     expect(report.warnings.map((w) => w.code)).toContain('PROMPT_OVER_TARGET_LIMIT');
@@ -151,7 +151,7 @@ describe('length is reported, not enforced (D-045)', () => {
   });
 
   it('names the estimator in the warning, so it is never read as the generator’s own count', () => {
-    const report = validateGeneration(resultWith({ promptEn: 'word '.repeat(2000) }), context);
+    const report = validateGeneration(resultWith({ promptEn: 'word '.repeat(5000) }), context);
     const issue = report.warnings.find((w) => w.code === 'PROMPT_OVER_TARGET_LIMIT');
 
     expect(issue?.message).toContain('estimated at');

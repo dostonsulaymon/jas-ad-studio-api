@@ -78,7 +78,7 @@ describe('the shipped registry', () => {
     const target = findTarget(DEFAULT_TARGET_ID);
 
     expect(target?.id).toBe('flow-veo-3.1');
-    expect(target?.maxPromptTokens).toBe(1024);
+    expect(target?.maxPromptTokens).toBe(6000);
     expect(target?.durations).toContain(8);
   });
 

@@ -1,34 +1,31 @@
 import { videoTargetSchema, type VideoTarget } from './target.schema';
 
 /**
- * D-013: one target at launch. Every value here is reviewed like code, and changing one
- * is a deliberate edit rather than a runtime setting (D-012).
+ * D-046: the 1,024-token ceiling recorded in D-012 was read off a model page and never
+ * tested. Doston has since run prompts of 2,000-4,000 words through the real generator
+ * with no truncation, so the documented figure does not describe the tool we actually
+ * use. `maxPromptTokens` now records what has been observed to work rather than what a
+ * page claimed, and the length validator only warns.
  *
- * `tokensPerWord` is our own estimator, not Google's tokenizer, which is not published.
+ * `tokensPerWord` was measured over 27 generated prompts in Part 8a: median 1.188, p95
+ * 1.221. 1.4 is that p95 plus headroom, since it is GPT's tokenizer standing in for the
+ * video generator's.
  *
- * Part 8a measured it over 27 generated prompts with a real BPE: median 1.188, p95
- * 1.221, max 1.235. 1.4 is that p95 plus ~15%, because the measurement is GPT's
- * tokenizer standing in for Veo's, and the cost of being wrong is a truncated prompt.
- * `maxWords` is derived from it: floor(1024 / 1.4) = 731.
- *
- * Not the binding constraint in practice — generated prompts run 190-330 words — but it
- * is the one D-012 asks for, and it is now measured rather than guessed.
- *
- * `provisional` is true until Jakhongir confirms the Flow mode, durations, aspect ratios
- * and reference rules from his own test runs (D-013, plan Part 0).
+ * `provisional` stays true until the generator's own mode, durations, aspect ratios and
+ * reference rules are confirmed from a real run (D-013).
  */
 const FLOW_VEO_31 = {
   id: 'flow-veo-3.1',
-  version: 3,
+  version: 4,
   sourceUrl: 'https://deepmind.google/models/veo/',
   checkedAt: '2026-09-11',
   provisional: true,
 
-  maxPromptTokens: 1024,
+  maxPromptTokens: 6000,
   tokensPerWord: 1.4,
-  maxWords: 2000,
-  maxChars: 4500,
-  recommendedWords: 900,
+  maxWords: 4000,
+  maxChars: 30000,
+  recommendedWords: 2400,
 
   beats: { default: 3, max: 4 },
 

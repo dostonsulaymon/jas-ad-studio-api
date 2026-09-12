@@ -102,7 +102,7 @@ describe('generationResultSchema — the model output (source 01 §26)', () => {
   });
 
   it('rejects an over-long promptEn', () => {
-    const huge = { ...validResult, promptEn: 'x'.repeat(8001) };
+    const huge = { ...validResult, promptEn: 'x'.repeat(30_001) };
 
     expect(generationResultSchema.safeParse(huge).success).toBe(false);
   });

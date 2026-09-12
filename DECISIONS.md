@@ -450,6 +450,24 @@ Doston: "no need for limit for word size at all, we can have a prompt like that 
 2. gpt-5.x is not in the pricing table, so reported costs use a deliberately high fallback ($15/$60 per million) and are **overestimates**. Real rates are needed before cost per successful package can inform D-029.
 
 
+### D-046 · 2026-09-12 · The 1,024-token ceiling was never real; it is removed
+
+Doston has run prompts of **2,000–4,000 words through the real generator with no truncation**. The 1,024-token figure in D-012, `docs/BRIEF.md` C-4 and spec §5 was read off a model page on 2026-09-11 and never tested against the tool we actually use.
+
+- `maxPromptTokens` now records what has been **observed to work** (6,000) rather than what a page claimed, and the length check only warns (D-045).
+- `recommendedWords` is 2,400, matching the example prompt Doston is working from.
+- The result schema's `promptEn` cap went from 8,000 to 30,000 characters, which had become a second hidden ceiling.
+- **Supersedes** the token-ceiling clause of D-012 and resolves C-4 in `docs/BRIEF.md`: the conflict between source 01's 180–350 words and source 02's 500–1,000 was arbitrated by a limit that does not exist. Source 02's depth requirement stands unopposed, and the example prompt puts the real target higher still.
+
+**How this was missed.** The figure entered `DECISIONS.md` in the first planning session and was treated as settled. P1's own Part 0 listed "does the generator's prompt box truncate a long prompt?" as untested — and six parts were built around the limit anyway instead of spending two minutes checking it. A documented constraint that nothing depends on is cheap; one that shapes the architecture has to be tested before it is trusted.
+
+### D-047 · 2026-09-12 · Target generator: Omni, not Veo — details pending
+
+Doston: "We can use Omni, not the Veo." The `flow-veo-3.1` entry in `src/ai/targets/` is therefore the wrong target and is **stale**, though its length settings now reflect real observed behaviour.
+
+Still needed before a correct entry can be written: the generator's exact name and where it runs, its supported durations and aspect ratios, its reference-image mode and how many it accepts. **Supersedes D-013** once those are supplied.
+
+
 ---
 
 ## Inputs recorded but not yet decided
