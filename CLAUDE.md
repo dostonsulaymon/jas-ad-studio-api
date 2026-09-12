@@ -22,13 +22,15 @@ People: Jakhongir is the owner and client. Doston builds it, with Claude (D-003)
 
 ## Status
 
-**P0 to P4 closed and merged. P5's code is built; P6 is next.** Updated 2026-09-12.
+**P0 to P5 all closed and merged. P6 is next.** Updated 2026-09-12.
 
 A seller can sign in with Google, create a project, upload product photos, buy credits through a manually confirmed order, and press generate once to get one ad package — a Flow prompt and an Uzbek shot plan — for one credit. A failure gives the credit back; a success stays bought even if the browser dies. The model is `gpt-5.5` (D-052) and four creative formats decide each prompt's shape from config (D-058).
 
 **One real generation has been walked end to end through the queue** (D-082): 60 seconds, $0.359, a 2,251-word prompt and a three-shot Uzbek plan.
 
-What is **not** built: the example gallery (P6), hardening and backups (P7), deployment and the pilot (P8). P5's studio is built and green but not finished — it needs a visual pass on two panels and an e2e fixture for the signed-in flow, both of which belong to the web session (D-085).
+**P5 closed 2026-09-12 (D-086).** The studio, the owner `/admin` panel, the credit and order screens and the generation result are all built in `../jas-ad-studio-web`, and the whole path has been walked by hand against a running stack, not only asserted in tests. That walk found three defects in **this** repo, all fixed: `WEB_ORIGIN` defaulted to this API's own port so every browser write was refused, `GET /api/projects/:id` returned 3 of the brief's 11 fields so a saved brief could never be read back, and the owner panel's generations and spend views had no endpoint. See `docs/PROGRESS.md`.
+
+What is **not** built: the example gallery (P6), hardening and backups (P7), deployment and the pilot (P8). **D-082 blocks selling**: nothing is priced, and a real generation costs about 4,414 soʻm against the 1,100 the pricing assumed. That one needs Jakhongir.
 
 **The one thing blocking product progress is not code.** D-082 measured a generation at about 4,400 som against the 1,100 som the pack prices assume. Until Jakhongir sets real prices, `GET /api/packs` returns an empty list by design (D-072) and the order screens have nothing to show.
 

@@ -10,12 +10,36 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0–P4 closed and merged. P5's generation slice built**, in both repos, uncommitted on the web side. |
-| Branch | **`p3-credits-orders`**, cut from `main` on 2026-09-12. One branch per phase, merged only after the exit check and Doston's review (D-070). |
-| Active plan | None in this repo. `docs/superpowers/plans/2026-09-12-phase-5-studio-ui.md` is **Session B's**, and every file it creates is in `../jas-ad-studio-web` (D-025). P6 has no plan yet. |
-| Doing now | Nothing in flight. `p5-generation-slice` holds D-085 here; the web repo's changes sit uncommitted on `p5-studio-ui` for Session B. **Claude does not commit unless told (D-071).** |
-| Next | Session B reviews `HANDOFF-P5-generation.md` in the web repo, designs the two new panels and commits. Then P6 (gallery), which needs a plan. **D-082 still needs Jakhongir.** |
-| Last verified state | 2026-09-12 17:11 on `p3-credits-orders`: the full gate green — `lint` and `typecheck` silent, `pnpm test` **471 passed in 35 files**, `build` clean, `openapi:check` up to date (29 operations, 18 component schemas). The whole money flow also walked by hand against the running server, which found one defect (D-076). Earlier, 16:21 on `main` after the merge: the full gate green — `lint` and `typecheck` silent, `test` **376 passed in 26 files** (including the 16-test isolation gate), `build` clean, `openapi:check` “`openapi.json` is up to date”. `components.schemas` holds 4 shapes, so the contract is no longer a list of bare URLs. `jas-api` and `jas-worker` both `online` under pm2 on Node 24.19.0, and the live server answers. |
+| Phase | **P0-P5 all closed and merged.** P6 (gallery) is next and has no plan yet. |
+| Branch | `main`. A new phase gets a new branch cut from `main` (D-070); `p6-gallery` does not exist yet. |
+| Active plan | None. `docs/superpowers/plans/2026-09-12-phase-5-studio-ui.md` is Session B's and is finished. |
+| Doing now | Nothing in flight. Both repos clean. |
+| Next | **P6: the gallery.** Write its plan first. It is the one phase that spans both repos. **D-082 still needs Jakhongir** and blocks selling: nothing is priced, and a real generation costs about 4,414 soʻm against the 1,100 the pricing assumed. |
+| Last verified state | 2026-09-12, after the P5 close merge on `main`: **531 tests in 41 files**, `lint` and `typecheck` silent, `build` clean, `openapi:check` up to date at **28 paths**. Web repo on `p5-studio-ui`: **54 unit tests, 33 Playwright assertions** at 1440, 390 and 360, `api:check` matching `main`, `build` clean. `jas-api` and `jas-worker` both `online` under pm2. |
+
+### What closing P5 changed here
+
+P5 is Session B's phase and its code is in `../jas-ad-studio-web`, but walking the whole
+flow by hand against a running stack found three defects in **this** repo, all fixed and
+merged (D-086):
+
+1. **`WEB_ORIGIN` defaulted to `http://localhost:3040`, this API's own port.** The CSRF
+   guard checks the browser's `Origin` against it and the sign-in callback redirects to
+   it, so every write from the web app was refused and sign-in landed on the API. Reads
+   passed, which is exactly why it looked healthy. Measured: Origin 3042 gave 403
+   `CROSS_ORIGIN_REFUSED`, Origin 3040 gave 401. Now defaults to the web dev port.
+2. **`GET /api/projects/:id` returned 3 of the brief's 11 fields.** `PATCH` requires all
+   11, so reopening a saved project and saving it would have wiped `audience`, `offer`,
+   `confirmedClaims` and five more. Source 01 §20 asks for that flow. The route now
+   returns the brief beside the summary, reusing the `readBrief` port the worker already
+   had. Ownership is unchanged: another user's id is still a 404, never a 403.
+3. **The owner panel's generations and spend views had no endpoint.** `GET
+   /api/owner/generations` and `GET /api/owner/spend` are reads over data the
+   `generations` table already carried, so no schema change. Spend is recorded USD cost,
+   never credits, and a test asserts a spend row carries no credit field.
+
+The two endpoint-coverage guards (D-077) did their job: both new routes failed the build
+until `money.e2e.spec.ts` drove them to a 2xx.
 
 ## 2026-09-12 — P5's generation slice, built to the point where only design is left
 

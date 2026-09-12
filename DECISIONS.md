@@ -1028,6 +1028,50 @@ So `repairNullableFields` in `bootstrap.ts` rewrites `{ marker, type: 'array', i
 **The lesson is not about zod.** `openapi:check` was green through all of this, and so were 525 tests: nothing on this side reads the contract as a client. The bug was only visible from the web repo, by generating the client and looking at the types it produced.
 
 
+### D-086 · 2026-09-12 · P5 closed, and the four decisions Session B made inside it
+
+P5 is closed. The studio, the owner panel, the credit and order screens and the
+generation result are all built, and the whole path has been walked by hand against a
+running stack rather than only asserted in tests.
+
+**Session B's own decisions, recorded here because the web repo has no `DECISIONS.md`
+and its `CLAUDE.md` points at this file.** They were proposed as W-001 to W-004 in
+`docs/superpowers/plans/2026-09-12-phase-5-studio-ui.md` and are adopted as written:
+
+- **W-001. Uzbek Latin uses U+02BB, and the display face is Inter, not Manrope.**
+  Manrope has no glyph at U+02BB or U+02BC, the two characters standard Uzbek Latin uses
+  for `oʻ`, `gʻ` and the tutuq belgisi, and this API already emits U+02BB 657 times
+  across the shot plans. Every Uzbek shot plan would have rendered with a substituted
+  face mid-word. Checked: Inter, IBM Plex Sans and Noto Sans carry both; Manrope,
+  Figtree, Outfit, DM Sans and Plus Jakarta Sans do not. Source 01 §5 permits "Manrope
+  or a suitable equivalent supporting Uzbek characters", so this is the source's own
+  escape hatch. **Supersedes the Manrope half of D-035**; the rest of D-035 stands.
+- **W-002. The web client is generated from `main`, never from this repo's working
+  tree.** `main` is a line of closed phases (D-070), so the web app only compiles
+  against contracts that passed an exit check. Not theoretical: on 2026-09-12 the
+  working tree carried uncommitted P3 routes. `pnpm api:generate --from-worktree`
+  exists for local testing and its output is never committed. **Extends D-031.**
+- **W-003. Seller-facing Uzbek labels for `goal` and `formatId` live in the web i18n
+  catalogue.** No endpoint lists them, and D-065 requires each format to have a label
+  and a line. The generated client's union types mean a renamed format breaks the web
+  build rather than shipping a blank radio. If the owner ever needs to edit this copy it
+  becomes a `GET /api/formats` endpoint.
+- **W-004. Project history is a drawer, not a page.** Confirms spec §8 and source 01 §20:
+  `/` stays the only seller-facing route.
+
+**What walking it found, which the tests had not.** `WEB_ORIGIN` defaulted to this API's
+own port, so the CSRF guard refused every write from the browser and sign-in redirected
+to the API. Reads passed, so the app looked healthy. Also fixed in the same pass:
+`GET /api/projects/:id` returned 3 of the brief's 11 fields, making "reopen and edit"
+(source 01 §20) impossible without silent data loss, and the owner panel's generations
+and spend views had no endpoint at all.
+
+**Not in P5, on purpose:** the example gallery and `galleryInspirationId` are P6.
+**D-082 is still open** and blocks selling: `GET /api/packs` has nothing priced, and a
+real generation costs about 4,414 soʻm against the 1,100 the pricing assumed.
+
+---
+
 ### D-085 · 2026-09-12 · P5's generation slice, built by Session A at Doston's instruction
 
 P5 is Session B's phase (D-025). Doston asked this session to finish it with one condition: *"designing parts should be done by the second one not by you."* So the logic, the wiring, the copy and the tests are here; the visual treatment of the two new panels is deliberately plain and left for Session B.
