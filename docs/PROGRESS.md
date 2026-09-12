@@ -10,11 +10,100 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0, P1, P1b and P2 all closed.** |
-| Active plan | None. `docs/superpowers/plans/2026-09-12-phase-2-accounts-uploads.md` is finished — all 12 tasks and the four fixes are committed and merged to `main` as `7481855`. P3 has no plan yet. |
-| Doing now | Nothing in flight. Working tree clean on `main`. |
-| Next | **T-09 is answered and done** (the contract has shapes in it). Next is P3: credits, orders, the ledger. Write its plan first. |
-| Last verified state | 2026-09-12 16:21, re-run on `main` after the merge: the full gate green — `lint` and `typecheck` silent, `test` **376 passed in 26 files** (including the 16-test isolation gate), `build` clean, `openapi:check` “`openapi.json` is up to date”. `components.schemas` holds 4 shapes, so the contract is no longer a list of bare URLs. `jas-api` and `jas-worker` both `online` under pm2 on Node 24.19.0, and the live server answers. |
+| Phase | **P0, P1, P1b, P2 and P3 all closed.** P4 is next. |
+| Branch | **`p3-credits-orders`**, cut from `main` on 2026-09-12. One branch per phase, merged only after the exit check and Doston's review (D-070). |
+| Active plan | `docs/superpowers/plans/2026-09-12-phase-3-credits-orders.md` — **all 14 tasks done**, uncommitted. P4 has no plan yet; write it before building anything. |
+| Doing now | Nothing in flight. All of P3 sits in the working tree awaiting Doston's review. **Claude does not commit (D-071).** |
+| Next | P4: the generation pipeline. It inherits three things from P3 — the `Executor` parameter on every money method, the proven `reserveOne`/`debit`/`release` primitives, and **a `credit_ledger.generation_id` with no foreign key**, which P4's first migration must add. |
+| Last verified state | 2026-09-12 17:11 on `p3-credits-orders`: the full gate green — `lint` and `typecheck` silent, `pnpm test` **471 passed in 35 files**, `build` clean, `openapi:check` up to date (29 operations, 18 component schemas). The whole money flow also walked by hand against the running server, which found one defect (D-076). Earlier, 16:21 on `main` after the merge: the full gate green — `lint` and `typecheck` silent, `test` **376 passed in 26 files** (including the 16-test isolation gate), `build` clean, `openapi:check` “`openapi.json` is up to date”. `components.schemas` holds 4 shapes, so the contract is no longer a list of bare URLs. `jas-api` and `jas-worker` both `online` under pm2 on Node 24.19.0, and the live server answers. |
+
+## 2026-09-12 — P3 closed: credits, orders and the ledger
+
+**The full gate, on `p3-credits-orders`:**
+
+```
+$ pnpm lint       → $ eslint .      (silent)
+$ pnpm typecheck  → $ tsc --noEmit  (silent)
+$ pnpm test       → Test Files  35 passed (35)
+                     Tests  471 passed (471)
+$ pnpm build      → $ nest build    (clean)
+$ pnpm openapi:check → openapi.json is up to date.
+```
+
+75 new tests. The contract went from 18 to 29 operations and 16 to 18 component schemas, every P3 route carrying a request body and a response shape.
+
+### What holds the money together
+
+**The guarantees are in the schema, not in service code.** `credit_ledger_one_purchase_per_order` — `UNIQUE (order_id) WHERE type = 'purchase'` — is Addendum A §A4's idempotency enforced by Postgres, so a double confirm cannot depend on application code being careful. `credit_accounts_non_negative` is the floor under R-3's atomic reserve. 16 tests assert the database refuses each bad write **and name which constraint did it**: a test that only asserts "it threw" passes just as happily when the write fails for an unrelated typo.
+
+**The reserve guard is inside the UPDATE.** `WHERE available >= 1` on the `UPDATE` itself, never a SELECT then an UPDATE. That one statement is what makes concurrency safe without a lock anyone has to remember to take. Proven in `accounts.race.spec.ts`: one credit against two concurrent reserves, three against ten, a grant racing a reserve, and a 50-operation storm across five users — **run five times over, stable each time** (D-075).
+
+**The owner module owns the transaction and passes it down.** The audit row must land in the same transaction as the credit move, but `credits` writing `owner_audit_log` breaks R-7 and injecting an audit writer into `credits` makes the modules mutually dependent. Instead `owner.controller.ts` opens the transaction and `credits` joins it through the same `Executor` parameter P4 will use. One transaction, no cycle, no callback.
+
+**Two things `pnpm lint` refused during the build,** both fixed by depending on a port rather than by touching the config: a test *helper* importing another module's service (the `.spec.ts` exemption does not cover helpers), and the owner controller importing the settings module's DTO file.
+
+### Endpoint coverage is now asserted, not claimed
+
+Doston asked whether every endpoint had been tested. It had not: **12 of the 14 P3 routes** had been driven to a success, and two had only ever been refused —
+
+- `GET /api/owner/users` and `GET /api/owner/orders` appeared only in the 404/401 refusal loops, never as the owner.
+- **`PATCH /api/owner/settings/support-contacts` had never been called at all**, by any test or by the hand-walk.
+
+Rather than add the two missing tests and claim completeness again, the suite now proves it. `send()` records every route that returns a 2xx, and a final test reads the route list **out of `openapi.json`** and fails on any P3 route never driven to a success. A 404 probe proves a door is shut, not that the room behind it works, so refusals do not count.
+
+The gate was verified to have teeth: breaking only the support-contacts call makes the full suite report exactly `never driven to a 2xx: PATCH /api/owner/settings/support-contacts`. Because the list comes from the generated contract, a route added to the API without a test that exercises it now fails the build rather than going unnoticed.
+
+Both previously-untested endpoints were then also walked by hand on the running server: `GET /owner/users` → 200 with balances and nothing else; `PATCH /owner/settings/support-contacts` → 200, a bad email → 400 on `email`, an unknown key → 404.
+
+### The hand-walk found what 471 tests could not
+
+Same discipline as P2, and it earned its place again. Walked on the running server with real cookies: empty pack list → activation refused without a price → activated with one → order refused with no payment instructions → instructions set → order placed → **seven confirms of the same order** → one ledger row, balance 5 → reject → cancel → the daily cap at 429 → grant with a note, and refused without one.
+
+**D-076: an idempotent POST was answering 201 Created.** `POST /owner/orders/:id/confirm` creates nothing, and on a second call explicitly does nothing — `{"credited":0,"alreadyPaid":true}` — yet reported 201 because that is Nest's default for a POST. A client generated from that contract (D-031) would describe a resource that does not exist. Not a money bug, which is exactly why no unit test saw it; and **the exit gate had asserted the 201 it observed**, so the test was encoding the defect — the same trap two P2 specs fell into (D-066).
+
+### Decisions
+
+D-072 (placeholder pack prices, inactive, activation must re-state the price) · D-073 (the ledger sign convention and four new error codes) · D-074 (`site_settings` moved into P3) · D-075 (the primitives built here, not in P4) · D-076 (the 201).
+
+**The pack prices are placeholders Claude chose — 9,000 / 40,000 / 105,000 som — not prices Jakhongir has agreed.** They ship inactive, `GET /api/packs` returns only priced *and* active packs, and activation refuses unless the same request states a price. Verified live: `{"isActive":true}` → 400 on `priceUzs`.
+
+**No card number is in any migration.** `payment_instructions` seeds with every field null; the owner sets it through `PATCH /api/owner/settings/payment-instructions`. The D-023 support contacts are seeded, being published addresses rather than secrets.
+
+### What P4 inherits
+
+1. **`credit_ledger.generation_id` has no foreign key.** `generations` does not exist yet; P4's first migration must add the constraint.
+2. **Every money method takes an optional `Executor`.** `POST /generations` must reserve a credit inside the transaction that inserts the generation row, or neither.
+3. **`reserveOne` already refuses a zero balance with a 402** and leaves no ledger row. P4 wires that gate to the AI call so no paid model call happens on an empty balance (§A5).
+
+## 2026-09-12 — P3 started: the plan, and the transaction helper
+
+**The plan is `docs/superpowers/plans/2026-09-12-phase-3-credits-orders.md`** — 14 tasks, approved by Doston the day it was written. Three of his decisions shaped it:
+
+1. **The reserve/debit/release primitives are built in P3, not P4,** with their concurrency tests. P4 then inherits a proven primitive instead of a primitive plus a job engine to debug at once. This is why every money method takes an `Executor`.
+2. **`site_settings` and the payment instructions are in P3.** Deferred to P5 first, then reversed: *"add the payment part to phase 3."* Automatic Payme/Click checkout stays out — D-008 needs a registered business and a merchant agreement.
+3. **The packs carry editable placeholder prices, seeded inactive,** and activation must re-state the price. So the numbers exist and are editable, and no price Claude invented can reach a seller. The three placeholder figures are Claude's, not Jakhongir's, and are marked as such in the plan and in D-071.
+
+**Task 1 done.** `src/common/db/transaction.ts`: `withTransaction`, the `Executor` type, and `isUniqueViolation`. Nothing in the codebase ran two statements atomically before this — every service holds a `Pool` and calls `pool.query`.
+
+Two things worth keeping:
+
+- **`Executor` is `Pick<Pool, 'query'>`, not `Pool | PoolClient`.** The union's `query` overloads do not collapse into one callable signature, so every call site would need a cast. This matters because the type is about to appear in two module ports.
+- **The leak test is the one that earns its place.** A missing `client.release()` leaves the client checked out — `totalCount` stays 1 while `idleCount` drops to 0 — and the next `connect()` waits forever. Asserting both counts catches it; asserting that the query worked does not.
+
+Verified: 4 tests against a real Postgres, and `pnpm test` **380 passed in 27 files**.
+
+**Task 2 done: the four credit tables**, `drizzle/migrations/0003_remarkable_tyrannus.sql`. The money guarantees are in the schema, not in service code — 16 tests assert that **Postgres** refuses each bad write, and each one checks the constraint *name*, because a test that only asserts "it threw" passes just as happily when the write fails for an unrelated reason.
+
+The three that carry the phase:
+
+- **`credit_ledger_one_purchase_per_order`** — `UNIQUE (order_id) WHERE type = 'purchase'`. This is Addendum A §A4's "confirmation must be idempotent", enforced by the database, so a double confirm cannot depend on application code being careful. Proved twice over: a second `purchase` row for the same order is refused, **and** a `reserve` plus a `release` on that same order are allowed — the index is partial, and if it were a blanket unique, P4 could never release a reservation.
+- **`credit_accounts_non_negative`** — `available >= 0 AND reserved >= 0`. The last line of defence under R-3's atomic reserve.
+- **`ON DELETE restrict`** on `credit_orders.pack_id` and `credit_ledger.order_id`. A cascade there would erase the record of money changing hands by deleting a pack.
+
+Also asserted: a grant with no note, or a whitespace-only note, is refused (§A3); an active pack with no price is refused (§A8, no invented prices); a `paid` order with no `confirmed_at`, and a `pending` order that claims one, are both refused; a rejected order must carry a reason for the seller; an unknown ledger type or payment method is refused; and a seller's `payer_reference` is bounded at 120 characters.
+
+**Deliberate gap for P4:** `credit_ledger.generation_id` has no foreign key. `generations` does not exist until P4, whose first migration must add it.
+
 
 ### Three things the next session should pick up
 
@@ -59,7 +148,7 @@ $ curl -s -w 'HTTP %{http_code}\n' http://localhost:3040/api/me
 HTTP 401
 ```
 
-**Still missing from this record:** the authenticated `GET /api/me` response body. It needs Doston's browser cookie, which no session here can read and which must never be reconstructed — forging a session row would make this criterion prove nothing. The database row above is the server's own account of that sign-in; the response body is a one-line paste when convenient.
+**Confirmed by Doston, 2026-09-12: "working fine."** He checked the authenticated `GET /api/me` in his signed-in browser. The response body is not pasted here because no session in this repo can read his cookie and forging a session row would make the criterion prove nothing — so this line is his attestation plus the database row above, which is the server's own account of that sign-in. **Task 7 Step 6 is closed.**
 
 **T-09 done in the same session.** The contract went from 15 bare URLs to 4 component schemas, 3 request bodies, 8 response schemas and 15 summaries. Three things cost time and are worth remembering: `z.date()` cannot be represented in JSON Schema at all (zod 4 throws, so `createdAt` is `z.iso.datetime()` — the wire format never changed, only the claim about it); **`pm2` is not on PATH after `nvm use`**, because it lives in Node 22's bin, so `pm2 restart` silently does nothing and stale status reads as live; and a throw before `app.listen()` used to leave the process alive holding the pool, which **pm2 reported as `online` while it listened to nothing** — `main.api.ts` now exits non-zero on a failed boot.
 
