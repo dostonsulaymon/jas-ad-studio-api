@@ -11,10 +11,10 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 | | |
 |---|---|
 | Phase | **P0, P1, P1b and P2 all closed.** |
-| Active plan | `docs/superpowers/plans/2026-09-12-phase-2-accounts-uploads.md`. Tasks 1–11 are committed on `p2-accounts-uploads`; Task 12 and the four fixes are done but uncommitted. |
-| Doing now | Nothing in flight. P2 merged to `main`. |
+| Active plan | None. `docs/superpowers/plans/2026-09-12-phase-2-accounts-uploads.md` is finished — all 12 tasks and the four fixes are committed and merged to `main` as `7481855`. P3 has no plan yet. |
+| Doing now | Nothing in flight. Working tree clean on `main`. |
 | Next | **T-09 is answered and done** (the contract has shapes in it). Next is P3: credits, orders, the ledger. Write its plan first. |
-| Last verified state | 2026-09-12 15:35: the full gate green — `lint`, `typecheck`, `test` (**376 tests in 26 files**), `build`, `openapi:check`. All four defects re-tested against the running server and confirmed fixed. Swagger live at `/api/docs`, byte-identical to `openapi.json`. Both processes under pm2 on Node 24. |
+| Last verified state | 2026-09-12 16:21, re-run on `main` after the merge: the full gate green — `lint` and `typecheck` silent, `test` **376 passed in 26 files** (including the 16-test isolation gate), `build` clean, `openapi:check` “`openapi.json` is up to date”. `components.schemas` holds 4 shapes, so the contract is no longer a list of bare URLs. `jas-api` and `jas-worker` both `online` under pm2 on Node 24.19.0, and the live server answers. |
 
 ### Three things the next session should pick up
 
@@ -38,6 +38,28 @@ All four fixed, each with a test that fails against the old code, then re-tested
 **pm2.** `ecosystem.config.cjs` runs `jas-api` and `jas-worker` from `dist/`. The interpreter is pinned to Node 24.19.0 — **the pm2 daemon on this machine runs Node 25**, and without the pin the API launches on a runtime neither CI nor Docker uses. Postgres and Redis stay in Docker; pm2 manages node processes, not containers. `pnpm build` first, every time — pm2 does not build.
 
 **Google sign-in verified by hand (Doston, 2026-09-12).** Task 7 Step 6, and P2's last exit criterion. The outbound leg and the exchange path were already proven automatically — 302 with correct scopes, a bogus code round-tripped to Google in 409 ms — and the success branch is now confirmed in a real browser against a real account. **P2 is closed.**
+
+The row the real sign-in wrote, read back from dev Postgres at 16:22 on 2026-09-12 — one user, one live session, `role = owner` off the `OWNER_EMAILS` allowlist:
+
+```
+                  id                  |           email           |      name       | locale  | role  |          created_at
+--------------------------------------+---------------------------+-----------------+---------+-------+-------------------------------
+ 02b63c96-ba53-4d80-8e7b-153b39276bbb | dostonqosimiy19@gmail.com | Doston Sulaymon | uz-Latn | owner | 2026-09-12 10:42:33.741094+00
+
+  token_hash   |           email           | role  |          created_at           |         expires_at
+---------------+---------------------------+-------+-------------------------------+----------------------------
+ f68baee2d99b… | dostonqosimiy19@gmail.com | owner | 2026-09-12 10:42:33.743495+00 | 2026-10-12 10:42:33.743+00
+```
+
+The session is hashed at rest, so the table holds no usable token — `token_hash` is what D-036 asks for, and the 30-day `expires_at` is what D-038 asks for. The same server refuses `GET /api/me` without that cookie, which is the other half of the claim:
+
+```
+$ curl -s -w 'HTTP %{http_code}\n' http://localhost:3040/api/me
+{"code":"SESSION_EXPIRED","messageKey":"errors.session_expired","requestId":"ae7a54dd-3a04-4896-949e-b47822f51633"}
+HTTP 401
+```
+
+**Still missing from this record:** the authenticated `GET /api/me` response body. It needs Doston's browser cookie, which no session here can read and which must never be reconstructed — forging a session row would make this criterion prove nothing. The database row above is the server's own account of that sign-in; the response body is a one-line paste when convenient.
 
 **T-09 done in the same session.** The contract went from 15 bare URLs to 4 component schemas, 3 request bodies, 8 response schemas and 15 summaries. Three things cost time and are worth remembering: `z.date()` cannot be represented in JSON Schema at all (zod 4 throws, so `createdAt` is `z.iso.datetime()` — the wire format never changed, only the claim about it); **`pm2` is not on PATH after `nvm use`**, because it lives in Node 22's bin, so `pm2 restart` silently does nothing and stale status reads as live; and a throw before `app.listen()` used to leave the process alive holding the pool, which **pm2 reported as `online` while it listened to nothing** — `main.api.ts` now exits non-zero on a failed boot.
 
