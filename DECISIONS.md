@@ -538,6 +538,34 @@ The fixture test records which behaviour the recording shows rather than asserti
 **Also fixed:** the injection-fixture test flagged the phrase "product lock" as a leaked system prompt. `Product lock:` became a required section heading of every generated prompt when the architecture was made mandatory, so the test was reporting compliance as a leak. It now checks for phrases that appear only in the instructions.
 
 
+### D-052 · 2026-09-12 · The model is `gpt-5.5`
+
+Doston: "use 5.5 not mini then."
+
+Settles the provider-and-model question D-029 left open, as amended by D-043 (OpenAI only, one provider compared against itself).
+
+| | `gpt-4.1` | `gpt-5.4-mini` | **`gpt-5.5`** |
+|---|---|---|---|
+| Words | 803 | 1,260 | **1,653** |
+| Sections | 17/17 | 17/17 | 17/17 |
+| Time | 18s | 21s | 58s |
+| Conflicting variants | **invents a compromise** | asks | **asks** |
+
+`gpt-4.1-mini` was disqualified earlier for producing one section of seventeen (D-048), and `gpt-4.1` for choosing a variant instead of asking when two photos contradicted each other (D-051) — a seller's credit spent on a video of the wrong product.
+
+`OPENAI_MODEL` in `.env.example` is `gpt-5.5`. `--model` still overrides it per run.
+
+**Cost is not part of this decision, because it cannot be.** gpt-5.x is absent from the pricing table, so every cost figure reported for it uses a deliberately high fallback ($15/$60 per million) and is an upper bound. D-029 weighs cost per successful package second; that half stays unanswerable until real rates are supplied. The known real figure is `gpt-4.1` at $0.026 per prompt.
+
+### D-053 · 2026-09-12 · First real Flow video: "kinda good"
+
+Doston generated a video in Google Flow from a `gpt-5.5` prompt for a real product — beige knit sneakers from shoptextile.uz, photographed as a pair with no visible branding. His verdict: **"it's kinda good."**
+
+The first end-to-end proof that the chain works: real seller photo → our prompt → Flow → a watchable ad. Not yet a D-019 judgement, which needs about ten products across categories and a usable/not verdict on each.
+
+"Kinda good" is a soft pass, and what was *not* good is the input D-019's fix rounds exist for. Recorded here so the next session knows this was the first signal and that its detail is still outstanding.
+
+
 ---
 
 ## Inputs recorded but not yet decided
