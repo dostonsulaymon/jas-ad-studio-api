@@ -1,0 +1,49 @@
+# Datastores for local development, separate from the deployed stack's own.
+#
+# This is its own compose project, so it gets its own containers and named volumes and
+# shares nothing with docker-compose.yml. Running `pnpm dev` against the deployed
+# Postgres would put development writes in real seller data.
+#
+#   pnpm infra:up      /  pnpm infra:down  /  pnpm infra:logs
+#
+# Host ports step around everything already listening on this machine: 5432 to 5436 and
+# 6379 to 6383 are taken by other projects and by the deployed stack below.
+
+services:
+  postgres:
+    image: postgres:17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DEV_POSTGRES_USER:-jas}
+      POSTGRES_PASSWORD: ${DEV_POSTGRES_PASSWORD:-jas}
+      POSTGRES_DB: ${DEV_POSTGRES_DB:-jas_ad_studio}
+    ports:
+      - '${DEV_POSTGRES_PORT:-5437}:5432'
+    volumes:
+      - postgres-data-dev:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${DEV_POSTGRES_USER:-jas} -d ${DEV_POSTGRES_DB:-jas_ad_studio}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:8-bookworm
+    restart: unless-stopped
+    # BullMQ requires eviction to be disabled, or delayed jobs can be dropped (D-030).
+    command: ['redis-server', '--maxmemory-policy', 'noeviction', '--appendonly', 'yes']
+    ports:
+      - '${DEV_REDIS_PORT:-6384}:6379'
+    volumes:
+      - redis-data-dev:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres-data-dev:
+  redis-data-dev:

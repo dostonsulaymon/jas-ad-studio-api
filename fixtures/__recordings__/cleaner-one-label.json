@@ -1,0 +1,86 @@
+{
+  "fixture": "cleaner-one-label",
+  "model": "gpt-4.1",
+  "promptVersion": "ad-director-v2",
+  "targetId": "google-flow",
+  "targetConfigVersion": 5,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4010,
+    "outputTokens": 2332,
+    "estimatedCostUsd": 0.026676
+  },
+  "result": {
+    "status": "ready",
+    "questionsUz": [],
+    "messageUz": null,
+    "product": {
+      "category": "universal yuzalarni tozalovchi suyuqlik",
+      "observedDetails": [
+        "750 ml yozuvi bor oq kvadrat yorliq",
+        "Yashil rangli, baland, toʻgʻri burchakli plastik idish",
+        "Yopiq qopqoq qalinroq, idish tanasiga nisbatan bir oz torroq",
+        "Yorliq idishning old tomoniga markaziy joylashgan, matn qora harflar bilan",
+        "Hech qanday boshqa yorliq, logo yoki dizayn detali yoʻq"
+      ],
+      "confirmedClaims": [
+        "Oshxona yuzalari uchun mos"
+      ],
+      "unknownDetails": [
+        "Idish orqa tomonida nima yozilganligi nomaʻlum",
+        "Suyuqlikning rangi va tarkibi aniqlanmagan"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Faqat old tomoni koʻrsatilgan, aynan shu geometrik shakl va yorliq joylashuvini oʻzgartirmaslik kerak",
+        "Yashil idish, oq kvadrat yorliq, qora matn — boshqasiga almashtirilmasin",
+        "Qoʻshimcha logo, dizayn va matn kiritilmasin",
+        "Qopqoq shakli va rangi saqlansin",
+        "No rear, bottom, or liquid content revealed as this was not provided"
+      ]
+    },
+    "concept": {
+      "titleUz": "Oson va samarali tozalik",
+      "rationaleUz": "Uy bekalari uchun — oshxona yuzalarini tez va oson tozalash, yorqin natijani kafolatlaydigan zamonaviy universal vosita. Produkt dizayni bilan tanishib, tozalovchi vositaning oson muomilasi va keng foydaliligi namoyon qilinadi.",
+      "style": "clean-studio",
+      "hookUz": "Oshxonangizni tez va oson tozalovchi hamroh!",
+      "ctaUz": "TOZA universal tozalagich — tozalik har daqiqada yoningizda!"
+    },
+    "target": {
+      "targetId": "google-flow",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 2.4,
+        "descriptionUz": "Yaxshi yoritilgan ochiq studiya fonda, TOZA tozalovchi idishi markazda, old yorliqi aniq koʻrinadigan holda turadi. Fon silliq oq yoki juda och yashil, eʻtibor butunlay mahsulotga qaratilgan.",
+        "cameraUz": "Kamera idishga bevosita toʻgʻridan-toʻgʻri tik qaraydi va sekin, sokin ravishda oldinga suriladi."
+      },
+      {
+        "startSeconds": 2.4,
+        "endSeconds": 5.2,
+        "descriptionUz": "Produktga yaqinroq tejamkor rakurs bilan – idishni yonidan ushlab turgan toza qoʻl paydo boʻladi. Qoʻl idishni ohista ushlab, idishni bir necha soniya koʻrsatadi (yorliq aniq koʻrinishda qoladi), mahsulotdan foydalanishga tayyorlik kayfiyati yaratiladi.",
+        "cameraUz": "Kamera sekin tepadan pastga engil harakatlanadi, yordamchi nafis shifting bilan eʻtibor mahsulotga qaratiladi."
+      },
+      {
+        "startSeconds": 5.2,
+        "endSeconds": 8,
+        "descriptionUz": "Idish yana markazda, fon yana och va silliq, yorliq toʻliq koʻrinmada. Ostki qismdan maqomli yorugʻlik bilan, idishning silliq plastik yuzasi tiniq va zamonaviy koʻrinadi. Final kadrda mahsulot bir soniya jim turadi.",
+        "cameraUz": "Kamera deyarli harakatsiz, faqat biroz markazga engillashtirilgan, diqqatni butunlay mahsulotga qaratadi."
+      }
+    ],
+    "promptEn": "Product reference and source of truth: The supplied green plastic bottle graphic is the sole visual authority for the TOZA universal surface cleaner. Essential product identifiers to preserve: tall rectangular form with slightly rounded edges, single white-square central label with black text ('TOZA 750 ml'), thick green cap sitting flush atop the bottle, no visible rear or side labels, and no other graphic design or branding elements. The front label content and placement, proportions, and visible construction must match the reference exactly.\n\nProduct lock: Do not alter the bottle’s silhouette, cap shape or position, color placement, or overall branding. Changing the green shade, moving or redesigning the white label, replacing the font or adding any additional graphics will break product identity. No liquid content, interior or rear of bottle, or alternate forms are to be revealed since these details are not in the reference. Hands or props must not block the front label.\n\nCommercial concept: Showcase how TOZA’s universal cleaner is the easy, reliable companion for clean kitchen surfaces. Focus is on the product’s simple, modern design and cleanliness, demonstrating both ease of handling and confident suitability for daily household cleaning.\n\nCreative direction: Clean, refined studio setting with calm minimalist energy and gentle camera movement. Soft, diffused lighting creates a bright, fresh, and inviting mood. Tone is clean and contemporary, avoiding any clutter or extravagance so that the bottle’s label and branding stay dominant in every shot.\n\nOpening hook: Start with a direct, front-on shot of the TOZA bottle, standing centrally against a spotless, softly-lit white (or pale green) studio background, perfectly upright. Label is the focus, with no distractions. Camera gently pushes in.\n\nCamera: Beat 1 — Static front-on, smooth slow push-in along the 9:16 axis. Beat 2 — Slightly closer, the camera transitions above and angles down gently, capturing a clean hand (wrist to fingers only, neutral skin tone) as it lightly grasps the bottle’s side, with care taken that the label is never obscured. Beat 3 — Return to full upright frontal composition, with a final minor re-centering to hero the product. All movements are controlled and deliberate, never fast or aggressive.\n\nProduct motion: The bottle stands steady throughout, only briefly touched and steadied by a hand from the side in Beat 2. There is no product spinning, pouring, or cap removal. Emphasize stability and ease-of-use, showing only careful, real-handled placement. No floating, no magical motion, and no elements morphing or transforming.\n\nEnvironment: Immaculate minimal studio, bright and airy. Background is clean white or very pale green, subtly graduated for depth but never distracting. No kitchen or home props; the emphasis is on the clean presentation of the product as the functional solution.\n\nLighting: Soft, full-diffusion studio lighting, with a slightly stronger underlight for polish in the final hero. Light must clearly reveal the smooth, opaque finish of the green plastic, the matte white label, and show every contour of the cap without harsh shadows or strong reflections. No colored gels or artificial color casts.\n\nMaterial and texture treatment: The bottle plastic should read as smooth, even, and gently matte — never wet or glossy. The white label appears flat and unembossed, with solid, clean black type clearly rendered. The cap’s color is consistent with the bottle, with no transparency or additional detail revealed.\n\nSequence: 8 seconds, 3 beats. Beat 1 (0.0–2.4s): static front shot, slow push-in. Beat 2 (2.4–5.2s): closer perspective, neutral hand enters cleanly from side, gently grasps bottle, no label occlusion. Beat 3 (5.2–8.0s): wide hero, recentered, bottle alone, strong soft underlight creates a bright, clean base and bold silhouette.\n\nEditing rhythm: Calm, continuous progression. Gentle push-in transitions become a subtle cut or match move as the hand enters, then a seamless cut back to the frontal hero for the end. Pacing is relaxed but never slow; each transition offers enough time for product recognition. No flashy wipes or aggressive effects.\n\nAudio: Clean studio room tone. Subtle, realistic sound of a hand gently contacting plastic — very light touch, with no liquid or squeaks. No music, dialogue, or voiceover.\n\nHero ending: The bottle heroically centered and upright, label front and perfect, lit from below for a crisp, spotless look. The audience is left with an unmistakable impression of practical cleanliness and daily reliability.\n\nVisual quality: Render with high clarity, clean edges, accurate color and subtle textural surface. The result should hold up crisply for mobile social viewing, keeping the label readable without over-emphasizing text size.\n\nFidelity requirements: The generated video must keep the supplied product geometry and color-blocking identical to the reference. No invention of branding, no additional text or graphics, and no invented details or unseen bottle sides shown. The cap, label position, scale, and silhouette must be maintained throughout. The hand may only enter from the side and may not block the label. All backgrounds and lighting must strengthen, not distract from, the real product form.\n\nAvoidance: Do not show invented branding, rear or side details, liquid content, or any props. No animated pouring, cap removal, or morphing. No strong color casts, no additional kitchenware or context scenes, and no visual or text overlays other than what is present on the actual label.",
+    "assumptionsUz": [
+      "Mahsulotning orqa va pastki qismi koʻrsatilmaganidan, faqat old koʻrinish ishlatiladi.",
+      "Qoʻl modelining jinsi, teri rangi yoki kiyimi koʻrsatilmaganligi uchun, neytral va eʻtiborni chalgʻitmaydigan variant qoʻllaniladi."
+    ],
+    "reviewNotesUz": [
+      "Idish siluetini, yorligʻini va rang joylashuvini aynan saqlash majburiy.",
+      "Qoʻl mahsulot yorligʻini hech qachon yopmasin.",
+      "Qoʻshimcha brending, logotip va matnlar kiritilmasin.",
+      "Kamera harakati va sahna muhitini soddaligini saqlash shart."
+    ]
+  }
+}

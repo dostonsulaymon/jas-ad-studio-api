@@ -1,0 +1,87 @@
+{
+  "fixture": "shoptextile-shoe",
+  "model": "gpt-4.1",
+  "promptVersion": "ad-director-v2",
+  "targetId": "google-flow",
+  "targetConfigVersion": 5,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4095,
+    "outputTokens": 2462,
+    "estimatedCostUsd": 0.027886
+  },
+  "result": {
+    "status": "ready",
+    "questionsUz": [],
+    "messageUz": null,
+    "product": {
+      "category": "krossovka (trikotaj ustki, sport-kundalik oyoq kiyimi)",
+      "observedDetails": [
+        "Bej rangli toʻqimalangan ustki qism",
+        "Oq rangli qalin, aniq konstruksiyali taglik",
+        "Bej rangli bogʻichlar",
+        "Asosiy silliq, minimalist dizayn, logotip va yozuvlarsiz",
+        "Koʻrsatilgan suratda juftligi bor: biri yon tomonda yotgan, biri tik holatda",
+        "Yon, ustki va old qism qisqa burchakdan koʻrinadi"
+      ],
+      "confirmedClaims": [],
+      "unknownDetails": [
+        "Ichki qismi va taglik osti koʻrinmaydi",
+        "Ort qismining toʻliq koʻrinishi nomaʻlum (faqat usti, yon va old qismi ochiq)",
+        "Materialning haqiqiy nafas olishi yoki yengilligini tasdiqlovchi dalil yoʻq"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Ustki trikotaj (toʻqima) yuzasi, rang va teksturasini aniq saqlash",
+        "Oq taglik va bej bogʻichlarning joylashuvi va koʻrinishini toʻliq saqlash",
+        "Logotip yoki har qanday qoʻshimcha yozuv, bezak yoki rangli detal kiritilmasligi kerak",
+        "Krossovkaning koʻrsatilgan burchaklari va silliq/profil liniyalari buzilmasligi zarur",
+        "Faol harakatlarda yoki kiyilgan holatda faqat koʻrinadigan tomonlar ishlatilishi, nomaʻlum qismlar ochilmasligi kerak"
+      ]
+    },
+    "concept": {
+      "titleUz": "Yengil kundalik krossovka bilan erkin harakatlar!",
+      "rationaleUz": "Ushbu bej rangli trikotaj krossovka kundalik kiyim uchun ideal qulaylik va zamonaviy koʻrinish taklif etadi. Modul videoda oyoq kiyimining ergonomik shakli va silliq liniyalari, soddaligini ajratib koʻrsatamiz, harakat erkinligi va zamonaviy hayot tarzi aks etadi.",
+      "style": "lifestyle",
+      "hookUz": "Hamma joyda qulay qadamlarga tayyor – bej trikotaj krossovka bilan yangi kundalik harakat boshlanadi!",
+      "ctaUz": "Erkin harakat qilishni hoziroq boshlang!"
+    },
+    "target": {
+      "targetId": "google-flow",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 2.2,
+        "descriptionUz": "Krossovka juftligini silliq bej fonda, biri tik holda, biri yon tomonda yotgan holda koʻrsatish. Minimalistik, yorqin zamonaviy atmosfera.",
+        "cameraUz": "Oʻrtacha balandlikdan, eng yaxshi chiroqqa eʻtibor berib, orqaga, keyin pastga sekin harakat (push-in) – asosiy tafsilotlar yoritiladi."
+      },
+      {
+        "startSeconds": 2.2,
+        "endSeconds": 5,
+        "descriptionUz": "Krossovkani odam oyogʻida, kundalik kiyimda (koʻrinadigan faqat oyoq, tana koʻrinmaydi) yurib borayotganini koʻrsatish. Silliq va qulay harakat, oyoq tuproq yoki asfalt ustida.",
+        "cameraUz": "Yon tomondan, quyi burchakdan, krossovkani harakatda turib film qilish – harakatda tabiiy parallax berish."
+      },
+      {
+        "startSeconds": 5,
+        "endSeconds": 8,
+        "descriptionUz": "Krossovkaning ustki qismini va chiroyli detallarini yaqindan ochish – toʻqima tuzilimi, tikilish liniyalari, oq taglik va bogʻichlar.",
+        "cameraUz": "Sekin yuqoridan pastga harakat, ustiga yaqinlashish (slow push-in) – final kadri qahramon koʻrinishida."
+      }
+    ],
+    "promptEn": "Product reference and source of truth: Use the supplied reference image as the single visual authority for design, confirmation, and fidelity. The defining characteristics to be preserved are the exact beige knit (textile) upper, the specific shape and proportions of the sneaker, the white thick sole, the minimalist construction, the beige laces, and the complete absence of any visible logos or writing. Both shoes of the pair are shown: one upright, one lying on its side – both must be faithfully referenced for silhouette, construction, and color placement.\n\nProduct lock: Any alteration to the beige knit upper structure, the white sole's thickness or edge profile, the color and type of laces, or the addition of any branding, decorative element, visible logo, or textual mark would break the identity of this sneaker. No reducing the minimalist details. Sides, rear, or under-sole not shown in the reference must not be invented; framing should avoid revealing unknown surfaces.\n\nCommercial concept: This ad centers on the sneaker’s everyday versatility for modern, active young adults. It communicates comfort, lightweight lifestyle, and fresh style through natural movement and a focus on the product's inviting design in a clean, realistic context. There is no offer or price. The core idea is effortless comfort meeting minimalist design for everyday life.\n\nCreative direction: Approach with a restrained, lifestyle look. The camera work is subtly dynamic but never flashy or high-energy. The sneaker remains visually dominant in every frame. Hands or feet may be present only to reinforce use and context, with wardrobe neutral and secondary to the sneakers. Avoid glossy beauty-product tropes; foreground authentic casual utility and physical realism. Edit for clarity; ensure each detail is legible and the product is always the focus.\n\nOpening hook: Fade in to both sneakers, clean and new, placed on a neutral beige surface matching the knit color. One shoe stands upright, the other is side-laid. The arrangement lets viewers instantly read the main silhouette, proportions, and the signature knit texture. Soft side light enhances the weave and detail.\n\nCamera: Start with a gentle push-in from above, keeping both shoes centered. Transition to a lateral tracking shot for the on-foot segment, maintaining focus on the sneaker as it moves naturally in-profile. Finish with a subtle downward push-in, isolating the upper’s knit texture and laces in macro detail. Avoid aggressive panning or whip transitions; pacing is fluid and approachable.\n\nProduct motion: Initially static, then shown in natural walking stride on a flat urban (asphalt or pavement) surface. Movements show flexible forefoot and cushioning – no forced sports action. End in a still, gently angled close-up showcasing knit surface, stitching and laces.\n\nEnvironment: Minimalist indoor scene for the intro (similar tone to the sneaker), transitioning to an outdoor neutral everyday setting (urban walkable, non-specific street or sidewalk) for the action. Background remains soft and out-of-focus to enhance product visibility. No distracting colors or visual clutter.\n\nLighting: Soft, diffuse, naturalistic lighting both indoors and outdoors. Key the light from the side to gently reveal the knit’s surface texture. No harsh glare, excessive highlights or artificial color-casts – color fidelity and material rendering take priority.\n\nMaterial and texture treatment: Surfaces should be clearly visible with natural shadows across the beige knit upper, and the specific mesh weave must read as airy and real. The white sole appears matte and dense. Laces and knit reflect light softly. No plasticizing, bloom, or artificial gloss.\n\nSequence:\n1. (0.0-2.2s) Static lifestyle composition: both sneakers on a neutral beige background, one upright, one side-laid. Camera gently pushes in and tilts to frame both shoes fully.\n2. (2.2-5.0s) Cut to on-foot segment. The sneaker is worn by an adult; only the lower legs/feet are shown in casual, neutral clothing. Shoes move in a natural everyday stride across a light-colored urban surface. Camera tracks sideways at foot level to keep focus on form and motion.\n3. (5.0-8.0s) Match cut to an overhead macro close-up of the sneaker’s upper, focusing on textile weave, stitching, laces, and partial white sole edge. Very slow push-in; holds until the end for a hero shot.\n\nEditing rhythm: Flowing and clear, with soft direct cuts or movement-matched transitions. Shot duration weighted towards clarity and product legibility. Transitions accentuate real-world use and physical detail; nothing attention-seeking.\n\nAudio: Subtle room tone and realistic foley: fabric rustle as sneakers are handled, soft footsteps on pavement, faint ambient outdoor sound. No music, narration, or additional sound design.\n\nHero ending: Holds on a tight, well-lit close-up of the sneaker’s upper and lacing against a minimalist base, highlighting the beige knit and white sole as the minimalist design signature.\n\nVisual quality: Aim for crisp, realistic rendering to faithfully express texture, weave and color nuance without introducing artifacts or digital smoothing. Edges and junctions stay defined as in the reference.\n\nFidelity requirements: The sneaker’s beige knit upper, its woven texture, the exact silhouette, the unique thick white sole, and the absence of any logo or textual marking must be precisely preserved. No changes to lace color or material. Camera reveals only those sides shown in the reference; any unseen surface (back, outsole, inner lining) must not be invented or implied. No added branding, pattern, or detail. Product placement, lighting, and color must match the supplied reference and keep the sneaker obviously identifiable as the seller’s item.\n\nAvoidance: Avoid generic fashion-model behavior, invented branding or decorative details, high-energy camera movements, and any product angles not established by the reference. Do not suggest unproven claims or performance. The sneaker must always remain visually dominant, instantly recognizable, and free from alteration.",
+    "assumptionsUz": [
+      "Ichki va orqa tomon koʻrsatilmagan – bu qismlar kadrga kiritilmaydi.",
+      "Model poyafzalining toʻqimasi va tagligi faqat koʻrinadigan talqinda yoritiladi."
+    ],
+    "reviewNotesUz": [
+      "Faqat koʻrsatilgan variantdagi krossovka (bej, oq taglik) ishlatilishi zarur.",
+      "Logo yoki brendli har qanday tafsilot qatʻiyan taqiqlanadi.",
+      "Toʻqima, taglik va bogʻichlar aniqlik bilan chiqishi lozim.",
+      "Koʻrsatilmagan tomonlar kadrda ochilmasin; mavjud burchaklar ustuvor.",
+      "Sokin, yorugʻ, hayotiy atmosfera afzal."
+    ]
+  }
+}

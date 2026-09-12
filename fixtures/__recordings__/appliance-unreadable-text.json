@@ -1,0 +1,85 @@
+{
+  "fixture": "appliance-unreadable-text",
+  "model": "gpt-4.1",
+  "promptVersion": "ad-director-v2",
+  "targetId": "google-flow",
+  "targetConfigVersion": 5,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4002,
+    "outputTokens": 2252,
+    "estimatedCostUsd": 0.02602
+  },
+  "result": {
+    "status": "ready",
+    "questionsUz": [],
+    "messageUz": "Siz soʻragan reklama ssenariysi tayyor. Quyida har bir bosqich va tavsiyalarni topasiz.",
+    "product": {
+      "category": "Elektr choynak",
+      "observedDetails": [
+        "Yumaloq ustki va tekis pastki qismga ega silindrsimon kulrang elektr choynak",
+        "Yon tomonida choynak tanasiga parallel joylashgan tutqich",
+        "Pastki qismida asos (koʻtarib olinadigan baza) mavjudligi aniq koʻrinadi",
+        "Chap tomonida toʻrtburchak texnik yorliq, yozuvi oʻqilmaydi",
+        "Tutqich chaynakning asosiy qismining oʻng tomonida joylashgan"
+      ],
+      "confirmedClaims": [],
+      "unknownDetails": [
+        "Choynakning old yoki yuqori qismi qanday koʻrinishda ekani nomaʻlum (faqat orqa va yon koʻrinishi aniq)",
+        "Yorliqdagi matn oʻqilmaydi",
+        "Materiali haqida aniq dalil yoki brend yuzasidan dalil yoʻq"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Choynakning silindrsimon shakli, toʻgʻri joylashgan tutqichi va kulrang rangi har bir kadrda aynan shu tarzda qolishi shart",
+        "Oʻrnatilgan texnik yorliq joyi va oʻlchami oʻzgarmasligi lozim, matni aniqlanmagani uchun hech narsa kiritilmaydi",
+        "Baza (taglik) va tutqich joylashuvi saqlanishi kerak",
+        "Yangi element, dekoratsiya, brend logotipi yoki rang oʻzgartirish mumkin emas",
+        "Choynakning faqat koʻrinadigan qismi va tafsilotlari saqlanadi, nomaʻlum qismlari koʻrsatilmaydi"
+      ]
+    },
+    "concept": {
+      "titleUz": "Oddiy va zamonaviy elektr choynak – har bir oila uchun toza yechim",
+      "rationaleUz": "Oson, zamonaviy va har bir uyda foydali boʻladigan elektr choynakni yorqin, toza fon va sodda kompozitsiyada namoyish etish orqali mahsulot haqiqatda qanday koʻrinishini oilaviy auditoriyaga yaqqol yetkazish.",
+      "style": "clean-studio",
+      "hookUz": "Zamonaviy koʻrinish, oson foydalanish! Stol ustida elektr choynakni birinchi koʻrishda payqang.",
+      "ctaUz": "Oilangiz uchun qulaylikni tanlang – elektron choynak!"
+    },
+    "target": {
+      "targetId": "google-flow",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 2.5,
+        "descriptionUz": "Och fonda stol ustida toza va zamonaviy elektr choynak orqa va yon tomonidan, tutqichi aniq koʻrinib turibdi. Mahsulot oddiy va zamonaviy koʻrinishda toʻliq kadrlangan.",
+        "cameraUz": "Kamera statik, choynak markazda, yengil yuqoridan pastga qaragan burchak."
+      },
+      {
+        "startSeconds": 2.5,
+        "endSeconds": 5.5,
+        "descriptionUz": "Yengil kameraning yon tarafga siljishi, choynak tutqichining qulay joylashuvi va soz bazasi yaxshiroq koʻrinadi, mahsulot yuzasida yorqin, yumshoq yorugʻlik toʻgʻri tushadi.",
+        "cameraUz": "Kamera chapdan oʻngga silliq siljiydi, choynak va tutqich yaqqol koʻrinishda."
+      },
+      {
+        "startSeconds": 5.5,
+        "endSeconds": 8,
+        "descriptionUz": "Choynak yakuniy kadrlarda toʻliq markazda, yorugʻ fonda, pastki asos va texnik yorliqli qismi koʻrinadi. Ekranda mahsulot toʻgʻridan-toʻgʻri markazlanadi.",
+        "cameraUz": "Kamera iloji boricha statik, eng soʻnggi kadrlarda yengil yaqinlashadi."
+      }
+    ],
+    "promptEn": "Product reference and source of truth: The provided reference image is the sole visual authority for this commercial. The grey, cylindrical electric kettle with its rounded top, flat base, integrated vertical handle on the right, and the technical label on its side as positioned in the image, along with its base plate, defines the product. Only features directly observed in this image (shape, handle placement, label position, base) are permitted.\n\nProduct lock: Never alter the kettle’s overall cylinder shape, the position, orientation or shape of the handle, the colour or finish, the base design, or invent new features (e.g. transparent sides, spouts, visible cords, new buttons or panels, or any branding not present in the image). Do not move or alter the unreadable technical label’s position or shape.\n\nCommercial concept: Spotlight the simplicity and clean design of the modern electric kettle, set in a bright and uncluttered home kitchen studio, connecting visually to families seeking a fuss-free, contemporary appliance for daily tea-making.\n\nCreative direction: Clean-studio macro approach, neutral light tones. Product is always hero and central in frame; background and props are minimal and never intrude on the product silhouette. No high-energy effects, no quick cuts, no atmosphere overlays. The mood is calm, practical and approachable, matching the intended family audience.\n\nOpening hook: Begin with a wide, clean vertical shot of the electric kettle on a table, back and right side in view, handle clearly visible, shot from a slight high angle to show the silhouette, softness of the lines and solidity of construction against a pale background.\n\nCamera: Beat 1: Static, top-front slightly elevated three-quarter view, product centred in frame. Beat 2: Smooth lateral camera move left-to-right, uncovering the handle’s ergonomic arc and base, always keeping the technical label edge in the periphery, no focus pulls. Beat 3: Settle to near-static, camera pushes in modestly for the final hero shot – kettle dead-centre, filling more of the vertical frame, base and side label clear, handle profile visible.\n\nProduct motion: Product remains stationary on the tabletop throughout; there is no floating, spinning or self-assembly. The kettle is always upright and stable; physical realism is paramount.\n\nEnvironment: A clean, soft-lit tabletop or minimalist counter, bright neutral background, with no props competing. The studio space is implicit – a calm, everyday kitchen feel, unbranded and uncluttered.\n\nLighting: Soft diffuse source from upper front (camera left), with faint shadow under the handle and base to convey volume, without harsh reflections. The grey tone and finish must read as accurate and inviting.\n\nMaterial and texture treatment: Matte or lightly satin surface, fidelity to the precise neutral grey colour shown, gentle highlight edge along the cylinder and handle to suggest contour. The technical label is visible in placement only (text is intentionally indistinct as in the reference).\n\nSequence: \n• Beat 1 (0–2.5s): Static opening view, full silhouette of kettle, quietly showcased against minimal background.\n• Beat 2 (2.5–5.5s): Smooth orbiting move uncovers handle and side-label relationship, slightly closer framing, always anchored in realism and avoiding drastic parallax.\n• Beat 3 (5.5–8s): Product is squarely centred, final medium-close static shot, full base and handle visible, ending with the hero composition and crisp edges.\n\nEditing rhythm: Calm, three-beat sequence, gentle cut between each shot, no transitional visual effect, no speed ramp.\n\nAudio: Subtle product foley only: faint sound of table surface, gentle studio room tone. No music, voice or text overlays.\n\nHero ending: Kettle stands central, handle to right, label at lower left; all features highlighted by studio light, product occupies most of the vertical frame, background clean and uncluttered, inviting choice for the family.\n\nVisual quality: High-fidelity, studio-lit rendering, all observed product details treated cleanly, with crisp, clear edges and smooth gradients in lighting, no noise or haze.\n\nFidelity requirements: All shots must preserve the actual shape, proportions, colour placement and visible construction of the supplied kettle reference, including the positioning of the handle and base, and the unreadable technical label. No side or feature not already visible in the reference may be exposed, and no new branding, details or embellishments are to be introduced. Only the real observable aspects are to be shown; the unknown sides remain safely out of view.\n\nAvoidance: Any reinvention of features, colour changes, the addition of props or branding, or cutting to angles that expose unreferenced details would undermine product authenticity and the clarity of this advertisement.",
+    "assumptionsUz": [
+      "Choynakning old va yuqori koʻrinishi sirli boʻlib qoladi, chunki faqat orqa va yon qismi aniq koʻrsatilgan.",
+      "Texnik yorliqning matni tushunarsiz, unga hech qanday yozuv qoʻshilmaydi.",
+      "Choynakdan suv yoki bugʻ koʻrinmasligi — faqat tashqi koʻrinish asosida ishlanadi."
+    ],
+    "reviewNotesUz": [
+      "Choynakning asosiy shakli va tutqich joylashuvi har bir kadrda aynan men qoldirganidek boʻlishi kerak.",
+      "Kutilmagan detallar, brending yoki oʻzgartirilgan qismlar kiritilmasin.",
+      "Faqat koʻrib boʻladigan yuzalar kadrda koʻrsatiladi."
+    ]
+  }
+}

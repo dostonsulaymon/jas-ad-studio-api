@@ -14,7 +14,7 @@ Read this first, then:
 
 ## What this is
 
-**JAS Ad Studio** is an Uzbek-first web app for online sellers. A seller uploads photos of their product and writes a short brief. The app returns one advertising concept, a ready-to-paste English video prompt for Google Flow (Veo), and an Uzbek shot plan. **The app writes prompts. Google Flow makes the video.**
+**JAS Ad Studio** is an Uzbek-first web app for online sellers. A seller uploads photos of their product and writes a short brief. The app returns one advertising concept, a ready-to-paste English video prompt for Google Flow, and an Uzbek shot plan. Flow is the tool; the seller picks the model (Veo, Omni) and the aspect ratio inside it (D-047). **The app writes prompts. Google Flow makes the video.**
 
 Business model: sellers buy prompt credits. The example gallery (videos and their prompts) is free and needs no sign-in (D-007).
 
@@ -22,7 +22,9 @@ People: Jakhongir is the owner and client. Doston builds it, with Claude (D-003)
 
 ## Status
 
-**Planning. There is no application code yet.** Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
+**P0 and P1 closed (D-055).** The AI core runs end to end from the command line: a product folder in, a Flow prompt and Uzbek shot plan out. A real seller's product has been through the whole chain and produced a usable video (D-054). The model is `gpt-5.5` (D-052).
+
+Still no HTTP API, no database, no accounts, no credits, no uploads — those are P2–P4. Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
 
 ## Starting a new session
 
@@ -59,7 +61,8 @@ The owner's product documents live in `docs/source/`. When they disagree, the hi
 2. `docs/source/03-addendum-a-paid-credits.md`: owner decisions. Overrides 01 and 02.
 3. `docs/source/02-prompt-quality-standard.md`: how the final video prompt must read.
 4. `docs/source/01-build-prompt-v2.md`: product requirements. **Its technology suggestions are only suggestions (D-001).**
-5. `docs/source/00-build-prompt-v1-superseded.md`: history only. Do not build from it.
+
+Build prompt v1 was deleted on 2026-09-12 (D-049). It was superseded by v2 and was only ever a source of confusion. Recover it from git if a provenance question ever needs it: `git show e3e7d90:docs/source/00-build-prompt-v1-superseded.md`.
 
 Sources 01 and 02 contradict each other in places. The conflicts are listed in `docs/BRIEF.md` and must be resolved in `DECISIONS.md` before the AI phase starts.
 
@@ -86,7 +89,21 @@ Decided on 2026-09-11 (D-028 to D-035). It mirrors kitobnarx.
 
 ## Commands
 
-None yet. Phase 0 adds them.
+`nvm use` first — the shell default is older than Node 24.
+
+| | |
+|---|---|
+| `pnpm infra:up` / `infra:down` | dev Postgres (5437) and Redis (6384) |
+| `pnpm dev` / `pnpm dev:worker` | api on 3040, worker in watch mode |
+| `pnpm lint` `typecheck` `test` `build` | the checks; the pre-commit hook runs the first two |
+| `pnpm openapi:generate` / `openapi:check` | regenerate the contract, and fail on drift (D-031) |
+| `pnpm db:generate` | SQL migrations from the module schemas |
+| `POSTGRES_PASSWORD=… docker compose --profile app up -d --build` | the deployed stack (api 3041) |
+
+Two gotchas, both learned the hard way:
+
+- **Any script that boots the Nest app must be compiled, not run through tsx.** esbuild emits no decorator metadata, so `NestFactory.create()` cannot resolve constructor types and exits silently with no error. `src/openapi.ts` is compiled by `nest build` for this reason.
+- **Never find a process with `pgrep -f` here.** Other projects on this machine run `dist/main.api` and `dist/main.worker` too, and the pattern also matches the searching shell's own command line. Match on `/proc/<pid>/cwd` instead.
 
 ---
 
@@ -94,7 +111,7 @@ None yet. Phase 0 adds them.
 
 - The app never claims to make videos, never automates Google Flow, and never touches Google credits.
 - **Product lock.** Never invent labels, logos, claims, prices, or product surfaces that aren't visible in the photos (source 01 §25).
-- A generated prompt must fit the selected video target's configured limits (D-012). Never hard-code a length, beat count or model. For Veo 3.1 the ceiling is 1,024 tokens, about 700 English words (Google's model page, checked 2026-09-11).
+- A generated prompt must fit the selected video target's configured limits (D-012). Never hard-code a length, beat count or model. **The 1,024-token Veo ceiling was never real (D-046)** — it was read off a model page and never tested; Doston has run 2,000–4,000 word prompts through Flow with no truncation. Length is now reported, not enforced (D-045).
 - **Money.** Credits move only through the ledger. One order credits exactly once. Clients never write ledger rows.
 - Private product photos are never exposed as public URLs.
 - No fake testimonials, customer numbers, examples, or prices.

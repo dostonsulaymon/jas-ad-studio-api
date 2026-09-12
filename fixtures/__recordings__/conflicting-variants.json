@@ -1,0 +1,87 @@
+{
+  "fixture": "conflicting-variants",
+  "model": "gpt-4.1",
+  "promptVersion": "ad-director-v2",
+  "targetId": "google-flow",
+  "targetConfigVersion": 5,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4757,
+    "outputTokens": 2387,
+    "estimatedCostUsd": 0.028609999999999997
+  },
+  "result": {
+    "status": "ready",
+    "questionsUz": [],
+    "messageUz": null,
+    "product": {
+      "category": "Sport butilka",
+      "observedDetails": [
+        "Toʻgʻri, silliq, silindrsimon korpus",
+        "Kvadratga yaqin shakldagi tutqichli qopqoq",
+        "Ikki xil variant: biri och moviy tanli va toʻq moviy qopqoqli, biri och qizil tanli va toʻq qizil qopqoqli",
+        "Qizil butilkada old tarafda oq toʻgʻri toʻrtburchak label",
+        "Brend nomi yoki boshqa yozuv yoʻq"
+      ],
+      "confirmedClaims": [],
+      "unknownDetails": [
+        "Ichki mexanizm va qopqoq ochilish usuli nomaʻlum",
+        "Orqa tomoni va pastki qismi koʻrsatilmagan",
+        "Hajmi va materali aniqlanmagan",
+        "Boshqa rangli variantlar yoʻq"
+      ],
+      "referenceConflicts": [
+        "Ikki xil rangli butilka varianti bor, har birining rangi va label joylashuvi har xil"
+      ],
+      "fidelityConstraints": [
+        "Tanlangan butilka varianti va uning rangi, qopqoq shakli va rangi hamda mavjud label oʻz joyida va proporsiyasida aniq saqlansin",
+        "Butilka silindrsimon toʻgʻri shaklda, chetlarini oʻzgartirmaslik",
+        "Qoʻshimcha label, logo yoki yozuv qoʻshmaslik",
+        "Qopqoq shaklini va rangini oʻzgartirmaslik",
+        "Faqat old tomondan maʻlum boʻlgan tafsilotlarni koʻrsatish, nomaʻlum qismlar ochiq qoldiriladi"
+      ]
+    },
+    "concept": {
+      "titleUz": "Sportchilarga mos butilka — faol harakatda ishonchli hamroh",
+      "rationaleUz": "Sportchilarning harakati va energiyasiga mos: sport zalida yoki yugurishda foydalanishga qulay. Harakatchanlik va doim yoningizda boʻlishi asosiy gʻoya.",
+      "style": "energetic-social",
+      "hookUz": "Yangi sport butilka — harakatda boʻlganlarga ishonchli hamroh!",
+      "ctaUz": "Endi sportdagi doʻstingiz bilan harakatga qoʻshiling!"
+    },
+    "target": {
+      "targetId": "google-flow",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 2.5,
+        "descriptionUz": "Yaqindan, sport sumkasi yonida och qizil butilka joylashgan. Qizil butilka old tomoni (labeli koʻrinadigan) aniq koʻrsatilgan. Tez va energiyalik harakatlar bilan kamera butilkani markazga oladi.",
+        "cameraUz": "Sport sumkasiga yoʻnalgan tez lateral pan, soʻngra butilkaga tezda push-in (yaqinlashish)."
+      },
+      {
+        "startSeconds": 2.5,
+        "endSeconds": 5.2,
+        "descriptionUz": "Sportchi butilkani bir qoʻli bilan olib, yugurishga yoki mashq maydoniga yoʻl oladi, butilka kameraga yaqin tutiladi va butun korpus, rangi, qopqoqi toʻliq koʻrinadi. Yorqin harakatlar, sport muhitida tez yurish yoki yugurish xatti-harakatlari bor.",
+        "cameraUz": "Qoʻl harakati ortidan orqadan kameraning tez ergashishi, vaqti-vaqti bilan butilka markazda saqlanadi."
+      },
+      {
+        "startSeconds": 5.2,
+        "endSeconds": 8,
+        "descriptionUz": "Yuqori rakursda sportchi toʻxtaydi, butilkani yuqoriga koʻtarib kameraga yaqinlashtiradi — butilka markazda, old tomoni va oq labeli aniq. Butilka yonida tovlanib turadi, yakuniy statik hero kadri.",
+        "cameraUz": "Yuqoridan pastga qarab, steady push-in va sekin aylanish (rotate) orqali hero kadri chiqariladi."
+      }
+    ],
+    "promptEn": "Product reference and source of truth: Use the supplied reference image as the sole visual authority for this sport bottle. Persist the exact visible proportions: a tall, smooth, cylindrical body with softly rounded shoulders, vertical sides, and a square-ish cap above. For variant selection, feature the red bottle with its white rectangular front label and solid red body, paired with the squared-off dark red cap; preserve all colour placement, shape, and label visibility from the reference.\n\nProduct lock: Any change to the bottle’s silhouette; altering the position, size or shape of the label; adding or moving branding; substituting or changing cap colour or geometry; introducing additional features; or revealing an invented rear or bottom would break fidelity. Do not introduce any branding or text apart from the observed label. Do not alter the bottle’s stylistic simplicity or invent a new variant.\n\nCommercial concept: Championing the sport bottle as the energetic, always-ready companion for active people—essential for performance both on the move and at the gym. The focus is on the bottle’s distinctive look, ease of handling, and its readiness for use in any energetic activity, making it visually synonymous with sporting lifestyles.\n\nCreative direction: Energetic, social, and dynamic; quick transitions and assertive, lively camera motion to suggest movement and vitality, all while always keeping the clear view on the product. The tone is active, physical, and positive, letting the bottle naturally fit in an athletic environment with visible, realistic sport context and believable user handling.\n\nOpening hook: Open on a swift, lateral pan toward a gym bag resting on a bench or floor. The red sport bottle is placed upright next to the bag, its front with the white label facing camera, dominant in the foreground. Camera pushes in assertively, energizing the viewer and setting an athletic mood. Subtle background sport foley sets the context.\n\nCamera: Beat 1 uses a fast lateral pan, settling into a confident push-in to focus on the label side of the red bottle. Beat 2 follows the action with a dynamic tracking move as a hand grabs the bottle, accompanied by a quick pivot as the athlete moves into frame or heads to the gym area. Beat 3 transitions into a slight upward angling push-in, spinning gently for heightened hero emphasis as the bottle is raised toward the lens—ensuring full visibility of the product and its label.\n\nProduct motion: The bottle starts stationary, then is actively grabbed, carried or held during swift athlete movement, and finally lifted high toward the camera in a hero ending. Movements are lively but always within believable gravity, never floating or morphing. Keeping at least the label-facing side in view throughout.\n\nEnvironment: Modern, clean sports facility or gym with bright, open space. Props limited to authentic gear: gym bag, mat, workout area. No additional branding or invented décor. Sports environment should be implied through body movement, attire, and surrounding floor or bench, not through explicit wall branding or invented elements.\n\nLighting: Crisp, diffuse daylight/mixed with a touch of overhead gym lighting; consistent and clear. Focus light on the bottle’s label area in the first and last beats to help the front stand out. Soft shadows to maintain product edge definition without harshness.\n\nMaterial and texture treatment: Surfaces should read as clean, gently matte plastic typical of sport bottles, with a subtle sheen that highlights the real, smooth curves and the distinctive contrast between the red body and the white label. No added texture beyond the reference.\n\nSequence: (1) Lateral pan to hero bottle beside the gym bag, confident push-in on label (0–2.5s). (2) Athlete’s hand grabs the bottle and moves through dynamic environment, bottle tracking with energetic movement and in-focus label (2.5–5.2s). (3) Athlete lifts the bottle high toward the camera for a stylized, crisp hero shot, label front and centre (5.2–8s).\n\nEditing rhythm: Fast-paced, assertive transitions (pan and quick push-in, dynamic rack follow), sharp cut or whip transition into the hero sequence at the end for maximum energy and clarity. Three deliberate beats, each with clear product read, never overly rushed or obscured.\n\nAudio: Subtle gym background sounds: soft thumps, shoes on floor, sports bag zippers, and bottle handling. No music, no voiceover, no additional on-screen text; focus on realistic product foley.\n\nHero ending: The bottle dominates the final frame—centered front, label visible—slightly raised, catching the light. The environment subtly recedes, ensuring the bottle is the unmistakable hero, ready for every athletic challenge.\n\nVisual quality: Clean, crisp, high-resolution rendering with sharp edge definition. Maintain all surface appearance, color, and label location as seen in the reference. Prioritize readability of label and the integrity of the featured variant throughout.\n\nFidelity requirements: Maintain the precise silhouette, colour placement, label position, and cap design shown in the red bottle reference. No alteration or invention of branding, label, orientation, side details, bottom, or cap mechanics. Camera should never reveal sides or rear not supported by the supplied images. No addition of branding, text, or other elements not present on the bottle’s observable face. Do not show the cap being opened or the inside of the bottle. All actions should reinforce the product’s energetic, ready-to-go sporting identity without deviating from its referenced construction.\n\nAvoidance: Avoid revealing any bottle sides, cap details, or internals unproven by the references. Do not invent or embellish label text, branding, or add unconfirmed features. Avoid generically athletic props or settings that distract from the bottle itself: focus always on the specific, referenced sport bottle variant.",
+    "assumptionsUz": [
+      "Qizil butilka varianti asos qilib olindi, chunki uning old qismidagi label aniq koʻrsatilgan",
+      "Qopqoq ochilishi va butilka ichki mexanizmi chetda qoldirildi — faqat tashqi shakl va rang koʻrsatiladi"
+    ],
+    "reviewNotesUz": [
+      "Butilka silueti, rangi va label joylashuvi qatʻiy saqlansin",
+      "Aniqlanmagan tomonlar yoki funksiyalar ochilmasin, mahsulotni faqat mavjud tafsilotlarda koʻrsatilsin",
+      "Faol va harakatli sahnalarga qaramay, mahsulot har doim aniq koʻrinarli boʻlsin"
+    ]
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "fixture": "logo-garment",
+  "model": "gpt-4.1",
+  "promptVersion": "ad-director-v2",
+  "targetId": "google-flow",
+  "targetConfigVersion": 5,
+  "attempts": 1,
+  "usage": {
+    "inputTokens": 4011,
+    "outputTokens": 2336,
+    "estimatedCostUsd": 0.026709999999999998
+  },
+  "result": {
+    "status": "ready",
+    "questionsUz": [],
+    "messageUz": null,
+    "product": {
+      "category": "Futbolka",
+      "observedDetails": [
+        "Toʻq kulrang futbolka",
+        "Oddiy, zamonaviy siluet",
+        "Markazda sariq dumaloq logotip, ichida ʻJNʻ harflari",
+        "Koʻkrak qismida joylashgan logotip",
+        "Logotipning kontrastli rangi",
+        "Hech qanday boshqa bezaklar yoki yozuvlar yoʻq"
+      ],
+      "confirmedClaims": [
+        "100% paxta (tasdiqlanmagan, faqat daʻvo sifatida koʻrsatiladi)"
+      ],
+      "unknownDetails": [
+        "Yakuniy paxta tarkibi (tasdiqlanmagan)",
+        "Orqa taraf koʻrinishi",
+        "Yeng va yoqa konstruktsiyasi tafsilotlari",
+        "Futbolkaning tikilish usullari va faktura tafsilotlari"
+      ],
+      "referenceConflicts": [],
+      "fidelityConstraints": [
+        "Futbolkaning toʻq kulrang asosiy rangi oʻzgarmasligi kerak",
+        "Koʻkrakda joylashgan sariq dumaloq shakldagi, ʻJNʻ yozuvi bor logotip lautan sijasi oʻzgarishsiz qolishi shart",
+        "Logotip oʻlchami, joylashuvi va shakli aniq mustahkamlanishi kerak",
+        "Futbolkaning silueti va umumiy uzunligiga sodiqlikni saqlash kerak",
+        "Qoʻshimcha bezaklar yoki natijasida tafovutlar boʻlishi mumkin emas",
+        "Yashirin yoki koʻrinmaydigan qismlar haqida taxmin kiritilmaydi"
+      ]
+    },
+    "concept": {
+      "titleUz": "JN brend futbolkasi: Soddaligi va oʻziga xosligi bilan ajralib turadi",
+      "rationaleUz": "Yoshlarning zamonaviy va minimalistik stilga boʻlgan qiziqishiga javoban, JN brend futbolkasi — toʻq kulrang asos va eʻtiborni tortuvchi sariq dumaloq logotipi bilan ajralib turadi. Reklama koʻproq vizual soddalik va urban hayot tarzi orqali yosh auditoriyaga yoʻnaltiriladi.",
+      "style": "lifestyle",
+      "hookUz": "Soddalik va oʻziga xoslik kombinatsiyasini hozir koʻring — JN futbolkasi.",
+      "ctaUz": "Stilingizni JN futbolkasi bilan boshlang!"
+    },
+    "target": {
+      "targetId": "google-flow",
+      "durationSeconds": 8,
+      "aspectRatio": "9:16"
+    },
+    "shots": [
+      {
+        "startSeconds": 0,
+        "endSeconds": 2.5,
+        "descriptionUz": "Yorqin, yorugʻ kvartirada osilgan JN futbolkasining toʻliq frontal koʻrinishi: toʻq kulrang, markazda sariq dumaloq logotip va ʻJNʻ yozuvi aniq koʻrinadi.",
+        "cameraUz": "Sekin-asta yuqoridan pastga tushuvchi kamera harakati bilan futbolkaga yaqinlashuv. Statik boshlanadi, keyin futbolka markaziga fokuslanadi."
+      },
+      {
+        "startSeconds": 2.5,
+        "endSeconds": 5.5,
+        "descriptionUz": "Yosh yigit yoki qiz futbolkani kiyib, oynaga qarab oʻzini koʻzdan kechiradi. Futbolkaning koʻkrak qismidagi logotip kameraga aniq koʻrinadi.",
+        "cameraUz": "Bel balandligida frontal, yengil lateral harakat bilan – futbolkani kiyib olgancha tana biroz harakatda, lekin doimo logotip va rang oʻzgarishsiz kadr markazida koʻrinadi."
+      },
+      {
+        "startSeconds": 5.5,
+        "endSeconds": 8,
+        "descriptionUz": "Qahvaxona yoki shahardagi zamonaviy muhitda, futbolka kiygan kishi doʻstlari bilan oʻtirgan, biroq kamera asosan koʻkrak qismidagi logotipga eʻtibor qaratadi.",
+        "cameraUz": "Kameraning sekin orqaga chekinishi orqali urban atmosferaning umumiy kayfiyati yaratiladi, sportiv yumshoq fonga qaramasdan markazda doim logotip koʻzga tashlanib turadi."
+      }
+    ],
+    "promptEn": "Product reference and source of truth: The supplied image is the only authority for this product. Maintain the visible characteristics: a t-shirt with a dark grey base color, classic tee silhouette, and a single large yellow circular logo with 'JN' text positioned on the chest. The logo’s color, size, and location must remain consistent. Do not invent details for the rear, sleeve cuffs, neck, or fabric type beyond the dark grey color and branding established by the reference. \n\nProduct lock: Any change to the product’s dark grey main color, the placement, shape, or color of the yellow circle chest logo with 'JN', or the placement and clarity of branding would break the product identity. No new decorations, seams, alternative branding, or patterning. Unseen portions should not be revealed or hypothesized.\n\nCommercial concept: \"Soddalik va oʻziga xoslik\" — The ad centers on the appeal of simplicity and standout personality, reflecting the minimal urban style valued by youth. The shirt’s straightforward style and strong logo speak for themselves and appeal visually in everyday life scenes.\n\nCreative direction: Present the t-shirt within authentic young-adult lifestyle scenes — at home, dressing, and in a contemporary café or casual city setting. No artificial polish; the mood is relaxed, modern, and approachable, aligning with the product’s simplicity. Each shot keeps the product clearly visible and puts emphasis on the logo as the focal point.\n\nOpening hook: The first shot shows the JN t-shirt hanging, unwrinkled, in a brightly lit modern apartment, entirely visible front-on. The yellow circle logo stands out clearly on the dark grey chest.\n\nCamera: Begin with a smooth downward pan or tilt, transitioning to a stationary close-up on the logo, then a medium static to slight tracking shot as a young person tries on the tee in front of a mirror, followed by a controlled backward camera move in an urban café scene.\n\nProduct motion: The t-shirt itself remains naturally still when hanging, then is gently handled and worn by a young adult, always ensuring the chest logo is never obscured. All movement is realistic and follows natural gravity — no floating, spinning or magical effects.\n\nEnvironment: The sequence spans a modern, sunlit apartment (for the closet/hanging scene), a bright bedroom or hallway with a mirror, then a stylish but relaxed café or city bench.\n\nLighting: Use diffuse daylight streaming through windows in the indoor scenes, ideally soft and shadowless. Outdoor or café scene maintains soft, realistic lighting. The lighting should always preserve the accurate deep grey base and make the yellow logo pop without distorting color.\n\nMaterial and texture treatment: The t-shirt’s surface is clean and matte, showing natural soft cotton folds only if visible — no shine, no synthetic appearance. The yellow logo should read as a printed or heat-pressed matte patch, never reflecting light.\n\nSequence:\n1. (0–2.5s) Start with the JN t-shirt hanging against a neutral background, camera slow tilt down to the chest. Hold for logo clarity.\n2. (2.5–5.5s) Cut to a young person trying on the t-shirt in front of a mirror, admiring the fit. Camera at torso height, maybe a light slide sideways as person turns. Logo always visible, dominant in frame.\n3. (5.5–8s) Cut to a lifestyle moment in a stylish café/city bench; the shirt worn naturally with logo facing the camera, possibly interacting with friends, but no one obscures brand visibility. Slow, subtle dolly out to give urban context.\n\nEditing rhythm: Each beat transitions with a clean straight cut. Pacing is relaxed, not rushed, giving viewers time to appreciate the design and imagine it in their own lives.\n\nAudio: Subtle authentic ambience — soft room noise and gentle fabric handling in the apartment, soft urban café sounds in the last beat. No music, no spoken words, no subtitles or overlaid marketing text.\n\nHero ending: Finishes with the youth in the café, logo facing the camera, the product clear and centered, with the relaxed urban environment supporting, not competing with, the t-shirt. The yellow logo is the unmistakable ending focal point.\n\nVisual quality: Render with high clarity, realistic color, and clean focus that respects all visible surface, print, and branding details. Avoid artificial polish or effects not present in real life.\n\nFidelity requirements: Retain the overall tee shape, dark grey base, circle logo placement and proportions, and precise yellow color. Never alter logo placement, rebrand, or show any alternate version. Show only the observed side (the front). Do not guess fabric weave, label interior, or create invented prints or embellishments. If talent obscures the logo, adjust so that it stays entirely visible. Backgrounds must never add branded or distracting elements.\n\nAvoidance: Do not invent alternate back, sleeve, or neck details. Never crop or obscure the chest logo. Never change the product silhouette, recolor, or introduce additional design features.",
+    "assumptionsUz": [
+      "Futbolkaning faqat old tomoni maʻlum — orqa yoki yeng detali ochilmaydi.",
+      "Logotip joylashuvi, rangi, va shakli aynan referens boʻyicha boʻladi.",
+      "Futbolka matosining tuzilmasi haqida tafsilar aniqlanmaganligi uchun silliq va mat holatda koʻrsatiladi."
+    ],
+    "reviewNotesUz": [
+      "Futbolkaning logotipi va asosiy rangi aniq saqlanishi kerak.",
+      "Hech qanday qoʻshimcha bezaklar, brendlar yoki matnli grafikalar qoʻshilmasligi shart.",
+      "Yashirin qismlar (orqa, yeng, ichki label) haqida taxmin kiritilmasin.",
+      "Futbolka har doim frontal, logotip markazda va koʻzga tashlanadigan kadrlarda boʻlishi kerak."
+    ]
+  }
+}

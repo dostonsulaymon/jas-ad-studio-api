@@ -1,0 +1,7 @@
+allowBuilds:
+  '@swc/core': true
+  esbuild: true
+  # BullMQ's optional msgpack accelerator. Falls back to pure JS if not built.
+  msgpackr-extract: true
+  # Analytics phone-home pulled in by a transitive dependency. Never runs.
+  '@scarf/scarf': false

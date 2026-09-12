@@ -86,7 +86,7 @@ Project history: reopen, copy, export and edit for free. A new AI version costs 
 | C-1 | Prompt 180–350 words | Prompt 500–1,000 words | Resolved, D-012: word range set per video target |
 | C-2 | 3 beats: 0–2 / 2–6 / 6–8 s | 4 beats: 0–1.5 / 1.5–4.5 / 4.5–6.5 / 6.5–8 s | Resolved, D-012: beats set per video target |
 | C-3 | One camera move per beat, no stacked whip pans or crash zooms | "High-energy mode" allows whip transitions and speed ramps | Resolved, D-012: high-energy moves allowed per target and style |
-| C-4 | — | 1,000 words ≈ 1,300 tokens, above **Veo 3.1's 1,024-token text limit** (Google model page, checked 2026-09-11) | Resolved, D-012: each target's token ceiling is enforced by validators |
+| C-4 | — | ~~1,000 words ≈ 1,300 tokens, above Veo 3.1's 1,024-token text limit~~ | **Void (D-046).** The limit was read off a model page and never tested. Doston has run 2,000–4,000 word prompts through the real generator with no truncation. Source 02's depth requirement stands unopposed. |
 | C-5 | Suggests Next.js full-stack, Supabase, OpenAI SDK | — | Resolved by D-001 and D-002 |
 
 ## Costs (analysis 2026-09-11, estimates, not measured)

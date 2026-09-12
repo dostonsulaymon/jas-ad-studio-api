@@ -1,6 +1,6 @@
-# PLAN — phase roadmap
+          # PLAN — phase roadmap
 
-**Status: DRAFT.** It stays a draft until the questions in `docs/OPEN-QUESTIONS.md` are answered and the design spec in `docs/superpowers/specs/` is approved.
+**Status: ACTIVE.** Every open question is answered and the design spec is approved (D-036 to D-038). P0 is built and awaiting Doston's review.
 
 How phases work:
 
@@ -16,8 +16,8 @@ How phases work:
 
 | # | Phase | Repo | Goal | Exit check |
 |---|---|---|---|---|
-| **P0** | Foundations | both | Both repos build. Lint, typecheck and tests run. Docker-compose dev stack (Postgres, Redis). zod-validated env. `/health`. Web shell with design tokens and an empty one-page layout. | `pnpm lint && pnpm typecheck && pnpm test && pnpm build` clean in both repos; `/health/ready` green |
-| **P1** | AI core + real-world test | api | Provider interface. One merged `AD_DIRECTOR_SYSTEM_PROMPT_V2` (resolves C-1 to C-4). Strict output schema. Deterministic validators (Veo token limit, timeline, placeholders, capability, language). A CLI `generate` script. The 7 fixtures from source 01 §49. | Fixtures pass the hard-fail rubric (source 01 §51). Jakhongir tests about 10 real products in Flow and at least 6 are usable (D-019), with up to 2 fix-and-retest rounds before a no-go |
+| **P0** ✅ | Foundations | api | The api repo builds. Lint, typecheck and tests run. Docker-compose dev stack (Postgres, Redis). zod-validated env. `/health`. Generated `openapi.json`. Pre-commit hook and CI. **Api only:** this row once said "both repos" and included a web shell, which contradicts D-026 (no UI before the P1 go/no-go). Corrected 2026-09-11. | `pnpm lint && pnpm typecheck && pnpm test && pnpm build && pnpm openapi:check` clean; `/health/ready` green in dev and in the container |
+| **P1** ✅ | AI core + real-world test | api | Provider interface. One merged `AD_DIRECTOR_SYSTEM_PROMPT_V2` (resolves C-1 to C-4). Strict output schema. Deterministic validators (Veo token limit, timeline, placeholders, capability, language). A CLI `generate` script. The 7 fixtures from source 01 §49. | **Closed 2026-09-12 (D-055).** Fixtures pass the §51 rubric offline. The ten-product pilot was not run: one real product gave one usable video from two prompts, and Doston closed the phase on that. |
 | **P2** | Accounts & uploads | api (+ web sign-in) | Sign-in. Users, projects, product assets. Upload validation (signature, bytes, pixels), metadata stripping, a 2048 px reference copy, a model-input copy, private storage, ownership checks. | Ownership tests: user A can't read, overwrite, generate from, or delete user B's data |
 | **P3** | Credits & orders | api | Ledger, packs, `credit_orders`, `confirm_credit_order`, owner grants, balance. Clients can never write the ledger. Owner-only `/api/owner/*` endpoints and the owner audit log (D-037). | Tests: double confirm credits once; a user can't confirm their own order; balance always matches the ledger |
 | **P4** | Generation pipeline | api | Job states (queued, running, ready, needs_input, refused, failed). Reserve → AI call → validate (≤1 repair) → persist → debit. Lease and recovery, polling endpoint, rate limits, daily spend cap. | Tests: one credit with two concurrent jobs gives one success; success survives a disconnect; a late success can't race a refund |

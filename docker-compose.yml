@@ -1,0 +1,101 @@
+# The deployed stack (D-033). One file describes the whole box, and it moves unchanged
+# to a VPS if we leave Doston's machine (D-032).
+#
+#   docker compose up -d                   datastores only
+#   docker compose --profile app up -d     datastores + api + worker
+#
+# Host ports are deliberately non-default: 5432 to 5435 and 6379 to 6382 belong to other
+# projects on this machine, and 5437 / 6384 belong to docker-compose.dev.yml.
+
+services:
+  postgres:
+    image: postgres:17-bookworm
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-jas}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
+      POSTGRES_DB: ${POSTGRES_DB:-jas_ad_studio}
+    ports:
+      - '${POSTGRES_PORT:-5436}:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-jas} -d ${POSTGRES_DB:-jas_ad_studio}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  redis:
+    image: redis:8-bookworm
+    restart: unless-stopped
+    # BullMQ requires eviction to be disabled, or delayed jobs can be dropped (D-030).
+    command: ['redis-server', '--maxmemory-policy', 'noeviction', '--appendonly', 'yes']
+    ports:
+      - '${REDIS_PORT:-6383}:6379'
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    profiles: ['app']
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    command: ['node', 'dist/main.api']
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgres://${POSTGRES_USER:-jas}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/${POSTGRES_DB:-jas_ad_studio}
+      REDIS_URL: redis://redis:6379
+    volumes:
+      # Private product photos (spec §7, R-6). Nothing writes here until P2, but the
+      # volume is declared now so it is never created by accident at deploy time.
+      - photos:/app/storage/photos
+    ports:
+      # 3040 belongs to `pnpm dev`; the container gets its own port so both can run.
+      - '${API_PORT:-3041}:3000'
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - node -e "fetch('http://127.0.0.1:3000/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+
+  worker:
+    profiles: ['app']
+    build:
+      context: .
+      target: runtime
+    restart: unless-stopped
+    command: ['node', 'dist/main.worker']
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgres://${POSTGRES_USER:-jas}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@postgres:5432/${POSTGRES_DB:-jas_ad_studio}
+      REDIS_URL: redis://redis:6379
+    volumes:
+      - photos:/app/storage/photos
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+
+  # web:        added in P5. Built from ../jas-ad-studio-web, which does not exist yet
+  #             (D-026: no web work before the P1 go/no-go).
+  # cloudflared: added in P8. One named tunnel sends /api/* here and everything else to
+  #             web (D-032). It needs the domain, which Jakhongir still owes.
+
+volumes:
+  postgres-data:
+  redis-data:
+  photos:

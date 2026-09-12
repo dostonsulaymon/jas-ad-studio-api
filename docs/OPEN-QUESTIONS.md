@@ -45,7 +45,7 @@ The spec bans fake examples, so the gallery stays empty until real clips exist. 
 
 ### Q-05 · Prompt length and structure (resolves conflicts C-1 to C-4) → D-012
 - **A.** Default about 500–700 words: detailed, and still under Veo's 1,024-token limit. The default is 4 beats, with fewer allowed when the product is hard to show. The high-energy camera style is used only when the seller picks a high-energy style.
-- **B.** Short prompts of 180–350 words, as in build prompt v1.
+- **B.** Short prompts of 180–350 words, as in build prompt v1 (deleted, D-049; the figure survives in source 01 §25).
 - **C.** Let the P1 test decide, by comparing the same products at 300, 500 and 700 words in Flow.
 
 **Recommendation:** A as the default, confirmed or corrected by the P1 test (C).
