@@ -7,7 +7,7 @@ Questions that must be answered before the design spec and phase plans can be fi
 
 When a question is answered, write the answer on its **Answer:** line, add a `D-0xx` entry to `DECISIONS.md`, and mark the question `→ D-0xx`.
 
-**Status (2026-09-11): every question below is answered** (D-008 to D-035). New questions go at the end of the right part, with the next free number.
+**Status (2026-09-12): every question is answered except Q-17,** which is open and waiting on Jakhongir. New questions go at the end of the right part, with the next free number.
 
 ---
 
@@ -130,6 +130,33 @@ D-018 says no UI gets built until P1 passes. With a second Claude session on the
 
 **Recommendation:** A.
 **Answer:** C. The frontend session starts after P1 passes, and D-018 stays unchanged (2026-09-11).
+
+### Q-17 · The measured AI cost is 4x the figure the prices were set against → **open, for Jakhongir**
+
+Raised 2026-09-12 by D-082, from the first real generation run through the full pipeline.
+
+Q-02 recorded "about 1,100 som per prompt" as the cost basis, and Jakhongir is setting pack prices against it. **Measured: $0.3589 ≈ 4,414 som** for one `gpt-5.5` generation — 3,370 input and 5,139 output tokens, about 60 seconds.
+
+The result was good and the cost is the price of that depth: D-045 and D-048 chose deep prompts with mandatory sections on purpose, and 5,139 output tokens is what that costs. So this is not a bug to fix but a number to price against.
+
+What it changes, at D-072's placeholder prices:
+
+| pack | price | cost | margin |
+|---|---|---|---|
+| 1 credit | 9,000 som | 4,414 | **51%** |
+| 5 credits | 40,000 som | 22,070 | **45%** |
+| 15 credits | 105,000 som | 66,210 | **37%** |
+
+Not the ~87% the 1,100 som figure implied. And `DAILY_AI_SPEND_LIMIT_USD` defaults to 2, which buys **five generations a day for the whole app** — a fine guard against a runaway loop, useless for the 10–15 seller pilot of D-024.
+
+- **A.** Keep the depth and raise the prices to hold a target margin.
+- **B.** Keep the prices and cut the cost — a cheaper model, or a shorter prompt for the simpler formats. Unmeasured: whether that holds the quality D-055 closed P1 on.
+- **C.** Keep both and accept the thinner margin.
+
+**Recommendation:** decide A or C now so the order screens can be built, and measure B separately — it is a P1-style experiment, not a pricing decision. Nothing invents a price meanwhile: `GET /api/packs` returns an empty list until an owner sets one (D-072).
+
+**Blocks:** the credits and order screens in P5, and the pilot in P8.
+**Answer:**
 
 ---
 

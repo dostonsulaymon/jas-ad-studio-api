@@ -6,7 +6,7 @@ What we are building, for whom, and the known conflicts to resolve. The full req
 
 ## The product in one paragraph
 
-JAS Ad Studio turns a seller's product photo into a professional short video ad **prompt**. The seller uploads one to four photos of the same product, writes a name and a short factual description, and picks a goal, style and format. One AI call studies the photos and returns one ad package:
+JAS Ad Studio turns a seller's product photo into a professional short video ad **prompt**. The seller uploads one to four photos of the same product, writes a name and a short factual description, and picks a goal and a creative format (D-065 removed the separate style picker). One AI call studies the photos and returns one ad package:
 
 - an Uzbek concept title and angle
 - what must stay identical about the product
@@ -31,7 +31,7 @@ Sign in ──► buy credits (order: pending → owner confirms → +N credits)
    │
    ▼
 Studio, step 1: Mahsulot            photos (1 primary + up to 3), name, short description
-       step 2: Reklama yo‘nalishi   goal, style, platform, 9:16 or 16:9, optional offer
+       step 2: Reklama yo‘nalishi   goal, creative format, platform, aspect ratio, duration, optional offer
        step 3: Tekshirish           summary, "uses 1 credit", Reklama promptini tayyorlash
    │
    ▼
@@ -85,7 +85,7 @@ Project history: reopen, copy, export and edit for free. A new AI version costs 
 |---|---|---|---|
 | C-1 | Prompt 180–350 words | Prompt 500–1,000 words | Resolved, D-012: word range set per video target |
 | C-2 | 3 beats: 0–2 / 2–6 / 6–8 s | 4 beats: 0–1.5 / 1.5–4.5 / 4.5–6.5 / 6.5–8 s | Resolved, D-012: beats set per video target |
-| C-3 | One camera move per beat, no stacked whip pans or crash zooms | "High-energy mode" allows whip transitions and speed ramps | Resolved, D-012: high-energy moves allowed per target and style |
+| C-3 | One camera move per beat, no stacked whip pans or crash zooms | "High-energy mode" allows whip transitions and speed ramps | Resolved, D-012 and D-057: pacing belongs to the creative format, and fidelity is unconditional |
 | C-4 | — | ~~1,000 words ≈ 1,300 tokens, above Veo 3.1's 1,024-token text limit~~ | **Void (D-046).** The limit was read off a model page and never tested. Doston has run 2,000–4,000 word prompts through the real generator with no truncation. Source 02's depth requirement stands unopposed. |
 | C-5 | Suggests Next.js full-stack, Supabase, OpenAI SDK | — | Resolved by D-001 and D-002 |
 | **C-6** | "One dominant camera move per beat"; "do not stack whip pans, barrel rolls, crash zooms" — stated as unconditional rules (§25) | HIGH-ENERGY COMMERCIAL MODE explicitly allows whip transitions, crash zooms, speed ramps | **Resolved, D-057.** §25's rules win because they are phrased as prohibitions and source 02's as permissions, so `energetic-social` produces almost the same prompt as `premium-cinematic`. Found when ten real videos all came out in one format. |

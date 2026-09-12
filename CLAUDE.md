@@ -22,9 +22,17 @@ People: Jakhongir is the owner and client. Doston builds it, with Claude (D-003)
 
 ## Status
 
-**P0, P1 and P1b closed.** The AI core runs end to end from the command line: a product folder in, a Flow prompt and Uzbek shot plan out. Real products have been through the whole chain and produced usable videos (D-054, D-060). The model is `gpt-5.5` (D-052), and four creative formats decide each prompt's shape from config rather than from the system prompt (D-058).
+**P0 to P4 closed and merged. P5's code is built; P6 is next.** Updated 2026-09-12.
 
-Still no HTTP API, no database, no accounts, no credits, no uploads — those are P2–P4. Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
+A seller can sign in with Google, create a project, upload product photos, buy credits through a manually confirmed order, and press generate once to get one ad package — a Flow prompt and an Uzbek shot plan — for one credit. A failure gives the credit back; a success stays bought even if the browser dies. The model is `gpt-5.5` (D-052) and four creative formats decide each prompt's shape from config (D-058).
+
+**One real generation has been walked end to end through the queue** (D-082): 60 seconds, $0.359, a 2,251-word prompt and a three-shot Uzbek plan.
+
+What is **not** built: the example gallery (P6), hardening and backups (P7), deployment and the pilot (P8). P5's studio is built and green but not finished — it needs a visual pass on two panels and an e2e fixture for the signed-in flow, both of which belong to the web session (D-085).
+
+**The one thing blocking product progress is not code.** D-082 measured a generation at about 4,400 som against the 1,100 som the pack prices assume. Until Jakhongir sets real prices, `GET /api/packs` returns an empty list by design (D-072) and the order screens have nothing to show.
+
+Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
 
 ## Starting a new session
 
