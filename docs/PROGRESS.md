@@ -10,12 +10,81 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0, P1, P1b, P2 and P3 all closed.** P4 is next. |
+| Phase | **P0–P3 closed and merged. P4 built and tested on `p4-generation-pipeline`, uncommitted.** |
 | Branch | **`p3-credits-orders`**, cut from `main` on 2026-09-12. One branch per phase, merged only after the exit check and Doston's review (D-070). |
-| Active plan | `docs/superpowers/plans/2026-09-12-phase-3-credits-orders.md` — **all 14 tasks done**, uncommitted. P4 has no plan yet; write it before building anything. |
-| Doing now | Nothing in flight. All of P3 sits in the working tree awaiting Doston's review. **Claude does not commit (D-071).** |
-| Next | P4: the generation pipeline. It inherits three things from P3 — the `Executor` parameter on every money method, the proven `reserveOne`/`debit`/`release` primitives, and **a `credit_ledger.generation_id` with no foreign key**, which P4's first migration must add. |
+| Active plan | `docs/superpowers/plans/2026-09-12-phase-4-generation-pipeline.md` — **all 11 tasks and 49 steps done**, including the real-provider hand-walk. Uncommitted. |
+| Doing now | Nothing in flight. P4 awaits Doston's review. **Claude does not commit (D-071).** |
+| Next | Doston's review, then the merge. After that P5 (studio UI, web repo) — but **D-082 first**: a real generation costs 4x what Q-02's pricing assumed, and Jakhongir is setting prices against that figure. |
 | Last verified state | 2026-09-12 17:11 on `p3-credits-orders`: the full gate green — `lint` and `typecheck` silent, `pnpm test` **471 passed in 35 files**, `build` clean, `openapi:check` up to date (29 operations, 18 component schemas). The whole money flow also walked by hand against the running server, which found one defect (D-076). Earlier, 16:21 on `main` after the merge: the full gate green — `lint` and `typecheck` silent, `test` **376 passed in 26 files** (including the 16-test isolation gate), `build` clean, `openapi:check` “`openapi.json` is up to date”. `components.schemas` holds 4 shapes, so the contract is no longer a list of bare URLs. `jas-api` and `jas-worker` both `online` under pm2 on Node 24.19.0, and the live server answers. |
+
+## 2026-09-12 — P4 done: the generation pipeline, proven with a real model call
+
+**Gate on `p4-generation-pipeline`:** `lint` and `typecheck` silent, `pnpm test` **525 passed in 40 files**, `build` clean, `openapi:check` up to date. The contract is at **31 operations and 20 component schemas**, both new routes carrying a response shape.
+
+### One real generation, end to end (Task 10 Step 6)
+
+The only real spend in the phase, and the step that has now found something in all three phases it has been run in. A real product (the P1 wet-wipes photo) through the real queue with the real `gpt-5.5`:
+
+```
+POST /api/projects/{id}/generations   → 202 {"generationId":"cc868a5e…","status":"queued"}
+GET  /api/generations/{id}            → running (12 polls, ~60s) → ready
+GET  /api/credits/balance             → {"available":0,"reserved":0}
+
+ type        | amount | linked        status | attempts | provider | model   | in    | out   | est_cost_usd
+-------------+--------+--------       -------+----------+----------+---------+-------+-------+-------------
+ owner_grant |      1 | f             ready  |        1 | openai   | gpt-5.5 |  3370 |  5139 |     0.358890
+ reserve     |      1 | t
+ debit       |      1 | t
+```
+
+The package: a 2,251-word English prompt, three contiguous shots covering 0–10s, the target echoed back correctly, four fidelity constraints, properly normalised Uzbek. Re-POSTing the same `Idempotency-Key` returned the same generation and charged nothing; a new key on the now-empty balance got **402 `NO_CREDITS`** with no second call — one generation, one billed call, for the whole walk.
+
+### **D-082: it costs 4x what the pricing assumed.** For Jakhongir.
+
+$0.3589 ≈ **4,414 som** per generation, against Q-02's **1,100 som** estimate. The result was good and the cost is the price of that depth — D-045 and D-048 chose deep prompts deliberately, and 5,139 output tokens is what that costs. But two things follow, and neither is ours to decide:
+
+1. **The pack prices rest on a figure that is wrong by 4x.** D-072's placeholder 9,000 som for one credit leaves 51% margin, not the ~87% the old number implied; the 15-pack at 105,000 som leaves **34%**.
+2. **`DAILY_AI_SPEND_LIMIT_USD` defaults to 2 — five generations a day for the entire app.** A fine guard against a runaway bug, useless for a 10–15 seller pilot. It needs raising before P8, and a spend limit is not something to change quietly.
+
+### The four exit checks pass
+
+`src/generation.e2e.spec.ts` runs the real worker in-process against the real dev Redis with a scripted fake provider (D-078). All four, over real HTTP:
+
+1. **One credit, two concurrent jobs → one success.** One 202, the other 402 or 409, one package, balance at zero.
+2. **A success the client never saw is still a success.** The result is in Postgres; a re-read returns it and the credit stays spent (§32).
+3. **A late success is dropped, not paid out next to the refund.** The sweeper fails the job and releases the credit; the stale worker then settles a perfectly good `ready` and writes *nothing* — no package, no second ledger row. Asserted as `['owner_grant','reserve','release']` and no package.
+4. **Five duplicate clicks → one job, one charge.**
+
+Plus the four outcomes (`ready` debits, `needs_input`/`refused`/`failed` release), the §29 cache answering with no second call, the one repair attempt, and the gates that refuse before any money moves.
+
+### Three things worth keeping
+
+**A flaky test found a real bug (D-079).** `generations` has two unique indexes and one row can violate both — `generations_user_key` means "duplicate click, reuse and charge nothing", `generations_one_active_per_user` means "409". `ON CONFLICT` names only the first as its arbiter, so a row breaking both raises `23505` from whichever index Postgres checked, and five duplicate clicks got 409 about one run in four. **The answer now comes from the data, not the error**: re-read by key, and a row means it was a duplicate. Also, the INSERT now comes *before* the reserve — a check-then-insert would have all five clicks reserve a credit before the index refused four.
+
+**`openapi:generate` hung for ever (D-080),** and it was two mistakes compounding: the BullMQ queue opened a Redis connection in its constructor, and it shared `REDIS_CLIENT`, so when `app.close()` quit that client first, `queue.close()` waited on a dead socket. The queue is lazy now and owns a duplicated connection it closes itself. **A Nest provider must not open a socket in its constructor** — two things in this repo boot the whole app for reasons unrelated to serving traffic.
+
+**P3's debt is paid.** `credit_ledger.generation_id` has its foreign key, `ON DELETE set null` so a money record outlives the job it describes. It immediately broke five P3 tests that passed stand-in UUIDs — which is the constraint doing its job.
+
+### The dev database needed repairing, and why
+
+A killed `openapi:generate` had left dev with a `generations` table from *before* two columns were added, recorded as applied, so the real migration could not run. All three affected tables held **0 rows**; they were dropped with the orphaned migration record and the migration re-applied cleanly. **Doston's user and sessions were never touched** — verified before and after (1 user, 3 sessions). Migration 9 is recorded and the schema now matches the committed SQL.
+
+### The four gaps Doston's question exposed, now closed
+
+Asked whether P4 was fully tested, the honest answer was no: **0 of 49 plan steps were ticked, only 2 test files existed, and four behaviours had no test at all.** Measured, not guessed — `grep` over the specs found nothing for any of them. Now:
+
+| behaviour | where it is tested |
+|---|---|
+| daily generation cap → 429 | `generation.service.spec.ts` |
+| daily spend cap → 503, credit untouched | `generation.service.spec.ts` |
+| needs-input cap → 429, counting misses only | `generation.service.spec.ts` |
+| `claim()` under contention, live vs lapsed lease | `lease.spec.ts` |
+| the sweeper's `attempts < 3` requeue, and its idempotence | `lease.spec.ts` |
+| cache key: photo order, added photo, cross-user isolation | `needs-input.cache.spec.ts` |
+
+**28 new tests across three files.** Two assertions worth keeping: a *lost* concurrent claim must not count as an attempt (three racing workers would otherwise exhaust the retry budget instantly), and re-remembering identical inputs upserts one row — answering the questions a seller was asked must not count against their cap twice.
+
+**Nothing is committed** (D-071) and the branch is not merged (D-070).
 
 ## 2026-09-12 — P3 closed: credits, orders and the ledger
 
