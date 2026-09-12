@@ -10,16 +10,106 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0, P1 and P1b all closed.** Everything is merged to `main`, pushed, CI green. |
-| Active plan | None. **P2's plan is not written** — write it before any P2 code (project rule 2). |
-| Doing now | Nothing. Session ended 2026-09-12 with P1b verified in Flow. |
-| Next | Write the P2 plan (accounts and uploads) in `docs/superpowers/plans/`, Doston reviews, then build. |
-| Last verified state | 2026-09-12: 253 tests, lint, typecheck, build and `openapi:check` all clean on `main`. Three Flow videos judged: 2 of 3 pass (D-060) |
+| Phase | **P0, P1, P1b and P2 all closed.** |
+| Active plan | `docs/superpowers/plans/2026-09-12-phase-2-accounts-uploads.md`. Tasks 1–11 are committed on `p2-accounts-uploads`; Task 12 and the four fixes are done but uncommitted. |
+| Doing now | Nothing in flight. P2 merged to `main`. |
+| Next | **T-09 is answered and done** (the contract has shapes in it). Next is P3: credits, orders, the ledger. Write its plan first. |
+| Last verified state | 2026-09-12 15:35: the full gate green — `lint`, `typecheck`, `test` (**376 tests in 26 files**), `build`, `openapi:check`. All four defects re-tested against the running server and confirmed fixed. Swagger live at `/api/docs`, byte-identical to `openapi.json`. Both processes under pm2 on Node 24. |
 
-### Two things the next session should pick up
+### Three things the next session should pick up
 
-1. **Which format produced `car1`?** Only Doston knows. If it was `high-energy`, fast cutting cost no fidelity and D-057 is validated. If it was `product-film`, the energetic format is still untested in Flow. Ask before assuming.
-2. **`lifestyle-story` invents interiors** (D-060). The format's premise — a person using the product — invites exactly what the product lock forbids, for any product whose inside is not visible in the reference. Fixable in `src/ai/formats/formats.ts`, no prompt change needed.
+1. **`high-energy` has never been tested in Flow.** `car1` was identified as `product-film`, not `high-energy` (D-063), which closes D-060's open question and opens this one. It is the format most likely to answer Doston's "they all look the same", and the one whose fidelity risk D-058 flagged as unresolved.
+2. **Every clip runs 10.0s against an 8s brief, and every clip ends in a 3-second static hold.** Probably the same bug (D-063, hypothesis). Test it cheaply: generate once with `durationSeconds: 10` and compare the ending before changing any format config.
+3. **`lifestyle-story` invents interiors** (D-060) — but only where interaction reveals unestablished interior. It passed cleanly on wet wipes, where the reference already shows a wipe emerging (D-063). The fix is an interaction boundary, not removing the format.
+
+## 2026-09-12 — the four defects fixed, Swagger mounted, pm2 set up
+
+All four fixed, each with a test that fails against the old code, then re-tested against the running server. **376 tests, 26 files**, plus `lint`, `typecheck`, `build` and `openapi:check` green.
+
+| | fix | measured after |
+|---|---|---|
+| **D-066** | each copy reports its own post-rotation dimensions, from the encoder | phone photo: db `1365x2048`, file `1365x2048` — match, and portrait |
+| **D-067** | `OAuthStateError` / `OAUTH_STATE_INVALID` / 400, split from the 502 | forged state → 400; real Google rejection → 502, still distinct |
+| **D-068** | `readReference` joins `projects`, requires `deleted_at IS NULL` | after delete: asset 404, and the project route agrees |
+| **D-069** | Swagger UI at `/api/docs` from the shared document factory | 15 operations, byte-identical to `openapi.json` |
+
+**Two tests were asserting the bug.** `image.pipeline.spec.ts` had *"reports the original dimensions, not the resized ones"* and `assets.service.spec.ts` had *"records the original dimensions, not the resized ones"* asserting `width === 3000`. Both passed for as long as the bug existed. That is the whole argument for testing over real HTTP with a real image: a unit test can only check the behaviour someone thought to write down.
+
+**pm2.** `ecosystem.config.cjs` runs `jas-api` and `jas-worker` from `dist/`. The interpreter is pinned to Node 24.19.0 — **the pm2 daemon on this machine runs Node 25**, and without the pin the API launches on a runtime neither CI nor Docker uses. Postgres and Redis stay in Docker; pm2 manages node processes, not containers. `pnpm build` first, every time — pm2 does not build.
+
+**Google sign-in verified by hand (Doston, 2026-09-12).** Task 7 Step 6, and P2's last exit criterion. The outbound leg and the exchange path were already proven automatically — 302 with correct scopes, a bogus code round-tripped to Google in 409 ms — and the success branch is now confirmed in a real browser against a real account. **P2 is closed.**
+
+**T-09 done in the same session.** The contract went from 15 bare URLs to 4 component schemas, 3 request bodies, 8 response schemas and 15 summaries. Three things cost time and are worth remembering: `z.date()` cannot be represented in JSON Schema at all (zod 4 throws, so `createdAt` is `z.iso.datetime()` — the wire format never changed, only the claim about it); **`pm2` is not on PATH after `nvm use`**, because it lives in Node 22's bin, so `pm2 restart` silently does nothing and stale status reads as live; and a throw before `app.listen()` used to leave the process alive holding the pool, which **pm2 reported as `online` while it listened to nothing** — `main.api.ts` now exits non-zero on a failed boot.
+
+## 2026-09-12 — P2 tested end to end over real HTTP: four defects
+
+A live server on 3040, every route walked with real cookies, real files and one real call to Google. **370 unit tests stay green and the isolation gate holds** — none of these is a cross-user leak. All four are wrong-data or wrong-signal bugs the unit tests cannot see, because each one needs a real image, a real network call, or a real sequence of requests.
+
+**1. EXIF-rotated photos get transposed dimensions.** `image.pipeline.ts:49` reads `metadata()` *before* `.rotate()` at line 96 applies the EXIF orientation, and line 71 returns those pre-rotation numbers. `assets.service.ts:75` then stores them as `processedWidth`/`processedHeight`. Measured, with a JPEG tagged orientation 6 — what a phone held upright produces:
+
+| | db says | file actually is |
+|---|---|---|
+| `reference` | 3000x2000 | 1365x2048 |
+| `model_input` | 3000x2000 | 683x1024 |
+
+The file is rotated correctly; only the recorded dimensions are wrong, and they are **transposed** — the API tells the web app a portrait photo is landscape. Uzbek sellers photograph products on phones, so this is the common case, not the edge case.
+
+**2. `processedWidth` is not the processed width.** The same root cause without any EXIF: both rows carry the *source* dimensions, identical on both, while `bytes` is per-row and correct. A grid laid out from those numbers reserves the wrong box.
+
+**3. A forged OAuth callback reports as a Google outage.** `GoogleAuthError` is one class with `code = 'AUTH_PROVIDER_FAILED'`, `status = 502`, and `auth.controller.ts:51` throws it for a state mismatch — a client condition. Verified: a missing state, a mismatched state, a missing code and a genuine Google rejection all return the identical 502. A seller who leaves the tab open past the 10-minute state TTL gets "the provider failed" and a 5xx alert. **The plan specified this** (line 439), so the plan is what needs changing, not drifted code.
+
+**4. A deleted project's photos still download.** Delete is soft (`projects.service.ts:126`), but the download query (`assets.service.ts:114`) filters on `id`, `user_id` and `kind` and never joins `projects`. Measured on a soft-deleted project: `GET /projects/{id}` 404, `GET /projects/{id}/assets` 404, `GET /assets/{id}/reference` **200, 16,781 bytes**. Two routes disagree about whether the same asset exists. Same-user only, so not an isolation break — but "I deleted that" must mean the photo stops serving.
+
+**What passed, measured not assumed:** a PDF and an SVG renamed `.jpg` both refused on signature (`UPLOAD_DAMAGED`), a 12 MB file refused at 413, an 81-megapixel bomb refused at 400 without decoding · exactly two copies at 2048 and 1024, every EXIF/ICC/XMP/IPTC block stripped · storage paths random and sharded, not served statically on any of four guessed URL shapes, `Cache-Control: private, no-store` · logout revokes instantly and a replayed cookie 401s, an expired session is refused and swept on read · D-037 allowlist promotes, demotes and re-promotes · all 15 routes documented in `openapi.json` · session cookie `httpOnly`, `SameSite=Lax`, `secure` in production.
+
+**Config note for the manual sign-in:** `OWNER_EMAILS` is `dostonqosimiy19@gmail.com`. Signing in with any other Google address gives `role = seller`, correctly.
+
+## 2026-09-12 — P2 built: accounts, projects and uploads
+
+Eleven tasks of `2026-09-12-phase-2-accounts-uploads.md` are committed: the throwaway-Postgres harness, Google sign-in written without an auth library, sessions hashed at rest, the owner allowlist, CSRF, projects with server-side ownership on every query, the decode-first image pipeline, and private uploads. The seller now picks the creative format directly (D-062, D-065) and `style` is gone.
+
+**The exit gate passes.** `src/isolation.e2e.spec.ts` boots the real app on a real socket and runs Alice at Bob's data across nine routes. Every refusal is a 404, never a 403 — a 403 would confirm the id exists, which is itself the leak. It also covers the unauthenticated case on eight routes, both CSRF refusals, and that a downloaded product photo carries `private, no-store`.
+
+Two defects found by running it, both fixed:
+
+- **`drop()` ended the test pool twice.** The db module ends the injected pool in `onModuleDestroy`, so `app.close()` got there first and `drop()` threw `Called end on pool more than once`. All twelve tests passed; the suite still reported FAIL. Every future e2e that boots the app would have hit it. `drop()` now skips an already-ended pool.
+- **`app.getHttpServer()` returns `any`,** so reading `.address()` off it failed lint. Typed as `node:http`'s `Server`.
+
+**Not yet done:** the Task 12 commit, and the plan's checkboxes for Tasks 1–11 — including Task 7 Step 6, a by-hand sign-in through a browser, which nothing in the record says was performed. Worth confirming before P2 is called closed.
+
+## 2026-09-12 — eight Flow videos judged, and the sameness explained
+
+Doston supplied the videos and asked why they all look like one format. They do, and `pnpm p1:check` says why (**D-063**).
+
+**The main cause is not the formats — it is that only one format was ever used.** `clean-studio` and `premium-cinematic` both map to `product-film`, so nine of the ten pack products, and four of the five new videos, are the same format. The batch was never a format comparison. **D-062** removes the cause: the seller picks the format directly from now on.
+
+**Where the format did differ, the video differed.** Wet wipes (`lifestyle-story`) is a domestic room with a hand pulling out a wipe; `car3` (`ugc-authentic`) is an overcast car park, handheld; `car1` and `05-car` (`product-film`) are a dark studio. Three genuinely different films. D-058's mechanism works.
+
+**One real shared defect, across every format:** all eight clips settle into a near-static wide hero for their last three seconds. And all eight measure **10.00s against an 8s brief**. The shot plan ends at 8s and Flow has two unscripted seconds to fill — which would produce exactly that tail. If the hypothesis holds, the identical endings are a duration bug (D-054) rather than a creative one, and cost nothing to fix. Not yet tested.
+
+**D-060's open question is answered: `car1` was `product-film`.** Which means **`high-energy` has still never reached Flow** — the one format built to answer this complaint, and the one carrying D-058's unresolved fidelity risk.
+
+**Fidelity held everywhere.** No invented components in any of the eight: phone colours and logos, the rotary dial and red button, the notebook's band, both cars' bowtie and alloys with doors shut. One minor drift — the notebook's ribbon reads blue in the reference, pale green in the video.
+
+## 2026-09-12 — audit, and the P2 blocker cleared
+
+**Full audit of P0/P1 re-run from scratch, not taken on trust.** `pnpm lint`, `typecheck` and `test` all clean, 253 tests in 14 files. The claims in this file match the code.
+
+Evidence was spot-checked rather than assumed: `out/pack/sheet-car2.jpg` was opened and D-060's `lifestyle-story` failure independently confirmed — at 5.7s a person has the driver's door open showing an interior the reference photo never established. A generated prompt (`14-fmt-ugc`, 2,072 words) was read and its product lock is specific and real, not boilerplate.
+
+**Gaps found, none of them blocking a P2 plan:**
+
+1. **No integration-test harness exists.** R-4/D-038 requires money and job logic tested against a real Postgres with a throwaway database per run. Nobody has scoped it. It belongs in P2, because P3 and P4 cannot be verified without it. CI already provisions Postgres and Redis, so no workflow change is needed.
+2. **`src/ai/` has no Nest module.** The core is plain functions (`generateAdPackage`); P4 needs a thin wrapper.
+3. **`lifestyle-story` is a live defect** (D-060), unfixed. It will spend a seller's credit on invented interiors. Must not reach P5.
+4. **One dependency needed for P2** under the standing gate: `@types/multer` (dev only). multer 2.2.0 already ships inside `@nestjs/platform-express`. Google sign-in needs no library.
+5. **Stale doc:** D-047 still reads "Omni, details pending"; D-050 retired that question.
+
+**Doston's format concern, answered honestly.** He reports the ten Flow videos still look like one format and asked whether it can be fixed later once the API and Swagger exist. Yes — formats are config (D-058), so it is a config edit. But **Swagger will not make that testing easier**: it checks whether an endpoint returns the right JSON, and cannot tell whether two videos look different. The real loop is edit `formats.ts` → generate → paste into Flow → judge, which `p1:generate` and `p1:check` already do with no HTTP in the way. Defer it, but not on the expectation that the API helps. The one real coupling: if the fix turns out to be "the seller picks a format" rather than "we map it from the five styles", `brief.schema.ts` changes and the contract with it — so P2's `projects` table carries a nullable `format_id` from the start.
+
+**P2's hard blocker is gone (D-061).** A dev Google OAuth client now exists, in its own GCP project, verified against Google's token endpoint rather than assumed. The first transcription was wrong and the check caught it.
+
+**On finishing P2 through P4 in one day: told him no.** That is 12 tables, ~25 endpoints, a Google OAuth flow, a sharp image pipeline, a BullMQ worker with leases and a sweeper, and the credit ledger — plus the race tests spec §11 names. P3 and P4 are the money path. The only way to compress it into a day is to skip the integration tests, which are the entire reason R-4 departed from kitobnarx's unit-only rule. Honest estimate at this project's quality bar: P2 ≈ 1 day, P3 ≈ 1 day, P4 ≈ 1–1.5 days.
 
 ## Current position
 
@@ -28,7 +118,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 | Phase | P0, P1, P1b complete. P2 not started |
 | Code | api repo on `main`: NestJS api + worker, the AI core, four creative formats, the CLI harness and the test tooling. No HTTP product endpoints, no database tables, no accounts, no credits, no uploads |
 | Repos | `github.com/dostonsulaymon/jas-ad-studio-api` and `…/jas-ad-studio-web` (untouched, D-026) |
-| Decisions | D-001 to D-060 |
+| Decisions | D-001 to D-063 |
 | Tests | 253 |
 | Live AI spend, whole project | about $6 |
 

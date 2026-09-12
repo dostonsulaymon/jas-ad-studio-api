@@ -691,6 +691,156 @@ Three Flow videos from the same car photo, one per creative format, frames compa
 **Still open:** which format produced car1. If it was `high-energy`, then fast cutting cost no fidelity and D-057 is validated; if it was `product-film`, the energetic format remains untested in Flow. Doston has the answer.
 
 
+### D-061 · 2026-09-12 · Google sign-in: a dev OAuth client now, a separate production one at P8
+
+P2 cannot be verified without a signed-in user, and nothing existed. Doston gave browser access and chose the dev/production split over creating one client for both.
+
+**Created under Doston's Google account**, in a new GCP project `jas-ad-studio` (project number `888421139554`) rather than in his existing `media-downloader` project, which holds an unrelated live YouTube API key. Seller credentials do not share a project with unrelated keys.
+
+| | |
+|---|---|
+| OAuth client | `jas-ad-studio-dev`, type Web application |
+| Consent screen | App name `JAS Ad Studio` (placeholder, D-016), support and contact email `dostonqosimiy19@gmail.com` |
+| Audience | **External**, publishing status **Testing** — 100-user cap, Doston added as the one test user |
+| Redirect URIs | `http://localhost:3040/api/auth/google/callback` and the `127.0.0.1` twin. Google treats them as different origins, so both are registered |
+| Scopes | `openid email profile` only. Non-sensitive, so **no Google verification review** is required before the pilot |
+
+**Why two clients and not one.** D-004 puts paid services and customer data in Jakhongir's name, and an OAuth client is the front door to customer accounts — its consent screen shows an app name and support email to every seller. Creating the production client under Jakhongir's account at P8 keeps D-004 intact. The two are independent: the dev one keeps working for local development afterwards.
+
+**The credentials are verified, not assumed.** A first transcription read off the screen was wrong — a lowercase `l` read as a capital `I` — and Google returned `invalid_client`. The corrected value returns `invalid_grant: Malformed auth code` against a deliberately bogus authorization code, which is the response that proves the client id and secret are both accepted. The secret is shown once and cannot be re-read, so this check happened before the dialog was closed.
+
+Values live in `.env` only (git-ignored, verified). `.env.example` documents the variable names, the consent-screen settings and the redirect URIs, with no values.
+
+**One thing Doston did himself, and should stay that way:** ticking "I agree to the Google API Services: User Data Policy". It is a binding developer agreement. Broad browser access is not permission to accept an agreement on his behalf.
+
+**Not yet done, deliberately:** `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URI` and `OWNER_EMAILS` are **not** in the zod env schema yet. That is P2 auth code, and project rule 2 puts the plan first.
+
+
+### D-062 · 2026-09-12 · The seller picks the creative format directly
+
+Doston: *"we will make user to select a format, so i was thinking this as well."*
+
+D-058 mapped format from the `style` the seller already picks, deliberately, so that no brief change was needed. That indirection is now removed: the format becomes the seller's own choice in the wizard.
+
+**Why this matters more than it looks.** Two of the five styles — `clean-studio` and `premium-cinematic` — both map to `product-film`. So the style picker cannot express three of the four formats without the seller knowing the mapping, and nine of the ten test products landed on the same format without anyone choosing it (D-063).
+
+**Consequences, all of them contract-level:**
+- `briefSchema` gains a `formatId`. That changes `openapi.json`, and therefore the web repo's generated client (D-031). Session B must be told.
+- `projects` carries `format_id` from its first migration in P2, so this costs no later migration.
+- What happens to `style` is **not decided** — see the open question below. Nothing is built on `formatId` until it is answered.
+
+**Open, and blocking the P2 brief work only:** does `style` survive alongside `format`, or does `format` replace it? They overlap but are not the same axis — `style` currently carries look (studio, lifestyle, UGC) while `format` carries shape (sections, beats, pacing). Keeping both means the seller answers two questions that sound alike; collapsing them means losing a distinction the prompt assembler uses today.
+
+
+### D-063 · 2026-09-12 · Video audit: the sameness is mostly one untested format, plus a real shared ending
+
+Eight Flow videos compared against their reference photos with `pnpm p1:check`. Doston's report — *"the format of them almost the same"* — is correct, and it has three separate causes, only one of which is a defect in our config.
+
+**1. Four of the five new videos are literally the same format.** `clean-studio` and `premium-cinematic` both map to `product-film`, so:
+
+| Video | Style | Format |
+|---|---|---|
+| 01-phones | premium-cinematic | `product-film` |
+| 02-rotary-phone | premium-cinematic | `product-film` |
+| 03-notebook | clean-studio | `product-film` |
+| 05-car | premium-cinematic | `product-film` |
+| 10-wipes | lifestyle | `lifestyle-story` |
+
+Across the whole ten-product pack, **nine of ten are `product-film`** and one is `lifestyle-story`. `high-energy` and `ugc-authentic` never appeared. The batch was never a format comparison; it was one format run nine times. D-062 fixes the cause.
+
+**2. Where the format did differ, the video visibly differed.** `10-wipes` (`lifestyle-story`) is a domestic room with a hand entering to pull out a wipe. `car3` (`ugc-authentic`) is an overcast outdoor car park, handheld, unpolished. `car1` and `05-car` (`product-film`) are a dark seamless studio. Those are three genuinely different films, so D-058's mechanism works.
+
+**3. The real shared defect: every format ends the same way.** In all eight clips, the frames at 5.7s, 7.1s and 8.6s are near-identical — the last three seconds settle into a static wide hero. That holds for `product-film`, `lifestyle-story` and `ugc-authentic` alike, so it is not one format's problem.
+
+**A likely cause nobody had connected (hypothesis, untested):** every clip measures **10.00 seconds** while every brief asked for **8**. D-054 recorded this mismatch as a P5 UI requirement and stopped there. But the shot plan ends at 8s, which leaves Flow two unscripted seconds to fill — and filling them by holding the last framing would produce exactly the static tail seen in all eight. If that is right, the sameness of the endings is a **duration bug, not a creative one**, and matching the brief duration to the Flow duration fixes it for free. **Test before trusting:** generate one prompt with `durationSeconds: 10` and compare the ending.
+
+**Answers D-060's open question: `car1` was `product-film`, not `high-energy`.** Its arc, dark studio, pacing and settled ending are near-identical to `05-car`, which is confirmed `premium-cinematic` → `product-film`. `high-energy` specifies 0.6–1.8s shots across 5 beats; three near-identical frames spaced 1.4s apart in the back half rule it out.
+
+**The consequence is the important part: `high-energy` has still never been tested in Flow.** It is the format most likely to answer Doston's complaint — the one with whip transitions, crash zooms and 0.6s shots — and the one whose fidelity risk D-058 flagged as unresolved. It remains both untested and unvalidated.
+
+**Fidelity across the batch: no invented components.** Phones keep three correct colours, logo and camera bar; the rotary phone keeps its dial, cream centre and red button; the notebook keeps its band and page block; both cars keep the bowtie, grille and alloys with the doors shut. One minor drift: the notebook's ribbon marker reads blue in the reference and pale green in the video. Nothing at the level of the invented strap in D-054 or the invented interior in D-060.
+
+
+### D-064 · 2026-09-12 · Clip duration defaults to 10 seconds
+
+Doston: *"Duration should be ten seconds. Default. I set it to the older session. It didn't change it, I guess."*
+
+**Why it did not change: there was no default to change.** `durationSeconds` was `z.number().positive()` with no `.default()`, so every value came from a per-product `brief.json`, and all 22 of them said 8. The earlier edit had nothing to bite on.
+
+**The evidence agrees with him.** All eight judged Flow clips measure exactly 10.00s against 8s briefs (D-063). Flow makes 10-second clips; asking for 8 guaranteed two unscripted seconds at the end, which is the suspected cause of every clip's identical static tail.
+
+**Changed:**
+- `briefSchema.durationSeconds` is now `.default(10)`. This is the wizard's default in P2.
+- All 14 `trial/*/brief.json` products moved 8 → 10.
+- **`fixtures/*/brief.json` deliberately left at 8.** Their recorded provider responses in `fixtures/__recordings__/` carry 8-second shot timelines, and the timeline validator requires the last shot to end at the brief's duration. Changing the brief without re-recording would fail the suite and cost live AI spend to fix, for no gain: these fixtures test the source 01 §49 safety cases, where duration is irrelevant.
+
+Verified: `lint`, `typecheck`, 253 tests and `openapi:check` all clean. No contract drift, because no HTTP endpoint consumes `briefSchema` yet — P2 is where that starts, and it starts with 10 already correct.
+
+**This is the cheap half of the D-063 hypothesis.** Whether it also fixes the identical endings is still untested: it needs one regeneration and one Flow clip to confirm.
+
+
+### D-065 · 2026-09-12 · Creative format replaces style; there is no separate style picker
+
+Answers the question D-062 left open. Doston: *"I don't know. Which one is better?"* — so this is my call, made explicitly rather than by drift, and he can overturn it.
+
+**Format replaces style. The seller answers one question, not two.**
+
+Why: the four formats already carry the look. `ugc-authentic` *is* the filmed-on-a-phone look; `product-film` *is* the clean studio look. Keeping both pickers would ask the seller nearly the same question twice and let them contradict themselves — format `ugc-authentic` with style `premium-cinematic` — which the server would then have to resolve by a hidden rule. Hidden precedence rules between two overlapping inputs are what produced C-6 and D-056; we are not building another one.
+
+**Consequences:**
+- `briefSchema` gains `formatId` and **drops `style`**. `AD_STYLES` and the style→format mapping in `src/ai/formats/formats.ts` go with it.
+- The format list becomes seller-facing, so each format needs an Uzbek label and one line of description. Today's `description` fields are English and written for the model, not the seller.
+- `projects` carries `format_id` from its first P2 migration. No later migration.
+- Session B's generated client changes (D-031). It has not started yet (D-026), so nothing breaks downstream.
+
+**Not yet built.** This changes the P1 AI core's input contract, so it is a P2 task with its own step in the P2 plan, done test-first, not a side edit.
+
+
+### D-066 · 2026-09-12 · An asset row describes its own file, not the upload it came from
+
+Found by testing P2 over real HTTP, not by a unit test — the old unit tests asserted the wrong behaviour and passed.
+
+`image.pipeline.ts` read `metadata()` before `.rotate()` applied the EXIF orientation, then returned those numbers for both rows. A phone photo held upright is encoded landscape and tagged orientation 6, so the file was stored correctly as portrait while the API reported it landscape: **transposed, not merely scaled.** Measured: db 3000x2000, file 1365x2048.
+
+**Each rendered copy now reports its own dimensions, taken from the encoder** (`toBuffer({ resolveWithObject: true })`), so `reference` and `model_input` carry different, true numbers.
+
+Why this way rather than rotating the header read: one source of truth. Any "record the original" rule has to answer "original as encoded, or as displayed?", and that question is exactly what produced the bug. A row that describes its own file cannot drift from it.
+
+Supersedes the `ProcessedImage` contract as built — the old doc comment read *"The ORIGINAL dimensions, recorded before resizing, for the assets row"* while `assets.service.ts` called the same values `processedWidth`. Two files, two intents, one wrong answer.
+
+Consequences: `StoredAsset.width/height` in the OpenAPI contract now mean the reference copy's size, capped at 2048. Session B has not started (D-026), so nothing downstream breaks.
+
+### D-067 · 2026-09-12 · A forged OAuth callback is a 400, not a 502
+
+The P2 plan (line 439) specified one error class for the whole Google flow: `GoogleAuthError`, `AUTH_PROVIDER_FAILED`, 502. The implementation followed it exactly, and `auth.controller.ts` threw it for the **state check** — which is a client condition, not a provider one.
+
+Verified against the running server: a missing state, a mismatched state, a missing code and a genuine Google rejection all returned the identical 502.
+
+**`OAuthStateError` / `OAUTH_STATE_INVALID` / 400 is now thrown for the state check.** `GoogleAuthError` keeps 502 for actual provider failures.
+
+Why: the common cause is a seller finishing a sign-in after the ten-minute state TTL. Reporting that as a 5xx pages someone about an outage that isn't happening, and a 5xx alert that cries wolf is how a real outage gets ignored. It also told the seller the wrong thing — "the provider failed" when the fix is "sign in again".
+
+This supersedes the plan, not a decision. Recorded here because the plan was approved as written.
+
+### D-068 · 2026-09-12 · A soft-deleted project's photos stop serving
+
+Delete is soft (`projects SET deleted_at`), and the download query filtered on `id`, `user_id` and `kind` without joining `projects`. Measured: after deleting a project, `GET /projects/{id}/assets` returned 404 while `GET /assets/{id}/reference` returned 200 and the full 16 KB photo. Two routes disagreeing about whether one asset exists.
+
+**`readReference` now joins `projects` and requires `deleted_at IS NULL`.**
+
+Not an isolation break — it was always the same user, and the P2 exit gate held throughout. It is a retention promise: "I deleted that project" has to mean the photo stops being served. Private product photos are the one thing this app holds that a seller cannot get back.
+
+Left deliberately unchanged: `delete` on an individual asset of a soft-deleted project still succeeds. It removes data rather than exposing it, so it needs no guard.
+
+### D-069 · 2026-09-12 · Swagger UI at /api/docs, off in production by default
+
+There was no browsable contract at all — `openapi.ts` generated `openapi.json` at build time and `SwaggerModule.setup()` was never called.
+
+**The UI is mounted at `/api/docs`, from the same document factory that writes `openapi.json`** (`buildOpenApiDocument` in `bootstrap.ts`), so the page a human reads cannot disagree with the client the web repo generates (D-031). Verified: the live `/api/docs-json` is byte-identical to `openapi.json`.
+
+**Off when `NODE_ENV=production`,** unless `SWAGGER_ENABLED=true`. Default chosen, not asked: D-032 puts the API on one public origin behind the tunnel, and the docs page lists every route and request shape. Doston can flip it with one env var if he wants it public.
+
+
 ---
 
 ## Inputs recorded but not yet decided

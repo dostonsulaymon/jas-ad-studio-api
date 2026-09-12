@@ -188,3 +188,20 @@ Should GitHub Actions run lint, typecheck and tests on every push in both repos,
 
 **Recommendation:** Follow kitobnarx-web so you stay in familiar territory. Check in the P0 plan.
 **Answer:** Tailwind v4, the same as kitobnarx-web (D-035, 2026-09-11).
+
+### T-09 · The OpenAPI contract is nearly empty. How much of it do we fill, and when?
+Found 2026-09-12 while mounting Swagger (D-069). Measured on `openapi.json`: **15 operations, 0 component schemas, 0 request-body schemas, 0 response schemas, 13 of 15 with no summary.**
+
+The cause is not a Swagger setting. Controllers take `@Body() body: unknown` and call `briefSchema.parse(body)` by hand, and they return TypeScript interfaces. `unknown` gives @nestjs/swagger nothing to document, and interfaces are erased at runtime. **`createZodDto` is not used anywhere in the codebase** — only named in a comment — so `cleanupOpenApiDoc` has nothing to resolve.
+
+Runtime validation is unaffected and correct: zod still parses every body. This is a documentation and codegen gap, not a security one.
+
+**It makes D-031 untrue as written.** The web repo is supposed to generate its client from this file; from this document it would generate `create(body: any): Promise<any>`. And `openapi:check` has been passing over an empty document the whole time — a green light guarding nothing.
+
+- **A.** Fill it now, before P2 is committed. Every request body becomes a `createZodDto` class off the existing zod schema; every response gets a declared type; summaries and a couple of examples per route.
+- **B.** Fill it at the start of P5/P6, when session B actually needs the client.
+- **C.** Leave it; treat `openapi.json` as a route list only and drop the D-031 codegen claim.
+
+**Recommendation: A, scoped to request and response schemas only** — the DTO classes wrap zod schemas that already exist, so it is mechanical, and it is far cheaper now than after P3 and P4 add ~25 more endpoints on the same pattern. Prose summaries and examples can follow later. **C** should be rejected outright: it gives up the one mechanism keeping the two repos in step.
+
+**Answer:** A, done 2026-09-12. Response shapes became zod schemas in each module's port with the TypeScript types derived from them; `createZodDto` classes live per-module (`projects.dto.ts`, `assets.dto.ts`, `auth.dto.ts`) because R-7's boundary lint rejects a module importing from a root-level file. Result: 4 component schemas, 3 request bodies, 8 response schemas, 15 of 15 summaries.
