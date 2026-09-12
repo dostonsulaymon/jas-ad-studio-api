@@ -672,6 +672,25 @@ Doston asked whether generation could be automated — testing ten products by h
 The expensive part was never the clicking — it was comparing frames against the reference by hand, which is how the invented strap and the knit drift were caught (D-054). That part is now one command.
 
 
+### D-060 · 2026-09-12 · Format test: 2 of 3 pass, and `lifestyle-story` has a structural conflict
+
+Three Flow videos from the same car photo, one per creative format, frames compared against the reference with `pnpm p1:check`.
+
+| Video | Format | Fidelity |
+|---|---|---|
+| car1 | `product-film` or `high-energy` — **unconfirmed** | **Pass.** Gold bowtie, grille geometry, silver alloys and sedan silhouette intact. Nothing invented. |
+| car2 | `lifestyle-story` | **Fail.** A person opens the driver's door, revealing a complete interior — door card, window switches, steering wheel — that the reference never established. |
+| car3 | `ugc-authentic` | **Pass.** Wheel design matches, stays on known angles, no invented trim. |
+
+**The failure is not a prompt weakness.** The generated prompt forbade it three separate times: *"The door must remain closed to avoid revealing an invented interior"*, *"avoid cutting to details that the reference cannot support, such as interior controls… dashboard"*, and *"avoid camera paths that expose unknown rear, underside, interior"*. Flow opened the door regardless.
+
+**It is a conflict inside the format.** `lifestyle-story`'s premise is a person using the product, and for a car "using it" means opening a door. The format invites precisely the action the product lock forbids. This will recur for any product whose inside, underside or reverse is not established by a single exterior photo — a bag, a box, an appliance.
+
+**Fixable in config, not in the prompt** (D-058): either give `lifestyle-story` an explicit interaction boundary, or mark it unsuitable where the reference cannot support interaction. **Not fixed** — recorded for whoever takes it up.
+
+**Still open:** which format produced car1. If it was `high-energy`, then fast cutting cost no fidelity and D-057 is validated; if it was `product-film`, the energetic format remains untested in Flow. Doston has the answer.
+
+
 ---
 
 ## Inputs recorded but not yet decided

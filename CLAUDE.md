@@ -22,7 +22,7 @@ People: Jakhongir is the owner and client. Doston builds it, with Claude (D-003)
 
 ## Status
 
-**P0 and P1 closed (D-055).** The AI core runs end to end from the command line: a product folder in, a Flow prompt and Uzbek shot plan out. A real seller's product has been through the whole chain and produced a usable video (D-054). The model is `gpt-5.5` (D-052).
+**P0, P1 and P1b closed.** The AI core runs end to end from the command line: a product folder in, a Flow prompt and Uzbek shot plan out. Real products have been through the whole chain and produced usable videos (D-054, D-060). The model is `gpt-5.5` (D-052), and four creative formats decide each prompt's shape from config rather than from the system prompt (D-058).
 
 Still no HTTP API, no database, no accounts, no credits, no uploads — those are P2–P4. Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
 
