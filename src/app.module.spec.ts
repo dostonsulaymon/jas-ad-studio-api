@@ -16,7 +16,14 @@ function stubbedModule(module: typeof AppModule | typeof WorkerModule) {
     .overrideProvider(PG_POOL)
     .useValue({ query: vi.fn(), on: vi.fn(), end: vi.fn(), connect: vi.fn() })
     .overrideProvider(REDIS_CLIENT)
-    .useValue({ ping: vi.fn(), on: vi.fn(), quit: vi.fn() })
+    // duplicate() is what BullMQ's queue and worker ask for: each takes its own
+    // connection rather than sharing this one (see GenerationQueue).
+    .useValue({
+      ping: vi.fn(),
+      on: vi.fn(),
+      quit: vi.fn(),
+      duplicate: vi.fn(() => ({ on: vi.fn(), quit: vi.fn(), disconnect: vi.fn() })),
+    })
     .compile();
 }
 

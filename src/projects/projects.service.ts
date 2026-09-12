@@ -2,7 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { Pool } from 'pg';
 import { DomainError } from '../common/errors/app.error';
 import { PG_POOL } from '../common/db/tokens';
-import type { ProjectOwnership, ProjectSummary } from './public/projects.port';
+import { briefSchema, type Brief } from '../ai/public/brief.schema';
+import type {
+  ProjectBriefReader,
+  ProjectOwnership,
+  ProjectSummary,
+} from './public/projects.port';
 
 export class ProjectNotFoundError extends DomainError {
   readonly code = 'PROJECT_NOT_FOUND';
@@ -33,13 +38,27 @@ interface ProjectDbRow {
   created_at: Date;
 }
 
+interface BriefDbRow {
+  name: string;
+  description: string;
+  goal: string;
+  format_id: string;
+  platform: string;
+  aspect_ratio: string;
+  duration_seconds: number;
+  audience: string | null;
+  offer: unknown;
+  confirmed_claims: unknown;
+  gallery_inspiration_id: string | null;
+}
+
 /** Postgres raises this when a uuid cannot be parsed. */
 const INVALID_TEXT_REPRESENTATION = '22P02';
 
 const RETURNED_COLUMNS = 'id, name, format_id, duration_seconds, aspect_ratio, created_at';
 
 @Injectable()
-export class ProjectsService implements ProjectOwnership {
+export class ProjectsService implements ProjectOwnership, ProjectBriefReader {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async create(userId: string, input: ProjectInput): Promise<ProjectSummary> {
@@ -119,6 +138,38 @@ export class ProjectsService implements ProjectOwnership {
 
     if (!rows[0]) throw new ProjectNotFoundError('No live project with that id for this user');
     return toSummary(rows[0]);
+  }
+
+  /**
+   * The whole brief, for the worker. Every field the wizard collected, read back through
+   * briefSchema so a row written by an older brief version cannot reach the model as a
+   * shape it does not expect.
+   */
+  async readBrief(userId: string, projectId: string): Promise<Brief> {
+    const { rows } = await this.pool.query<BriefDbRow>(
+      `SELECT name, description, goal, format_id, platform, aspect_ratio, duration_seconds,
+              audience, offer, confirmed_claims, gallery_inspiration_id
+         FROM projects
+        WHERE id = $2 AND user_id = $1 AND deleted_at IS NULL`,
+      [userId, projectId],
+    );
+
+    const row = rows[0];
+    if (!row) throw new ProjectNotFoundError('No project with that id for this user');
+
+    return briefSchema.parse({
+      productName: row.name,
+      description: row.description,
+      goal: row.goal,
+      formatId: row.format_id,
+      platform: row.platform,
+      aspectRatio: row.aspect_ratio,
+      durationSeconds: row.duration_seconds,
+      audience: row.audience,
+      offer: row.offer,
+      confirmedClaims: row.confirmed_claims,
+      galleryInspirationId: row.gallery_inspiration_id,
+    });
   }
 
   async softDelete(userId: string, projectId: string): Promise<void> {

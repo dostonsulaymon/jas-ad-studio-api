@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+import { AiModule } from './ai/ai.module';
 import { AssetsModule } from './assets/assets.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from './common/config/config.module';
 import { CreditsModule } from './credits/credits.module';
+import { GenerationModule } from './generation/generation.module';
 import { DatabaseModule } from './common/db/database.module';
 import { ApiErrorFilter } from './common/filters/api-error.filter';
 import { LoggerModule } from './common/logger/logger.module';
@@ -28,6 +30,8 @@ import { CsrfGuard } from './auth/csrf.guard';
     OwnerModule,
     ProjectsModule,
     AssetsModule,
+    AiModule,
+    GenerationModule,
   ],
   providers: [
     { provide: APP_FILTER, useClass: ApiErrorFilter },

@@ -3,6 +3,7 @@
  * ownership before touching a file.
  */
 import { z } from 'zod';
+import type { Brief } from '../../ai/public/brief.schema';
 
 /**
  * The TypeScript type is derived from the schema rather than written beside it, so the
@@ -30,4 +31,19 @@ export const PROJECT_OWNERSHIP = Symbol('PROJECT_OWNERSHIP');
 export interface ProjectOwnership {
   /** Resolves only if the project exists, is live, and belongs to this user. */
   getOwned(userId: string, projectId: string): Promise<ProjectSummary>;
+}
+
+/**
+ * P4's worker needs the WHOLE brief to call the model, not the summary a listing shows.
+ * `projects` owns the row, so R-7 puts the read here rather than letting `generation`
+ * query the table.
+ */
+export const PROJECT_BRIEF_READER = Symbol('PROJECT_BRIEF_READER');
+
+export interface ProjectBriefReader {
+  /**
+   * The brief as the seller submitted it, for a project they own. Resolves only on
+   * ownership, the same 404-not-403 rule as getOwned.
+   */
+  readBrief(userId: string, projectId: string): Promise<Brief>;
 }

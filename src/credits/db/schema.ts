@@ -12,6 +12,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { users } from '../../auth/db/schema';
+import { generations } from '../../generation/db/schema';
 
 /** D-009: three packs, 1 / 5 / 15 credits. Jakhongir sets the prices (D-072). */
 export const creditPacks = pgTable(
@@ -134,10 +135,16 @@ export const creditLedger = pgTable(
     amount: integer('amount').notNull(),
     orderId: uuid('order_id').references(() => creditOrders.id, { onDelete: 'restrict' }),
     /**
-     * No foreign key yet: `generations` does not exist until P4, whose first migration
-     * adds the constraint. Deliberate, and recorded in the plan's Known gaps.
+     * P4 paid P3's debt: the constraint exists now that `generations` does.
+     *
+     * `set null`, not restrict or cascade. A ledger row is a money record and must
+     * outlive the job it describes — but if a project is deleted and its generations
+     * cascade away, the ledger row has to survive with this column blanked rather than
+     * block the delete or vanish with it.
      */
-    generationId: uuid('generation_id'),
+    generationId: uuid('generation_id').references(() => generations.id, {
+      onDelete: 'set null',
+    }),
     note: text('note'),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },

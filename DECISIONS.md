@@ -933,6 +933,66 @@ Verified to have teeth: breaking only the support-contacts call makes the suite 
 Because the list comes from the generated contract rather than a hand-kept array, **a route added to the API without a test that exercises it now fails the build.** Every future phase inherits that.
 
 
+### D-078 · 2026-09-12 · P4 answers: real key in dev, needs_input cached and capped, a real worker in the tests
+
+Asked of Doston before the P4 plan was written.
+
+1. **Real OpenAI key in dev, fake provider in the suite.** `DAILY_AI_SPEND_LIMIT_USD` defaults to **2**, deliberately low — it is the number standing between a bug and a bill. Spec §11 forbids live AI calls in CI, and a recorded response could not be made to arrive *after its own lease expired*, which is exactly what the late-success race needs. So the fake is scripted (`ready`, `needs_input`, `refused`, `malformed`, `repair-then-ready`, `error`, `hang`), not replayed.
+2. **needs_input stays free, but cached and capped** (source 01 §29). Keyed on the user id plus the sorted asset hashes, so photo order does not change the key and two sellers with the same stock photo never share a row. `NEEDS_INPUT_PER_PROJECT_PER_DAY` counts **misses**, never hits — counting hits would lock a seller out of reading the questions they are meant to answer.
+3. **The real BullMQ worker runs in-process in the tests, against the real dev Redis.** The only way to test "a late success cannot race a refund".
+
+### D-079 · 2026-09-12 · Two unique indexes on one row make 23505 ambiguous
+
+Found by a flaky test, 1 run in 4, and worth recording because the wrong fix is easy.
+
+`generations` carries two unique indexes and **one row can violate both**: `generations_user_key` means "this is a duplicate click, reuse the job and charge nothing" (§32), while `generations_one_active_per_user` means "a different job is already running, answer 409". `INSERT … ON CONFLICT (user_id, idempotency_key) DO NOTHING` only names the first as its arbiter, so a row breaking both raises `23505` from whichever index Postgres happened to check — and five simultaneous duplicate clicks got 409 about a quarter of the time.
+
+**The answer comes from the data, not from the error.** On a unique violation the service re-reads by key: a row for that key means it was a duplicate click; no row means a genuinely different job is in flight. The lookup runs on the pool, because the aborted transaction can no longer be queried.
+
+**Also: the INSERT comes before the reserve.** A check-then-insert would have all five clicks reserve a credit before the index refused four of them. Letting the database resolve the key first means only the request that actually created the row goes on to spend anything.
+
+### D-080 · 2026-09-12 · A Nest provider must not open a socket in its constructor
+
+`pnpm openapi:generate` hung for ever once `GenerationModule` was registered, and the cause was two mistakes compounding.
+
+**First,** the BullMQ queue built its `Queue` — and a Redis connection — in its constructor. `openapi:generate` boots the whole app purely to read its routes, and every module-wiring test compiles it against stubs; neither has any business connecting to Redis. The queue is now built on first use.
+
+**Second,** it shared the `REDIS_CLIENT` connection. `app.close()` runs every module's shutdown hook in an order nobody controls, and when `RedisModule` quit the shared client first, `queue.close()` waited for ever on a dead socket. The queue and the worker each `duplicate()` the shared client now and close their own, queue first, socket second.
+
+The lesson generalises past BullMQ: **constructing a provider should have no side effects**, because two things in this repo boot the whole application for reasons unrelated to serving traffic.
+
+### D-081 · 2026-09-12 · The ai module gets a port and a Nest module (R-7)
+
+P1 built `generateAdPackage` as a library for the CLI, so it lived in `ai/generate.ts` with no port and no module — fine while only a script called it. P4's worker is its first caller in another module, and the boundary lint correctly refused the direct import.
+
+So `ai/public/generator.port.ts` publishes `AD_GENERATOR`, the outcome types and `LAUNCH_TARGET_ID`, and `AiModule` provides it. **The target is named by id, not passed in**: resolving it is the ai module's business and the worker has no reason to know what a video target is. `LAUNCH_TARGET_ID` is single-sourced — `targets.ts` imports it rather than repeating the string, because two copies would drift apart silently.
+
+Two other ports grew for the same reason: `PROJECT_BRIEF_READER` (the worker needs the whole brief, not the summary a listing shows) and `MODEL_INPUT_READER` on the assets port (the worker needs the 1024 px copies, and `assets` owns both the rows and the files). `AssetsModule` became `@Global()` to match how `AuthModule` and `ProjectsModule` already publish their ports.
+
+
+### D-082 · 2026-09-12 · A real generation costs 4x what the pricing assumed — **for Jakhongir**
+
+Measured by the P4 hand-walk: one real `gpt-5.5` generation of a real product (the wet wipes from the P1 trial set), end to end through the queue.
+
+| | |
+|---|---|
+| input tokens | 3,370 |
+| output tokens | 5,139 |
+| **recorded cost** | **$0.3589 ≈ 4,414 som** |
+| Q-02's estimate | 1,100 som ($0.089) |
+| | **4.0x the assumption** |
+| wall clock | ~60 seconds |
+
+The result itself was good: a 2,251-word English prompt, three contiguous shots covering 0–10s, the target echoed correctly, four fidelity constraints, and properly normalised Uzbek. **The cost is the price of that depth, not a bug** — D-045 and D-048 chose deep prompts with mandatory sections deliberately, and 5,139 output tokens is what that costs.
+
+**Two things follow, and both are Doston's or Jakhongir's call, not ours:**
+
+1. **The pack prices need revisiting before launch.** D-072's placeholder of 9,000 som for one credit leaves a 51% margin at this cost, not the ~87% the 1,100 som figure implied. The 15-credit pack at 105,000 som would leave **34%**. Q-02 recorded the 1,100 som estimate as the basis for pricing; that basis is wrong by 4x and Jakhongir is setting real prices against it.
+2. **`DAILY_AI_SPEND_LIMIT_USD` defaults to 2, which buys five generations a day for the entire app.** Fine as a guard against a runaway bug, useless for a 10–15 seller pilot (D-024). It needs raising before P8, and the number is a spend decision, so it is not being changed here.
+
+Not yet known: whether a cheaper model, or a shorter prompt for the simpler formats, would hold the quality D-055 closed P1 on. Worth measuring before repricing — but that is a P1-style experiment, not a P4 task.
+
+
 ---
 
 ## Inputs recorded but not yet decided
