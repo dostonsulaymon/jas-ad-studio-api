@@ -57,19 +57,25 @@ const FORBIDDEN_DIRECTION_PATTERNS: [RegExp, string][] = [
  * direction when nothing negates it just before.
  */
 const NEGATORS =
-  /\b(?:no|not|none|without|avoid|avoiding|never|omit|omitting|exclude|excluding|free of|absent|nor|don't|do not|does not|silent|zero)\b/i;
+  /\b(?:no|not|none|without|avoid|avoids|avoiding|avoidance|never|omit|omitting|omitted|exclude|excluding|excluded|free of|absent|nor|don't|do not|does not|must not|silent|zero|prohibit\w*|forbid\w*)\b/i;
 
-/** Far enough back to catch "no music or X" and "avoid any X", short enough to stay local. */
-const NEGATION_WINDOW = 60;
+/**
+ * Wide enough to reach the start of a labelled section such as "Avoidance: added logos,
+ * text overlays, subtitles, ..." — the negator there is the section label, which sits far
+ * from the term it governs. Bounded by the line and sentence so a genuine direction in
+ * the next sentence is still caught.
+ */
+const NEGATION_WINDOW = 240;
 
 function isNegated(text: string, matchIndex: number): boolean {
-  const sentenceStart = Math.max(
+  const start = Math.max(
     text.lastIndexOf('.', matchIndex - 1) + 1,
+    text.lastIndexOf('\n', matchIndex - 1) + 1,
     matchIndex - NEGATION_WINDOW,
     0,
   );
 
-  return NEGATORS.test(text.slice(sentenceStart, matchIndex));
+  return NEGATORS.test(text.slice(start, matchIndex));
 }
 
 /** Timeline arithmetic runs on floats, so comparisons need a tolerance. */

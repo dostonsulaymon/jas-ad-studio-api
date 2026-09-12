@@ -229,6 +229,20 @@ describe('the assembled system prompt', () => {
 describe('the targetId echo instruction', () => {
   it('tells the model to echo the exact target id', () => {
     // Both live smoke runs returned "instagram-story" and needed a repair call.
-    expect(buildTargetBlock(target, brief)).toContain('Echo this exact targetId');
+    expect(buildTargetBlock(target, brief)).toContain('Echo that targetId verbatim');
+  });
+
+  it('states the id alone on its line, with the version kept off it', () => {
+    // When the version was appended to the id line, the model echoed
+    // "flow-veo-3.1 (config version 4)" as the targetId and failed the capability check.
+    const line = buildTargetBlock(target, brief)
+      .split('\n')
+      .find((l) => l.startsWith('targetId:'));
+
+    expect(line).toBe(`targetId: ${target.id}`);
+  });
+
+  it('marks the config version as not for echoing', () => {
+    expect(buildTargetBlock(target, brief)).toContain('do not echo');
   });
 });

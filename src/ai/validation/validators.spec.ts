@@ -273,6 +273,24 @@ describe('content', () => {
     );
   });
 
+  it('accepts a long Avoidance list, where the negator is the section label', () => {
+    // The generated prompts carry an "Avoidance:" section listing forbidden things. The
+    // label governs the whole list, so terms late in it are still negated.
+    const avoidance =
+      'Avoidance: added logos, brand marks, invented stitching, colour shifts, ' +
+      'decorative panels, metallic hardware, text overlays, subtitles, burned-in text.';
+
+    expect(codes(resultWith({ promptEn: `${englishPrompt}\n${avoidance}` }))).not.toContain(
+      'PROMPT_FORBIDDEN_DIRECTION',
+    );
+  });
+
+  it('still catches a direction on the line after a negated list', () => {
+    const prompt = `${englishPrompt}\nAvoidance: logos, text overlays.\nAudio: a warm voiceover reads the tagline.`;
+
+    expect(codes(resultWith({ promptEn: prompt }))).toContain('PROMPT_FORBIDDEN_DIRECTION');
+  });
+
   it('still rejects the feature when it is genuinely being directed', () => {
     const sentence = 'A warm voiceover reads the tagline while music swells.';
 

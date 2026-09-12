@@ -29,10 +29,13 @@ export function buildTargetBlock(target: VideoTarget, brief: Brief): string {
 
   return [
     'TARGET',
-    `Generator target: ${target.id} (config version ${String(target.version)}).`,
-    // Both live smoke runs returned an invented targetId ("instagram-story") and had to
-    // be repaired. The block named the target but never said to echo it back.
-    `Echo this exact targetId in the target field. Do not substitute a platform, a format name, or any other identifier.`,
+    // The id is stated alone. When the version was appended here, the model dutifully
+    // echoed "flow-veo-3.1 (config version 4)" as the targetId and failed the capability
+    // check — the instruction below says echo exactly, so the line must carry exactly
+    // what should come back.
+    `targetId: ${target.id}`,
+    `Echo that targetId verbatim in the target field: the id alone, nothing appended. Do not substitute a platform or format name.`,
+    `Target config version (for our records, do not echo): ${String(target.version)}.`,
     `Clip duration: ${String(brief.durationSeconds)} seconds.`,
     `Aspect ratio: ${brief.aspectRatio}.`,
     `Reference mode: ${target.referenceMode}; up to ${String(target.referenceImages.max)} reference images.`,

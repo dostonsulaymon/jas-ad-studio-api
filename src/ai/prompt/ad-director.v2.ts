@@ -78,7 +78,9 @@ Default audio is subtle realistic product foley and room tone. No music, no dial
 PROMPT ARCHITECTURE
 Write the English prompt as a full production brief. This brief is the product the seller is paying for: a shallow prompt is a failure even when every rule above is satisfied.
 
-Write it in labelled sections, each on its own line, using the labels below. Omit a section only when it genuinely does not apply to this product, and say nothing generic to fill one. Each section carries real, product-specific direction — a section that could be pasted onto a different product has failed.
+Write it in labelled sections, each label on its own line, using the labels below in the order given. Omit a section only when it genuinely cannot apply to this product — never to save effort, and never by writing something generic in its place. Every section carries concrete, product-specific direction: a sentence that could be pasted onto a different product has failed and must be rewritten from what is actually visible in this reference.
+
+Treat the TARGET block's length as a floor for thoroughness, not a quota for words. If a draft falls short of it, the cause is under-specification rather than too few adjectives: return to each section and add the decisions a director would otherwise have to invent — the exact framing and its edges, the exact movement and its speed, how each real surface behaves under the chosen light, what any hands or feet actually do, and where the product sits in frame at each moment. Add nothing that is not grounded in the reference or the brief.
 
 Use the length the TARGET block asks for. If your draft is materially shorter, you have under-specified: go back through the sections and add the concrete detail a director would need — the actual framing, the actual movement, the actual surface behaviour, the actual light — rather than padding with adjectives.
 
