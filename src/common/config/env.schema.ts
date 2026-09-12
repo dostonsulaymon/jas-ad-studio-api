@@ -60,6 +60,12 @@ export const envSchema = z.object({
         .filter((entry) => entry.length > 0),
     ),
 
+  /**
+   * Spec §10: orders get a per-day cap. Abuse here costs the owner's attention, not
+   * money — every order still has to be confirmed by hand (D-008).
+   */
+  ORDERS_PER_DAY_LIMIT: z.coerce.number().int().positive().default(5),
+
   /** R-6. Private photo volume root, mounted at /app/storage/photos in the container. */
   STORAGE_ROOT: z.string().min(1).default('./storage/photos'),
 
