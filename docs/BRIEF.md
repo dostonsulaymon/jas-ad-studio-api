@@ -88,6 +88,7 @@ Project history: reopen, copy, export and edit for free. A new AI version costs 
 | C-3 | One camera move per beat, no stacked whip pans or crash zooms | "High-energy mode" allows whip transitions and speed ramps | Resolved, D-012: high-energy moves allowed per target and style |
 | C-4 | — | ~~1,000 words ≈ 1,300 tokens, above Veo 3.1's 1,024-token text limit~~ | **Void (D-046).** The limit was read off a model page and never tested. Doston has run 2,000–4,000 word prompts through the real generator with no truncation. Source 02's depth requirement stands unopposed. |
 | C-5 | Suggests Next.js full-stack, Supabase, OpenAI SDK | — | Resolved by D-001 and D-002 |
+| **C-6** | "One dominant camera move per beat"; "do not stack whip pans, barrel rolls, crash zooms" — stated as unconditional rules (§25) | HIGH-ENERGY COMMERCIAL MODE explicitly allows whip transitions, crash zooms, speed ramps | **Open (D-056).** §25's rules win because they are phrased as prohibitions and source 02's as permissions, so `energetic-social` produces almost the same prompt as `premium-cinematic`. Found when ten real videos all came out in one format. |
 
 ## Costs (analysis 2026-09-11, estimates, not measured)
 

@@ -593,6 +593,25 @@ That is a legitimate call — the evidence is a real seller's product going thro
 **Total live AI spend across the whole phase: roughly $2.**
 
 
+### D-056 · 2026-09-12 · Every prompt comes out the same shape — the cause, and what is missing
+
+Doston generated ten videos from ten prompts across five product categories: *"videos are good… but all of them in one format. There is one structure and it's following one structure."*
+
+Measured: **8 of 9 generated prompts carry the identical 17 sections in the identical order.** Two separate causes, and only one of them was intended.
+
+**1. The fixed order is mine.** D-048 made the seventeen sections mandatory *in a fixed sequence* to force depth after the prompts came out too short. It worked — 342 words became 1,650 — and it flattened every prompt into the same skeleton. The trade was never stated at the time; it should have been.
+
+**2. The action mode almost never fires.** High-energy camera work is gated on `style: energetic-social`. None of the ten used it, so every prompt received *"High-energy camera treatment: not permitted."* Tested directly by regenerating the car as `energetic-social`: the block flipped to permitted, and the prompt changed only marginally — beats moved from 0–2.5/2.5–5.5/5.5–8 to 0–2/2–5/5–8, and the wording gained "quick enough for social energy".
+
+**The deeper reason it barely moved:** source 01 §25 states *"use one dominant camera move per beat"* and *"do not stack whip pans, barrel rolls, crash zooms and multiple orbits"* as unconditional rules, while source 02's HIGH-ENERGY COMMERCIAL MODE explicitly allows whip transitions, crash zooms and speed ramps. §25's conservatism dominates because it is phrased as a rule and source 02's as a permission. **This is a fourth source conflict, alongside C-1 to C-3, and it was never recorded.** Call it **C-6**.
+
+**What exists today:** five styles in `brief.schema.ts` (`clean-studio`, `lifestyle`, `ugc`, `premium-cinematic`, `energetic-social`), and source 01 §9's step-2 picker with an automatic default.
+
+**What does not exist:** any concept of a *creative format* — a different prompt shape, not just a different adjective. The reference prompt Doston supplied is one of these: fast-paced, 0.3–1.5 second shots, whip pans and crash zooms, product assembling and launching toward camera. Nothing in the current design can produce that, because the seventeen-section skeleton and §25's camera rules apply to every generation regardless of style.
+
+**Not built now.** P1 is closed (D-055) and Doston asked for no more code. Recorded as the open design question for a later phase.
+
+
 ---
 
 ## Inputs recorded but not yet decided

@@ -24,3 +24,6 @@ tmp/
 
 # P1 run reports: they contain the full brief and the full generated prompt.
 out/
+
+# One-off product trials. Not the committed §49 safety fixtures, which live in fixtures/.
+trial/
