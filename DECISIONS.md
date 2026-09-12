@@ -508,6 +508,36 @@ Doston: "it is causing distraction and confusion."
 The precedence list in `CLAUDE.md` now has four entries instead of five, and says where to find v1 if a provenance question ever needs it.
 
 
+### D-050 · 2026-09-12 · The target is Google Flow itself; the seller picks model, length and ratio inside it
+
+Doston: "all of them will be selected on [Flow] itself… we will pick the ratio, and we will select the time and the model."
+
+The config described a generator with fixed capabilities. Flow is not that — it is a tool in which the seller chooses the model (Veo, Omni, whatever comes next), the clip length and the aspect ratio. There is no capability set for us to hold a result to.
+
+**Changed:**
+- The target id is `google-flow`, not `flow-veo-3.1`. Config version 5, no longer provisional.
+- `durations`, `aspectRatios` and `referenceMode` are **removed**. They were describing limits the tool does not have, and two validators enforced them — they would have rejected good output the moment Flow offered something the config did not list.
+- `referenceImages` became `maxReferenceImages`: how many photos *we* send is our decision, not the generator's.
+- Duration and aspect ratio still reach the prompt, because the sequence is timed and the hero ending is framed — but from the **seller's brief**, stated as "the seller will generate at 8 seconds, 9:16. Build the sequence and framing for exactly that."
+- The capability validators narrowed accordingly: `DURATION_UNSUPPORTED` and `ASPECT_RATIO_UNSUPPORTED` are gone; `DURATION_RENEGOTIATED` and `ASPECT_RATIO_RENEGOTIATED` stay, because a prompt timed to 10 seconds when the seller chose 8 is still broken whatever the tool can do.
+
+**Retires D-013**, which named Veo 3.1 as the launch target and made its mode, durations and aspect ratios something Jakhongir had to confirm. There is nothing left for him to confirm there.
+
+### D-051 · 2026-09-12 · `gpt-4.1` fails a §49 safety case that the gpt-5 models pass
+
+Re-recording the fixtures against `gpt-4.1` surfaced a behaviour difference that word counts never would.
+
+On `conflicting-variants` — a blue bottle and a red bottle of the same product — `gpt-4.1` returned **`ready`**. It noticed the conflict, recording *"Ikki xil rangli butilka varianti bor"*, and then chose one anyway: *"Qizil butilka varianti asos qilib olindi."*
+
+Source 01 §25 is explicit: **"Do not spend a successful generation inventing a compromise."** `gpt-5.5` and `gpt-5.4-mini` both return `needs_input` here and ask which variant is being sold.
+
+This is a **model-selection criterion, not a bug to fix in the prompt.** The instruction is already unambiguous; the smaller model does not act on it. Under D-029 the pick weighs prompt quality first, and refusing to guess about a seller's product is part of quality — a wrong-variant video wastes a credit and the seller's trust.
+
+The fixture test records which behaviour the recording shows rather than asserting one, so the suite reports the difference instead of failing when the model changes.
+
+**Also fixed:** the injection-fixture test flagged the phrase "product lock" as a leaked system prompt. `Product lock:` became a required section heading of every generated prompt when the architecture was made mandatory, so the test was reporting compliance as a leak. It now checks for phrases that appear only in the instructions.
+
+
 ---
 
 ## Inputs recorded but not yet decided

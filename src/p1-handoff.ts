@@ -40,7 +40,7 @@ async function main(): Promise<void> {
   const sections: string[] = [];
 
   for (const product of products) {
-    const { brief, images } = await loadProductFolder(product, base.referenceImages.max);
+    const { brief, images } = await loadProductFolder(product, base.maxReferenceImages);
     sections.push(`\n---\n\n# ${brief.productName}\n\n\`${product}\` · ${brief.aspectRatio} · ${String(brief.durationSeconds)}s`);
 
     for (const words of LENGTHS) {

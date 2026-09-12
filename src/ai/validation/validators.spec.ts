@@ -38,7 +38,7 @@ function resultWith(overrides: Partial<GenerationResult> = {}): GenerationResult
       hookUz: 'Bug‘ ko‘tariladi',
       ctaUz: 'Buyurtma bering',
     },
-    target: { targetId: 'flow-veo-3.1', durationSeconds: 8, aspectRatio: '9:16' },
+    target: { targetId: 'google-flow', durationSeconds: 8, aspectRatio: '9:16' },
     shots: [
       { startSeconds: 0, endSeconds: 4, descriptionUz: 'Termos aylanadi.', cameraUz: 'Push-in' },
       { startSeconds: 4, endSeconds: 8, descriptionUz: 'Qopqoq ochiladi.', cameraUz: 'Makro' },
@@ -108,17 +108,17 @@ describe('ready/needs_input/refused shape', () => {
 });
 
 describe('target and capability (source 01 §50)', () => {
-  it('rejects a model that renegotiated the duration', () => {
+  it('rejects a model that built for a duration the seller did not ask for', () => {
     const result = resultWith({
-      target: { targetId: 'flow-veo-3.1', durationSeconds: 10, aspectRatio: '9:16' },
+      target: { targetId: 'google-flow', durationSeconds: 10, aspectRatio: '9:16' },
     });
 
-    expect(codes(result)).toContain('DURATION_UNSUPPORTED');
+    expect(codes(result)).toContain('DURATION_RENEGOTIATED');
   });
 
   it('rejects a model that swapped the aspect ratio for a supported but unrequested one', () => {
     const result = resultWith({
-      target: { targetId: 'flow-veo-3.1', durationSeconds: 8, aspectRatio: '16:9' },
+      target: { targetId: 'google-flow', durationSeconds: 8, aspectRatio: '16:9' },
     });
 
     expect(codes(result)).toContain('ASPECT_RATIO_RENEGOTIATED');

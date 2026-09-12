@@ -14,10 +14,7 @@ const valid = {
   maxChars: 4500,
   recommendedWords: 500,
   beats: { default: 3, max: 4 },
-  durations: [8],
-  aspectRatios: ['9:16'],
-  referenceImages: { supported: true, max: 4 },
-  referenceMode: 'frames-to-video',
+  maxReferenceImages: 4,
   highEnergyCameraAllowed: true,
 };
 
@@ -41,16 +38,11 @@ describe('videoTargetSchema', () => {
     expect(JSON.stringify(result.error?.issues)).toContain('beats.default must not exceed');
   });
 
-  it('rejects empty durations', () => {
-    expect(parse({ durations: [] }).success).toBe(false);
-  });
+  it('has no duration or aspect-ratio list, since the seller picks those in Flow (D-050)', () => {
+    const target = findTarget(DEFAULT_TARGET_ID);
 
-  it('rejects empty aspectRatios', () => {
-    expect(parse({ aspectRatios: [] }).success).toBe(false);
-  });
-
-  it('rejects an unsupported aspect ratio', () => {
-    expect(parse({ aspectRatios: ['4:3'] }).success).toBe(false);
+    expect(target).not.toHaveProperty('durations');
+    expect(target).not.toHaveProperty('aspectRatios');
   });
 
   it('rejects a missing version', () => {
@@ -64,8 +56,8 @@ describe('videoTargetSchema', () => {
     expect(parse({ checkedAt: '11/09/2026' }).success).toBe(false);
   });
 
-  it('rejects a target claiming reference support but accepting zero images', () => {
-    expect(parse({ referenceImages: { supported: true, max: 0 } }).success).toBe(false);
+  it('rejects a target that would send no photos', () => {
+    expect(parse({ maxReferenceImages: 0 }).success).toBe(false);
   });
 });
 
@@ -74,22 +66,17 @@ describe('the shipped registry', () => {
     expect(listTargets()).toHaveLength(1);
   });
 
-  it('finds the launch target (D-013)', () => {
+  it('finds the launch target, which is Flow itself rather than a model in it (D-050)', () => {
     const target = findTarget(DEFAULT_TARGET_ID);
 
-    expect(target?.id).toBe('flow-veo-3.1');
+    expect(target?.id).toBe('google-flow');
     expect(target?.maxPromptTokens).toBe(6000);
-    expect(target?.durations).toContain(8);
   });
 
   it('returns undefined for an unknown target rather than a default', () => {
-    expect(findTarget('flow-veo-9')).toBeUndefined();
+    expect(findTarget('flow-veo-3.1')).toBeUndefined();
   });
 
-  it('still marks the launch target provisional until Jakhongir confirms it in Flow', () => {
-    // Fails deliberately once Part 0 lands, as the reminder to re-read this test.
-    expect(findTarget(DEFAULT_TARGET_ID)?.provisional).toBe(true);
-  });
 });
 
 describe('token estimation', () => {

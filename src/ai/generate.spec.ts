@@ -51,7 +51,7 @@ function goodResult(overrides: Partial<GenerationResult> = {}): GenerationResult
       hookUz: 'Bug‘',
       ctaUz: 'Buyurtma bering',
     },
-    target: { targetId: 'flow-veo-3.1', durationSeconds: 8, aspectRatio: '9:16' },
+    target: { targetId: 'google-flow', durationSeconds: 8, aspectRatio: '9:16' },
     shots: [{ startSeconds: 0, endSeconds: 8, descriptionUz: 'Aylanadi.', cameraUz: 'Push-in' }],
     promptEn: englishPrompt,
     assumptionsUz: [],

@@ -1,51 +1,60 @@
 {
   "fixture": "formal-shoe-one-side",
-  "model": "gpt-4.1-mini",
+  "model": "gpt-4.1",
   "promptVersion": "ad-director-v2",
-  "targetId": "flow-veo-3.1",
-  "targetConfigVersion": 2,
+  "targetId": "google-flow",
+  "targetConfigVersion": 5,
   "attempts": 1,
   "usage": {
-    "inputTokens": 4231,
-    "outputTokens": 376,
-    "estimatedCostUsd": 0.002294
+    "inputTokens": 4004,
+    "outputTokens": 670,
+    "estimatedCostUsd": 0.013368
   },
   "result": {
     "status": "needs_input",
     "questionsUz": [
-      "Tuflining old, yuqori va boshqa yon tomondan sifatli suratlarini ilova qila olasizmi?",
-      "Tufli toʻliq charm ekanligi va boshqa rang yoki model variantlari bormi?"
+      "Faqat bir yon tomoni koʻrsatilgani uchun, tuflining old, orqa va ustki qismlari koʻrinishi yoki tafsilotlari nomaʻlum. Tuflining ustida logotip, tikuvlar yoki boshqa alohida bezaklar mavjudmi?",
+      "Tufli juft qilib koʻrsatiladimi, yoki faqat bitta oyoq uchun reklama qilish kerakmi? Yuqoridan yoki oldindan koʻrinishini bera olasizmi?"
     ],
-    "messageUz": "Faqat bitta yon tomondan surat berilgan, tuflining boshqa burchaklaridan sifatli suratlar kerak repertuarni toʻliq yaratish uchun. Iltimos, old va yuqori koʻrinishdagi tasvirlarni ham yuboring. Shuningdek, charm materialining tasdiqlanganligiga va agar mavjud boʻlsa, rang hamda model variantlari haqida maʻlumot bering.",
+    "messageUz": "Tuflining faqat yon koʻrinishi mavjudligi sababli, old va orqa tomon, hamda ustki qismlar, logotip yoki boshqa tafsilotlarning mavjudligi nomaʻlum. Yanada aniq koʻrsatmalar uchun, old va yuqori burchaklardan ham surat yuboring yoki tafsilotlarni yozib bering.",
     "product": {
-      "category": "erkaklar tuflisi",
+      "category": "Erkaklar klassik tuflisi",
       "observedDetails": [
-        "Jigarrang rang",
-        "Klassik shakl",
-        "Charmga oʻxshash yuzasi",
-        "Faqat bitta yon tomondan surat bor"
+        "Tuflining faqat bir yon koʻrinishi bor",
+        "Jigarrang rangli",
+        "Klassik va soddalashtirilgan profil",
+        "Oyoqni toʻliq yopib turuvchi baland chiziqli konstruktsiya"
       ],
       "confirmedClaims": [],
       "unknownDetails": [
-        "Old va yuqori tomonlari koʻrinmayapti",
-        "Materialning haqiqiy charm ekanligi tasdiqlanmagan",
-        "Logotip yoki brend belgisi koʻrinmayapti"
+        "Old va orqa koʻrinish tafsilotlari nomaʻlum",
+        "Tuflining ustki qismlari va har qanday brendlash yoki tikuvlar yoʻqligi haqida maʻlumot yoʻq",
+        "Juftlikda yoki alohida koʻrsatilishi aniq emas",
+        "Ichki materiali nomaʻlum"
       ],
       "referenceConflicts": [],
       "fidelityConstraints": [
-        "Tuflining real silueti va ishlab chiqarish detallari faqat koʻrsatilgan yon tomondan olingan suratga mos boʻlishi kerak",
-        "Faqat jigarrang klassik charm tuflisining bitta yon tomoni suratidan kelib chiqib kiyim hissiyotini oʻzgarishsiz saqlash kerak"
+        "Faqat yon koʻrinishi boʻyicha ishlash",
+        "Jigarrang rang va sodda profil saqlab qolinsin",
+        "Tafsilotlar va brendlash ixtiro qilinmasin",
+        "Orqa, old va ustki qismlarda nomaʻlum tafsilotlar namoyish etilmasin"
       ]
     },
     "concept": null,
     "target": {
-      "targetId": "flow-veo-3.1",
+      "targetId": "google-flow",
       "durationSeconds": 8,
       "aspectRatio": "9:16"
     },
     "shots": [],
     "promptEn": null,
-    "assumptionsUz": [],
-    "reviewNotesUz": []
+    "assumptionsUz": [
+      "Tuflining faqat yon koʻrinishi asosida reklama qilish mumkin.",
+      "Boshqa tafsilotlar haqida aniq maʻlumot yoʻq boʻlsa, ular koʻrsatilmaydi."
+    ],
+    "reviewNotesUz": [
+      "Koʻproq rakurs yoki tafsilotlar yuborilmasa, reklama faqat yon koʻrinishda cheklangan boʻladi.",
+      "Ehtimoliy xatolik: Nomaʻlum qismlarni toʻgʻri aks ettirmaslik."
+    ]
   }
 }

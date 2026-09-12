@@ -36,9 +36,10 @@ export function buildTargetBlock(target: VideoTarget, brief: Brief): string {
     `targetId: ${target.id}`,
     `Echo that targetId verbatim in the target field: the id alone, nothing appended. Do not substitute a platform or format name.`,
     `Target config version (for our records, do not echo): ${String(target.version)}.`,
-    `Clip duration: ${String(brief.durationSeconds)} seconds.`,
-    `Aspect ratio: ${brief.aspectRatio}.`,
-    `Reference mode: ${target.referenceMode}; up to ${String(target.referenceImages.max)} reference images.`,
+    // The seller sets these in the generator themselves (D-050), so they are stated as
+    // the choices to build for rather than as limits of the tool.
+    `The seller will generate at ${String(brief.durationSeconds)} seconds, ${brief.aspectRatio}. Build the sequence and framing for exactly that.`,
+    `Reference images supplied: up to ${String(target.maxReferenceImages)}.`,
     `Beats: aim for ${String(target.beats.default)}, never more than ${String(target.beats.max)}.`,
     `English prompt length: aim for about ${String(target.recommendedWords)} words, never more than ${String(target.maxWords)}.`,
     `High-energy camera treatment: ${highEnergy}.`,

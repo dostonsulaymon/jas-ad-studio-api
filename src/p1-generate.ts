@@ -33,7 +33,7 @@ async function main(): Promise<void> {
     beats: args.beats === undefined ? base.beats : { default: args.beats, max: Math.max(base.beats.max, args.beats) },
   };
 
-  const { brief, images } = await loadProductFolder(args.product, target.referenceImages.max);
+  const { brief, images } = await loadProductFolder(args.product, target.maxReferenceImages);
   const spend = createSpendTracker(args.maxSpendUsd);
   const provider = new OpenAiAdapter({ apiKey });
 

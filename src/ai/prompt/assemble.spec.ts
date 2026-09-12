@@ -125,7 +125,7 @@ describe('the target block', () => {
     expect(block).toContain(String(target.beats.default));
     expect(block).toContain(String(target.maxWords));
     expect(block).toContain(String(target.recommendedWords));
-    expect(block).toContain(target.referenceMode);
+    expect(block).toContain(String(target.maxReferenceImages));
   });
 
   it('changes when the target changes', () => {
@@ -134,10 +134,10 @@ describe('the target block', () => {
     expect(buildTargetBlock(other, brief)).not.toBe(buildTargetBlock(target, brief));
   });
 
-  it('takes the duration and aspect ratio from the brief, not from a default', () => {
+  it('states the duration and ratio as the seller’s choices, from the brief (D-050)', () => {
     const block = buildTargetBlock(target, { ...brief, aspectRatio: '16:9' });
 
-    expect(block).toContain('16:9');
+    expect(block).toContain('The seller will generate at 8 seconds, 16:9');
   });
 
   it('permits high-energy camera work only when the seller chose an energetic style', () => {

@@ -146,9 +146,10 @@ function validateShape(result: GenerationResult): ValidationIssue[] {
 }
 
 /**
- * Source 01 §50. A model that quietly renegotiates its own duration or aspect ratio is
- * §51's "unsupported provider mode" hard failure, so the echo is compared against what
- * the server actually asked for rather than merely checked for internal consistency.
+ * Source 01 §50, narrowed by D-050. There is no capability list to check against — the
+ * seller picks the model, length and ratio in Flow — so what remains is that the model
+ * must build for what the seller actually asked for. A prompt timed to 10 seconds when
+ * the seller chose 8 is still §51's hard failure, whatever the generator can do.
  */
 function validateTarget(result: GenerationResult, context: ValidationContext): ValidationIssue[] {
   if (result.target === null) return [];
@@ -166,15 +167,7 @@ function validateTarget(result: GenerationResult, context: ValidationContext): V
     );
   }
 
-  if (!target.durations.includes(result.target.durationSeconds)) {
-    issues.push(
-      error(
-        'DURATION_UNSUPPORTED',
-        'target.durationSeconds',
-        `${target.id} supports ${target.durations.join(', ')}s, model returned ${String(result.target.durationSeconds)}s`,
-      ),
-    );
-  } else if (Math.abs(result.target.durationSeconds - requestedDurationSeconds) > EPSILON) {
+  if (Math.abs(result.target.durationSeconds - requestedDurationSeconds) > EPSILON) {
     issues.push(
       error(
         'DURATION_RENEGOTIATED',
@@ -184,15 +177,7 @@ function validateTarget(result: GenerationResult, context: ValidationContext): V
     );
   }
 
-  if (!target.aspectRatios.includes(result.target.aspectRatio)) {
-    issues.push(
-      error(
-        'ASPECT_RATIO_UNSUPPORTED',
-        'target.aspectRatio',
-        `${target.id} supports ${target.aspectRatios.join(', ')}`,
-      ),
-    );
-  } else if (result.target.aspectRatio !== requestedAspectRatio) {
+  if (result.target.aspectRatio !== requestedAspectRatio) {
     issues.push(
       error(
         'ASPECT_RATIO_RENEGOTIATED',

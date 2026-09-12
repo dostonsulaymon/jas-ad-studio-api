@@ -41,7 +41,7 @@ const validResult = {
     hookUz: 'Bug‘ ko‘tarilayotgan qopqoq',
     ctaUz: 'Buyurtma bering',
   },
-  target: { targetId: 'flow-veo-3.1', durationSeconds: 8, aspectRatio: '9:16' },
+  target: { targetId: 'google-flow', durationSeconds: 8, aspectRatio: '9:16' },
   shots: [
     { startSeconds: 0, endSeconds: 8, descriptionUz: 'Termos aylanadi.', cameraUz: 'Sekin push-in' },
   ],
@@ -127,7 +127,7 @@ describe('generationEnvelopeSchema — server-stamped provenance (source 01 §26
       promptVersion: 'ad-director-v2',
       provider: 'openai',
       model: 'test-model',
-      targetId: 'flow-veo-3.1',
+      targetId: 'google-flow',
       targetConfigVersion: 1,
       requestId: 'req_1',
       galleryInspirationId: null,

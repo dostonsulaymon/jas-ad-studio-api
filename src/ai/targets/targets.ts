@@ -11,15 +11,18 @@ import { videoTargetSchema, type VideoTarget } from './target.schema';
  * 1.221. 1.4 is that p95 plus headroom, since it is GPT's tokenizer standing in for the
  * video generator's.
  *
- * `provisional` stays true until the generator's own mode, durations, aspect ratios and
- * reference rules are confirmed from a real run (D-013).
+ * D-050: durations, aspect ratios and the reference mode are gone. The seller chooses
+ * the model, the aspect ratio and the clip length inside Flow itself, so there is no
+ * fixed capability set for us to hold them to. What stays here is what is genuinely
+ * ours: how deep a prompt to ask for, how many beats, how many photos we send, and
+ * whether the chosen style earns high-energy camera work.
  */
-const FLOW_VEO_31 = {
-  id: 'flow-veo-3.1',
-  version: 4,
-  sourceUrl: 'https://deepmind.google/models/veo/',
-  checkedAt: '2026-09-11',
-  provisional: true,
+const GOOGLE_FLOW = {
+  id: 'google-flow',
+  version: 5,
+  sourceUrl: 'https://labs.google/flow',
+  checkedAt: '2026-09-12',
+  provisional: false,
 
   maxPromptTokens: 6000,
   tokensPerWord: 1.4,
@@ -29,21 +32,18 @@ const FLOW_VEO_31 = {
 
   beats: { default: 3, max: 4 },
 
-  durations: [8],
-  aspectRatios: ['9:16', '16:9'],
-  referenceImages: { supported: true, max: 4 },
-  referenceMode: 'frames-to-video',
+  maxReferenceImages: 4,
   highEnergyCameraAllowed: true,
 } as const satisfies Record<string, unknown>;
 
 const REGISTRY: ReadonlyMap<string, VideoTarget> = new Map(
-  [FLOW_VEO_31].map((entry) => {
+  [GOOGLE_FLOW].map((entry) => {
     const target = videoTargetSchema.parse(entry);
     return [target.id, target];
   }),
 );
 
-export const DEFAULT_TARGET_ID = FLOW_VEO_31.id;
+export const DEFAULT_TARGET_ID = GOOGLE_FLOW.id;
 
 export function listTargets(): VideoTarget[] {
   return [...REGISTRY.values()];

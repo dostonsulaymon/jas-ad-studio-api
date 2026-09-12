@@ -82,7 +82,7 @@ async function main(): Promise<void> {
     for (const fixture of fixtures) {
       const { brief, images } = await loadProductFolder(
         join('fixtures', fixture),
-        target.referenceImages.max,
+        target.maxReferenceImages,
       );
 
       const outcome = await generateAdPackage(

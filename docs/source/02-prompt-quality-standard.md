@@ -43,7 +43,7 @@ The generated prompt must contain meaningful product-specific creative direction
 
 The default finished generation prompt should normally contain approximately:
 
-**500–1,000 English words**
+**1000–2,000 English words**
 
 when the selected video model can benefit from detailed instructions.
 

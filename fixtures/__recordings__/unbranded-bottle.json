@@ -1,81 +1,89 @@
 {
   "fixture": "unbranded-bottle",
-  "model": "gpt-4.1-mini",
+  "model": "gpt-4.1",
   "promptVersion": "ad-director-v2",
-  "targetId": "flow-veo-3.1",
-  "targetConfigVersion": 2,
+  "targetId": "google-flow",
+  "targetConfigVersion": 5,
   "attempts": 1,
   "usage": {
-    "inputTokens": 4236,
-    "outputTokens": 993,
-    "estimatedCostUsd": 0.0032832
+    "inputTokens": 4009,
+    "outputTokens": 2128,
+    "estimatedCostUsd": 0.025042000000000002
   },
   "result": {
     "status": "ready",
     "questionsUz": [],
     "messageUz": null,
     "product": {
-      "category": "termos",
+      "category": "Termos",
       "observedDetails": [
-        "kulgani kulrang termos",
-        "poʻlat korpus",
-        "burama qopqoq",
-        "yorliq va logotip yoʻq"
+        "Oddiy, minimalist siluet",
+        "Tashqi koʻrinishi kulrang",
+        "Hech qanday yorliq yoki logotip yoʻq",
+        "Yupqa, uzun shakl",
+        "Tekis, silindrsimon korpus",
+        "Burama qopqoq koʻrinadi",
+        "Bir tekis, mat silliq yuzali",
+        "Barcha koʻrinadigan joylari bir xil kulrang rangda"
       ],
       "confirmedClaims": [],
       "unknownDetails": [
-        "termosning hajmi",
-        "ichki konstruktsiyasi",
-        "issiqni ushlab turish darajasi"
+        "Ichki koʻrinishi nomaʻlum",
+        "Haqiqiy material tarkibi tasdiqlanmagan (faqat poʻlatga oʻxshash koʻrinishda)",
+        "Hajmi va sigʻimi nomaʻlum",
+        "Issiqlikni qancha vaqt ushlab turishi nomaʻlum"
       ],
       "referenceConflicts": [],
       "fidelityConstraints": [
-        "Kulrang rang, poʻlat korpus va burama qopqoq saqlanishi kerak",
-        "Yorliq va logotip yoʻqligi taʻminlanadi",
-        "Oddiy dizayn oʻzgartirilmasin"
+        "Termos silueti, proporsiyalari va rellefini aniq saqlash kerak",
+        "Kulrang, minimalistik, silliq yuzalar oʻzgartirilmasligi zarur",
+        "Hech qanday logo yoki yorliq qoʻshilmaydi",
+        "Faqat koʻrsatilgan oldbosh koʻrinishdan chiqilmaydi; boshqa tomoni nomaʻlum",
+        "Burama qopqoq joylashuvi, shakli va korpusdan farqi aniq koʻrsatilgan holda saqlansin"
       ]
     },
     "concept": {
-      "titleUz": "Oddiy, samarali kulrang termos",
-      "rationaleUz": "Oddiy koʻrinishdagi kulrang poʻlat termosning toza studiya sharoitida aniq koʻrsatilishi, ofis va talabalar uchun qulayligi va oddiyligi orqali sotuvni ragʻbatlantirish.",
+      "titleUz": "Ofis va talaba hayotingiz uchun ishonchli termos",
+      "rationaleUz": "Ushbu termos oddiy, zamonaviy dizayni va silliq kulrang yuzasi bilan ofis va talaba turmush tarziga mos keladi. Yorliq va logotip boʻlmagani uchun minimalist va universal koʻrinishda, har qanday muhitga moslashadi.",
       "style": "clean-studio",
-      "hookUz": "Soddalik va mustahkamlik – oddiy kulrang poʻlat termos studiyada namoyish etiladi.",
-      "ctaUz": "Ishi va oʻqishingizda ishonchli doʻstingiz – hoziroq oling!"
+      "hookUz": "Oddiy, zamonaviy termos — bu siz uchun ishonchli hamroh.",
+      "ctaUz": "Bugun tanlang!"
     },
     "target": {
-      "targetId": "flow-veo-3.1",
+      "targetId": "google-flow",
       "durationSeconds": 8,
       "aspectRatio": "9:16"
     },
     "shots": [
       {
         "startSeconds": 0,
-        "endSeconds": 3,
-        "descriptionUz": "Teremosni toʻliq koʻrinishda studio yoritilgan fon oldida vertikal joylashtirib, asta sekin oldindan yon tomonga kamerani surish.",
-        "cameraUz": "sekin surish, yon tomonga traking"
+        "endSeconds": 2.5,
+        "descriptionUz": "Toza oq fonda, termos butun silueti bilan markazda turgan yirik planda paydo boʻladi. Yorugʻlik yuzaning silliqligini va kulrang rangini taʻkidlaydi.",
+        "cameraUz": "Barqaror, statik kamera, butun termos diqqat markazida. Kamera ozgina yuqoridan pastga qaragan burchakda, eng yaxshi proporsiyalarni koʻrsatish uchun."
       },
       {
-        "startSeconds": 3,
-        "endSeconds": 6,
-        "descriptionUz": "Burama qopqoqni yaqinlamasdan koʻrsatish, uni qoʻl bilan ochishga tayyorlash, soʻngra qopqoqni koʻrsatmasdan termosning korpusini fokusda saqlash.",
-        "cameraUz": "sekin zoom-in va barqaror fokus"
+        "startSeconds": 2.5,
+        "endSeconds": 5.5,
+        "descriptionUz": "Qoʻl ehtiyotlik bilan termosni ushlab oladi va burama qopqoqni ochadi. Qopqoq aniq va silliq harakatda ochiladi.",
+        "cameraUz": "Statik kamera, termos markazda qoladi. Qoʻl harakati, qopqoq burilishini toʻliq koʻrsatadigan mahkam zoom."
       },
       {
-        "startSeconds": 6,
+        "startSeconds": 5.5,
         "endSeconds": 8,
-        "descriptionUz": "Teremosni studiyada markazda biroz tepasidan pas tomonga tiniq yoritilgan holda, uning poʻlat yuzasi va kulrang rangi koʻzga tashlanadigan tarzda yakuniy kadr.",
-        "cameraUz": "barqaror kadr, biroz yuqoridan"
+        "descriptionUz": "Qopqoq ochilgach, termos yana markazda turadi. Yorugʻlik termos silliq va mat yuzasiga tushadi, uning zamonaviy va minimalist koʻrinishini taʻkidlaydi.",
+        "cameraUz": "Barqaror kamera, yumshoq push-in (yaqinlashtirish), faqat termosga eʻtibor qaratiladi."
       }
     ],
-    "promptEn": "Use the provided single visual reference of a simple grey steel thermos with a screw cap as the sole visual authority. The thermos has no labels or logos and features a uniform grey steel cylindrical body with a slightly wider, darker grey screw cap. Preserve the visible silhouette, the consistent grey color, the steel material appearance, and the screw cap design without any addition or alteration. The advertisement concept focuses on showcasing the sturdiness and simplicity of the thermos in a clean studio environment, appealing to office workers and students. The tone is clear and minimalistic without distractions. The video opens with a slow side tracking shot revealing the full front and side of the thermos against a plain, well-lit background. The product is vertically framed, emphasizing its slender cylindrical shape. The second shot shows a close-up of the thermos cap area suggesting use by a hand, but without showing the hand or opening action in detail, maintaining focus on the product surface and design. The final shot is a steady, slightly elevated angle that highlights the steel texture and smooth grey color, with soft white lighting to reveal material quality without harsh reflections. No labels or logos appear at any time. The sequence uses smooth transitions with gentle cuts to keep product clarity. Natural product positioning and gravity are observed with no unnatural movements. The audio is subtle ambient studio sounds and soft product foley, with no music or voice. The ending frame is stable, centered, and focused on the thermos alone, ready to impress the Instagram audience. Rendering quality aims for crisp material and color fidelity. Avoid any additions of branding, pattern, or color changes, and do not show any labels or interiors or non-visible parts.",
+    "promptEn": "Product reference and source of truth: The supplied visual reference image is the sole authority for this product's visual identity. All directions must preserve its minimalist, cylindrical silhouette, matte grey surface, relative proportions, location and absence of visible labels or logos. Only the depicted screw cap and single uniform side are shown; no other angles or details are referenced or inferred.\n\nProduct lock: The following must remain unchanged: the clean, smooth, uninterrupted cylindrical body; consistent grey colour across cap and body; absence of any branding, labels or added texture; precise screw cap geometry; and the single front view with no rear/underside revealed. Any addition of logos, altering the silhouette, adding seams, changing the matte finish, or embellishing with extra elements would break fidelity.\n\nCommercial concept: Minimalism meets practicality — this modern grey thermos is presented as the unobtrusive essential companion for students and office professionals, standing out by blending in and fitting seamlessly into daily routines.\n\nCreative direction: Clean-studio style. The thermos is displayed against a pristine white backdrop, with soft, even lighting accentuating its matte metallic finish. Camera and environment are crafted for clarity: spotless, distraction-free visuals that make the functional, design-led simplicity of the product the hero.\n\nOpening hook: The video opens with a close-up of the thermos, perfectly centered, standing upright on a plain white surface, with soft studio light gently glinting down its smooth grey body to reveal the subtle metallic texture and understated form.\n\nCamera: The first beat uses a stable, slightly top-down static shot to showcase the overall silhouette. The second beat maintains this angle, but allows a hand to enter from the side and unscrew the cap, clearly demonstrating functionality. The third beat gently pushes in for a slightly closer look at the open thermos, reinforcing its simplicity and tactile appeal.\n\nProduct motion: The thermos remains still, upright and dominant. In beat two, a human hand enters, delicately yet decisively unscrewing and lifting away the cap in a single, smooth twist. There is no aggressive action—just calm, precise interaction. The product does not move or float; all physical actions are realistic and category-appropriate.\n\nEnvironment: Studio setting with a seamless white background. No props, no additional context objects, reflecting the product’s universal minimalism and adaptability for any office or study setting.\n\nLighting: Soft, diffuse, daylight-balanced studio lighting from above and slightly from the front. Lighting highlights the matte metallic surface, revealing subtle shadows and reflections without glare, and keeping the grey tone accurate and neutral.\n\nMaterial and texture treatment: The finish must read as smooth, metallic and matte; lighting reveals the gentle curvature and clean lines of the steel-like surface. Surface reflections are soft and consistent, never glossy or mirror-like. No fingerprints, no excess shine.\n\nSequence: \n1. [0–2.5s] Thermos stands alone, centered, as the camera holds a slightly elevated angle; light brushes down its barrel, revealing uniform color and minimalist design.\n2. [2.5–5.5s] A hand enters from the side, fingers gently gripping and unscrewing the cap; cap is lifted and set aside, all motion calm and precise, with the camera maintaining composition.\n3. [5.5–8s] Brief linger on the open thermos, camera gently pushes closer, soft light emphasizes the now-open mouth and clean interior rim (visible only from current angle), reinforcing simplicity and functionality.\n\nEditing rhythm: Pacing is measured and calm with a clear progression of beats: a clean cut between the static and hand interaction, and a gentle push-in transition for the final hero ending. Beat durations allow viewers to absorb the clarity and texture of the product.\n\nAudio: Studio room tone with soft product handling sounds—cloth sliding as the hand enters, a subtle metallic turning as the cap is unscrewed, and the faint placement of the cap onto the surface. No music, voice, or added text.\n\nHero ending: The video concludes with a focused shot of the thermos open and upright, freshly unscrewed, with soft overhead light emphasizing the smooth grey surface and functionality. The product stands alone, quietly confident in its purpose.\n\nVisual quality: Rendering should achieve clear, crisp product edges, accurate matte grey tones, and realistic, soft studio lighting for a contemporary, aspirational studio look. Surfaces must read as clean, minimal and unbranded.\n\nFidelity requirements: Keep silhouette, cap style, color uniformity, and surface finish exactly as referenced. Do not decorate, recolor, or add any elements to the product. Logos, text, and seams must not appear. The camera must never reveal non-referenced sides or interiors. Product should always be shown as a single, cohesive piece in the featured front angle only.\n\nAvoidance: Introducing branding, additional props, or busy backgrounds; revealing unseen sides, interiors, or alternate lid types; introducing human faces; and using distracting effects would all harm the product’s clarity and undermine the intent.",
     "assumptionsUz": [
-      "Teremosning hajmi va ichki detallarini bilmaymiz, faqat tashqi koʻrinishi boʻyicha ishlaymiz.",
-      "Qoʻl bilan ochish yoki tomchasiga issiqlik koʻrsatilmaydi."
+      "Termos faqat oldingi koʻrinishda toʻliq namoyon qilinishi mumkin.",
+      "Material koʻrinishiga qarab poʻlat, lekin bu tasdiqlanmagan."
     ],
     "reviewNotesUz": [
-      "Rasmiy yorliq va logotip yoʻqligi aniq tasdiqlangan, shuning uchun hech qanday matn qoʻshilmaydi.",
-      "Minimalistik oddiy koʻrinish saqlanishi kerak.",
-      "Kameraning harakati va yoritilishi material va rangni yaxshi koʻrsatishi kerak."
+      "Termos geometriyasi, proporsiyalari va rangi aniq saqlansin.",
+      "Hech qanday logotip, tekst yoki qoʻshimcha dizayn detali kiritilmasin.",
+      "Faqat koʻrsatilgan koʻrinishdan foydalanilsin — boshqa tomoni nomaʻlum.",
+      "Qoʻl harakati ehtiyotkorlik bilan va faqat qopqoqni ochish uchun ishlatiladi."
     ]
   }
 }
