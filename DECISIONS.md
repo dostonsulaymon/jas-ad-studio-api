@@ -566,6 +566,33 @@ The first end-to-end proof that the chain works: real seller photo → our promp
 "Kinda good" is a soft pass, and what was *not* good is the input D-019's fix rounds exist for. Recorded here so the next session knows this was the first signal and that its detail is still outstanding.
 
 
+### D-054 · 2026-09-12 · First fidelity assessment: `gpt-5.5` passes, `gpt-5.6-terra` invents a component
+
+Two Flow videos from the same product photo (beige knit sneakers, shoptextile.uz), each generated from a different model's prompt. Frames extracted with ffmpeg and compared against the reference photo.
+
+**`gpt-5.5` — usable.** Silhouette, proportions, beige upper, white sole and heel pull tab all held. No invented branding. The product survived being worn and walked in. The knit read coarser than the reference's fine flat knit, but recognisably the same shoe.
+
+**`gpt-5.6-terra` — not usable.** It added a **ribbed webbing strap across the midfoot** holding the laces. The reference has no such strap; the laces pass straight through the knit. Source 01 §25 forbids "adding components", and D-019's second criterion is "nothing is invented on the product". It also turned the fine knit into a chunky crochet with prominent holes. No logo was invented — the worst failure did not occur — but a customer receiving these would say they are not the shoes in the photo.
+
+Doston: "I guess it was too smart for such cases." The larger model elaborated past its reference. **This confirms D-052**: bigger is not automatically better for a product-fidelity task, and `gpt-5.5` stays the default.
+
+**A finding neither prompt could control:** both videos are 10 seconds; the brief said 8, so the shot plan was timed 0–2.4 / 2.4–5.6 / 5.6–8.0 and Flow had two unscripted seconds to fill. Whatever duration the seller picks in Flow must be the duration they enter in the wizard, or the timeline is wrong from the start. **Carry into P5:** the duration field is not cosmetic.
+
+### D-055 · 2026-09-12 · P1 is closed at Doston's decision, not by the D-019 criterion
+
+Doston: "phase one is close it now. No more codes."
+
+**Recorded honestly:** D-019 set the exit at *about ten real products, at least six usable*. One real product was tested, giving one usable video from two prompts. The phase is being closed on the builder's judgement that the approach works, not on the agreed measurement.
+
+That is a legitimate call — the evidence is a real seller's product going through the whole chain and producing something postable — but the record should not claim a gate was passed that was not run. If the wider pilot later shows a lower hit rate than one product suggested, this entry is where to look.
+
+**Built and verified in P1:** target config · output contract, brief schema and trusted envelope · deterministic validators · the merged system prompt V2 · provider interface and OpenAI adapter · the repair path with a pre-call spend cap · the CLI harness · the seven §49 safety fixtures replayed offline · the offline sweep (conclusions void, see the plan).
+
+**Not done:** the ten-product pilot (D-019) and the Flow length comparison (Part 8b). They remain available in `pnpm p1:handoff` whenever Jakhongir wants to run them.
+
+**Total live AI spend across the whole phase: roughly $2.**
+
+
 ---
 
 ## Inputs recorded but not yet decided

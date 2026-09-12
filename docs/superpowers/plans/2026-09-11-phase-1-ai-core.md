@@ -1,6 +1,6 @@
 # P1 — AI core and the real-world go/no-go
 
-**Status:** Parts 1–8a **BUILT AND VERIFIED**. Parts 8b and 9 are **handed off** — they require Google Flow and real products, which no code can do. Part 0's questions remain outstanding with Jakhongir.
+**Status: CLOSED 2026-09-12 (D-055).** Parts 1–7 built and verified. Part 8a's conclusions are void. Parts 8b and 9 were not run — Doston closed the phase after the first real product produced a usable Flow video, rather than on D-019's ten-product measurement. The handoff pack stays available via `pnpm p1:handoff`.
 **Repo:** `jas-ad-studio-api` only (D-026)
 **Built from:** design spec §5, §12 · source 01 §25, §26, §27, §28, §49, §50, §51, §52 · source 02 in full · D-012, D-013, D-017, D-019, D-029, D-043
 **Review:** a review agent checked this draft against the sources and the locked decisions on 2026-09-11. Its findings are folded in below; the two it raised that only Doston can settle are Q-P1-1 and Q-P1-4.

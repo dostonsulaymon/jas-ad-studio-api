@@ -2,7 +2,7 @@
 
 Where the project stands, what is next, and what is blocked. Updated at the end of every step. Decisions live in `/DECISIONS.md`. The roadmap lives in `docs/PLAN.md`.
 
-**Last updated:** 2026-09-11
+**Last updated:** 2026-09-12
 
 ## Resume here
 
@@ -10,10 +10,10 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
-| Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | Parts 1–7 built and verified against the current config. **Part 8a's conclusions are void and it needs re-running** — it measured 300/500/700 words on a model D-048 later disqualified. Parts 8b and 9 need a person with Flow open and ~10 real products. |
-| Next | Jakhongir runs `out/flow-pilot.md` in Flow to pick the prompt length, then ~10 real products for the D-019 go/no-go. Nothing further gets built until that answers. Session B's kickoff prompt is written before the P1 go (D-026). |
+| Phase | **P0 and P1 both closed.** All work sits on branch `p0-foundations`, pushed, CI green, not yet merged to `main`. |
+| Active plan | None. P1's plan is closed (D-055). The P2 plan is not written yet. |
+| Doing now | Nothing. P1 closed on 2026-09-12 after the first real product produced a usable Flow video. Awaiting Doston's next task. |
+| Next | Doston's call. The P2 plan (accounts and uploads) is the natural next phase and is not written. The ten-product pilot stays available via `pnpm p1:handoff` if Jakhongir wants the wider evidence. Session B's kickoff prompt is written before web work starts (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 
 ## Current position
@@ -330,6 +330,23 @@ No claim is made about which configuration produces better video. Word count and
 **Live spend to date: $0.25.**
 
 **Verified:** 229 tests passing, recordings refreshed at config v2, lint, typecheck, build clean.
+
+## 2026-09-12 — first real product through the whole chain, and P1 closed
+
+**A real seller's product, end to end.** Beige knit sneakers from shoptextile.uz: photo → our prompt → Google Flow → a watchable advertisement. Doston generated two videos from two models' prompts and I compared extracted frames against the reference photo.
+
+| Prompt from | Verdict | Why |
+|---|---|---|
+| **`gpt-5.5`** | **usable** | silhouette, colour, sole and heel tab held; no invented branding; survived being worn and walked in. Knit read coarser than the reference, but recognisably the same shoe |
+| `gpt-5.6-terra` | **not usable** | added a ribbed webbing strap across the midfoot that the real shoe does not have, and turned the fine knit into a chunky crochet |
+
+The failure is the useful kind — specific and diagnosable. No logo was invented, which is the worst outcome and it did not happen. But an added strap is an invented component, which source 01 §25 forbids and D-019 counts as a fail. Doston: *"I guess it was too smart for such cases."* The larger model elaborated past its reference, which confirms D-052 — bigger is not automatically better for a fidelity task.
+
+**One lesson neither prompt could have prevented:** both videos are 10 seconds, but the brief said 8, so the shot plan was timed to 8 and Flow had two unscripted seconds to fill. The duration the seller picks in Flow must be the duration they enter in the wizard. That is a P5 UI requirement, not a prompt problem (D-054).
+
+**P1 is closed (D-055)** on Doston's decision — "phase one is close it now, no more codes" — rather than by D-019's ten-product measurement. One product was tested, not ten. The record says so plainly: the approach is proven on real input, but the wider gate was not run. `pnpm p1:handoff` remains available whenever Jakhongir wants it.
+
+**Total live AI spend for the whole phase: about $2.**
 
 ## 2026-09-11 — P1 Parts 8b and 9 prepared and handed off
 
