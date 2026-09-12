@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, expect, it } from 'vitest';
 import { createTestDatabase, type TestDatabase } from '../common/testing/database';
 import { assertLedgerMatchesAccounts, assertNoNegativeBalances } from '../common/testing/ledger';
@@ -44,8 +43,8 @@ it('one credit, two concurrent reserves: exactly one wins', async () => {
   await service.credit(alice, 1, 'owner_grant', { note: 'seed' });
 
   const results = await Promise.allSettled([
-    service.reserveOne(alice, randomUUID()),
-    service.reserveOne(alice, randomUUID()),
+    service.reserveOne(alice, null),
+    service.reserveOne(alice, null),
   ]);
 
   const won = results.filter((result) => result.status === 'fulfilled');
@@ -65,7 +64,7 @@ it('three credits, ten concurrent reserves: exactly three win', async () => {
   await service.credit(alice, 3, 'owner_grant', { note: 'seed' });
 
   const results = await Promise.allSettled(
-    Array.from({ length: 10 }, () => service.reserveOne(alice, randomUUID())),
+    Array.from({ length: 10 }, () => service.reserveOne(alice, null)),
   );
 
   // The two-way case can pass by luck of scheduling. Ten cannot.
@@ -83,7 +82,7 @@ it('three credits, ten concurrent reserves: exactly three win', async () => {
 it('a grant racing a reserve: either order is correct, the invariant is not optional', async () => {
   const results = await Promise.allSettled([
     service.credit(alice, 1, 'owner_grant', { note: 'seed' }),
-    service.reserveOne(alice, randomUUID()),
+    service.reserveOne(alice, null),
   ]);
 
   // Asserting one ordering here would be testing the scheduler, not the code. Both
@@ -117,16 +116,15 @@ it('fifty interleaved operations across five users leave the books balanced', as
 
   const operations = Array.from({ length: 50 }, () => {
     const user = pick(users);
-    const gen = randomUUID();
     switch (pick(['grant', 'reserve', 'debit', 'release'] as const)) {
       case 'grant':
         return service.credit(user, 1, 'owner_grant', { note: 'storm' });
       case 'reserve':
-        return service.reserveOne(user, gen);
+        return service.reserveOne(user, null);
       case 'debit':
-        return service.debit(user, gen);
+        return service.debit(user, null);
       case 'release':
-        return service.release(user, gen);
+        return service.release(user, null);
     }
   });
 

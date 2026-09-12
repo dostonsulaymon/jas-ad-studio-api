@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, beforeEach, expect, it } from 'vitest';
 import { createTestDatabase, type TestDatabase } from '../common/testing/database';
 import { assertLedgerMatchesAccounts } from '../common/testing/ledger';
@@ -9,12 +8,16 @@ import {
   NoCreditsError,
 } from './public/credits.errors';
 
+/**
+ * The primitives are called with a null generation id throughout. Since P4 added the
+ * `credit_ledger.generation_id` foreign key, a stand-in uuid is no longer a valid input —
+ * and null is a real supported one, used by P3's own reserve in TX 1 before the
+ * generation row exists. These suites are about balances; P4's settle tests cover the
+ * linkage with a real generation.
+ */
 let db: TestDatabase;
 let service: AccountsService;
 let alice: string;
-let gen1: string;
-let gen2: string;
-let gen3: string;
 
 beforeAll(async () => {
   db = await createTestDatabase();
@@ -27,12 +30,6 @@ afterAll(async () => {
 beforeEach(async () => {
   await db.truncateAll();
   service = new AccountsService(db.pool);
-
-  // credit_ledger.generation_id is a uuid. P4 will pass a real generation id here; until
-  // then the tests must still pass something a uuid column accepts.
-  gen1 = randomUUID();
-  gen2 = randomUUID();
-  gen3 = randomUUID();
 
   const made = await db.pool.query<{ id: string }>(
     `INSERT INTO users (google_sub, email) VALUES ('a','a@x.uz') RETURNING id`,
@@ -103,9 +100,9 @@ it('refuses a reserve on an empty balance and leaves no trace', async () => {
 
 it('debits a reserved credit for good', async () => {
   await service.credit(alice, 1, 'owner_grant', { note: 'seed' });
-  await service.reserveOne(alice, gen1);
+  await service.reserveOne(alice, null);
 
-  expect(await service.debit(alice, gen1)).toEqual({ available: 0, reserved: 0 });
+  expect(await service.debit(alice, null)).toEqual({ available: 0, reserved: 0 });
   expect((await ledgerRows()).map((row) => row.type)).toEqual([
     'owner_grant',
     'reserve',
@@ -116,11 +113,11 @@ it('debits a reserved credit for good', async () => {
 
 it('releases a reserved credit back to available (D-020)', async () => {
   await service.credit(alice, 1, 'owner_grant', { note: 'seed' });
-  await service.reserveOne(alice, gen1);
+  await service.reserveOne(alice, null);
 
   // This is the whole of "auto-refund": a failed, refused or needs-input job gives the
   // credit back, and there is no separate refund system to build.
-  expect(await service.release(alice, gen1)).toEqual({ available: 1, reserved: 0 });
+  expect(await service.release(alice, null)).toEqual({ available: 1, reserved: 0 });
   expect((await ledgerRows()).map((row) => row.type)).toEqual([
     'owner_grant',
     'reserve',
@@ -132,7 +129,7 @@ it('releases a reserved credit back to available (D-020)', async () => {
 it('treats a debit with nothing reserved as our bug, not the seller\'s', async () => {
   await service.credit(alice, 1, 'owner_grant', { note: 'seed' });
 
-  const error = await service.debit(alice, gen1).catch((caught: unknown) => caught);
+  const error = await service.debit(alice, null).catch((caught: unknown) => caught);
 
   expect(error).toBeInstanceOf(LedgerInvariantError);
   // An InfraError: 500 and logged with its stack, never an apology to the seller.
@@ -142,11 +139,11 @@ it('treats a debit with nothing reserved as our bug, not the seller\'s', async (
 
 it('keeps the account and the ledger in step across a full lifecycle', async () => {
   await service.credit(alice, 5, 'owner_grant', { note: 'pilot' });
-  await service.reserveOne(alice, gen1);
-  await service.debit(alice, gen1);
-  await service.reserveOne(alice, gen2);
-  await service.release(alice, gen2);
-  await service.reserveOne(alice, gen3);
+  await service.reserveOne(alice, null);
+  await service.debit(alice, null);
+  await service.reserveOne(alice, null);
+  await service.release(alice, null);
+  await service.reserveOne(alice, null);
 
   expect(await service.getBalance(alice)).toEqual({ available: 3, reserved: 1 });
   await assertLedgerMatchesAccounts(db.pool);
