@@ -12,7 +12,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 |---|---|
 | Phase | **P1 planning.** P0 is complete: committed on `p0-foundations`, pushed, CI green, not yet merged to `main`. |
 | Active plan | `docs/superpowers/plans/2026-09-11-phase-1-ai-core.md` — approved, Part 1 in progress. P0's plan is complete and closed. |
-| Doing now | **Everything buildable in P1 is built.** Parts 1–8a done and verified. Parts 8b and 9 need a person with Google Flow open and ~10 real products; the handoff pack is generated and waiting. |
+| Doing now | Parts 1–7 built and verified against the current config. **Part 8a's conclusions are void and it needs re-running** — it measured 300/500/700 words on a model D-048 later disqualified. Parts 8b and 9 need a person with Flow open and ~10 real products. |
 | Next | Jakhongir runs `out/flow-pilot.md` in Flow to pick the prompt length, then ~10 real products for the D-019 go/no-go. Nothing further gets built until that answers. Session B's kickoff prompt is written before the P1 go (D-026). |
 | Last verified state | 2026-09-11, re-run end to end at Doston's request: all five review tests passed. Report: https://claude.ai/code/artifact/9e78f1ed-42dc-41b0-b150-d03bc5292788 |
 

@@ -82,9 +82,9 @@ The first draft said "$5" before knowing how many runs there are. The matrix is 
 
 D-013 says the Flow facts are "confirmed by Jakhongir's test runs", and spec §5 literally reads `durations: [8] (confirm in Flow)`. If the chosen mode turns out to do 6 seconds, or handles reference images differently, every fixture run and the whole sweep is void.
 
-- [ ] Which Flow mode — "Frames to video" or "Ingredients to video" — and its supported durations, aspect ratios and reference-image rules. This is the one Part 0 item that genuinely blocks: if the mode does 6 seconds rather than 8, every timeline the validators enforce is wrong.
-- [ ] **Does Flow's prompt box accept a ~700-word prompt, or silently truncate?** Nobody has tested this, and the entire length premise rests on it.
-- [ ] The ~10 real pilot products, a mix of categories. Sourcing these is a multi-day human task, not a checkbox, and it is not currently on his owed list in spec §15.
+- [x] ~~Which Flow mode, and its durations, aspect ratios and reference rules.~~ **Moot (D-050).** The seller picks the model, length and ratio inside Flow, so there is no fixed capability set. The config now describes Flow itself and those fields are gone.
+- [x] ~~Does Flow's prompt box truncate a long prompt?~~ **Answered (D-046).** Doston has run 2,000–4,000 word prompts through it with no truncation. The 1,024-token ceiling was never real.
+- [ ] The ~10 real pilot products, a mix of categories. Still owed, still a multi-day human task, still not on Jakhongir's list in spec §15.
 
 **Verify:** the answers recorded in `docs/PROGRESS.md` with a date, and the target config's `checkedAt` set from them.
 
@@ -221,7 +221,9 @@ The gallery-inspiration fixture is **not** built: gallery presets need an inspir
 - [x] Tokens-per-word p95 across the corpus sets `tokensPerWord`, and `maxWords` is re-derived from `maxPromptTokens` with it. The provisional marks come off (Q-P1-1, D-012).
 - [x] **No conclusions about video quality here.** Word count and validator pass cannot tell you whether 300 or 700 words makes a better video. This part produces candidate prompts; 8b judges them.
 
-**Verify:** done 2026-09-11 — 42 runs, **$0.128**, cap $1.00 never approached. Full table in `out/sweep.md`; findings in `docs/PROGRESS.md`.
+**Verify:** ran 2026-09-11 — 42 runs, $0.128. **Its conclusions are now void and it needs re-running (D-045, D-046, D-048, D-050).** It compared 300/500/700 words under a 730-word ceiling that turned out not to exist, on `gpt-4.1-mini`, which D-048 later disqualified for producing 1 section of 17. The one result that survives is the tokens-per-word measurement — median 1.188, p95 1.221 — because that is a property of English text, not of the config. Everything else measured the wrong end of the range on the wrong model.
+
+**Re-run needed** at 800 / 1600 / 2400 words against a model that can follow the section format. The scripts are already corrected.
 
 ### Part 8b — The Flow pilot that picks the config · **HANDED OFF**
 
