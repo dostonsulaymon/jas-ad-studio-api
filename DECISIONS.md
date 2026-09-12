@@ -468,6 +468,35 @@ Doston: "We can use Omni, not the Veo." The `flow-veo-3.1` entry in `src/ai/targ
 Still needed before a correct entry can be written: the generator's exact name and where it runs, its supported durations and aspect ratios, its reference-image mode and how many it accepts. **Supersedes D-013** once those are supplied.
 
 
+### D-048 · 2026-09-12 · Mandatory sections are what make prompts deep; mini-tier models cannot follow them
+
+Source 02 is itself 2,373 words — Doston pointed at it as the specimen of the depth a generated prompt should reach. Its ~24 labelled sections are the shape, not just the length.
+
+The system prompt's `PROMPT ARCHITECTURE` section previously said "headings are optional; the information is not", so models wrote flowing prose and stopped when they felt finished. It now names all seventeen sections **in a fixed order**, requires each to carry product-specific direction, and states that falling short of the target length means under-specification rather than too few adjectives.
+
+Measured on one real product (a knit sneaker), same brief, before and after the change:
+
+| Model | Before | After | Sections | Time | Cost |
+|---|---|---|---|---|---|
+| `gpt-4.1-mini` | 342 | 427 | **1 / 17** | 12s | $0.004 |
+| `gpt-4.1` | 464 | **803** | 17 / 17 | 18s | $0.026 |
+| `gpt-5-mini` | — | 1,086 | 21 / 17 | 69s | ~$0.34 |
+| `gpt-5.4-mini` | — | **1,260** | 17 / 17 | 21s | ~$0.23 |
+| `gpt-5.5` | 1,101 | **1,653** | 17 / 17 | 58s | ~$0.30 |
+
+**Two findings.**
+
+Structure is a stronger lever than the length instruction. `gpt-4.1` nearly doubled its output from the same "aim for 2,400 words" request once the sections were mandatory.
+
+**Mini-tier models cannot follow the section format.** `gpt-4.1-mini` produced one section of seventeen. It is disqualified on shape rather than length, which no amount of asking for more words would fix.
+
+`gpt-5.4-mini` is the current best value: all seventeen sections at 1,260 words in 21 seconds, three times faster than `gpt-5.5` for 76% of the words. `gpt-4.1` is the cheap option with a **known** price.
+
+**Cost caveat:** only the `gpt-4.1` figures are real. gpt-5.x is absent from the pricing table, so its costs use a deliberately high fallback ($15/$60 per million) and are upper bounds. The model pick under D-029 weighs cost per successful package, and that half of the equation stays a guess until real rates are supplied.
+
+This is a standing-gate change to the AI system prompt. Doston directed it: "that example prompt has 2373 words and ours should have such words."
+
+
 ---
 
 ## Inputs recorded but not yet decided

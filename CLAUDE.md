@@ -14,7 +14,7 @@ Read this first, then:
 
 ## What this is
 
-**JAS Ad Studio** is an Uzbek-first web app for online sellers. A seller uploads photos of their product and writes a short brief. The app returns one advertising concept, a ready-to-paste English video prompt for Google Flow (Veo), and an Uzbek shot plan. **The app writes prompts. Google Flow makes the video.**
+**JAS Ad Studio** is an Uzbek-first web app for online sellers. A seller uploads photos of their product and writes a short brief. The app returns one advertising concept, a ready-to-paste English video prompt for Google Flow, and an Uzbek shot plan. Flow is the tool; the seller picks the model (Veo, Omni) and the aspect ratio inside it (D-047). **The app writes prompts. Google Flow makes the video.**
 
 Business model: sellers buy prompt credits. The example gallery (videos and their prompts) is free and needs no sign-in (D-007).
 
@@ -22,7 +22,7 @@ People: Jakhongir is the owner and client. Doston builds it, with Claude (D-003)
 
 ## Status
 
-**P0 is built and under review; nothing beyond it exists.** There are no product features: no auth, no credits, no AI, no uploads. Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
+**P0 complete. P1 Parts 1–8a built.** The AI core runs end to end from the command line: a product folder in, a Flow prompt and Uzbek shot plan out. Still no HTTP API, no database, no accounts, no credits, no uploads — those are P2–P4, deliberately after the go/no-go. Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
 
 ## Starting a new session
 
@@ -108,7 +108,7 @@ Two gotchas, both learned the hard way:
 
 - The app never claims to make videos, never automates Google Flow, and never touches Google credits.
 - **Product lock.** Never invent labels, logos, claims, prices, or product surfaces that aren't visible in the photos (source 01 §25).
-- A generated prompt must fit the selected video target's configured limits (D-012). Never hard-code a length, beat count or model. For Veo 3.1 the ceiling is 1,024 tokens, about 700 English words (Google's model page, checked 2026-09-11).
+- A generated prompt must fit the selected video target's configured limits (D-012). Never hard-code a length, beat count or model. **The 1,024-token Veo ceiling was never real (D-046)** — it was read off a model page and never tested; Doston has run 2,000–4,000 word prompts through Flow with no truncation. Length is now reported, not enforced (D-045).
 - **Money.** Credits move only through the ledger. One order credits exactly once. Clients never write ledger rows.
 - Private product photos are never exposed as public URLs.
 - No fake testimonials, customer numbers, examples, or prices.
