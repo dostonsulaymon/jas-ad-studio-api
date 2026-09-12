@@ -24,6 +24,17 @@ export class GoogleAuthError extends DomainError {
   readonly status = 502;
 }
 
+/**
+ * A missing, stale or forged state is the caller's problem, never Google's. Kept apart
+ * from GoogleAuthError so that a 5xx means the provider actually failed: the common case
+ * is a seller finishing a sign-in after the ten-minute state TTL, and paging someone
+ * about an outage for that is how real outages get ignored.
+ */
+export class OAuthStateError extends DomainError {
+  readonly code = 'OAUTH_STATE_INVALID';
+  readonly status = 400;
+}
+
 export function buildAuthorizeUrl(config: GoogleConfig, state: string): string {
   const url = new URL(AUTHORIZE_ENDPOINT);
 

@@ -4,7 +4,7 @@ import { Pool, type PoolClient } from 'pg';
 import { DomainError } from '../common/errors/app.error';
 import { PG_POOL } from '../common/db/tokens';
 import { PROJECT_OWNERSHIP, type ProjectOwnership } from '../projects/public/projects.port';
-import { processUpload } from './image.pipeline';
+import { processUpload, type RenderedCopy } from './image.pipeline';
 import type { AssetKind, StoredAsset } from './public/assets.port';
 import { FileStorage } from './storage';
 
@@ -60,8 +60,8 @@ export class AssetsService {
     // Written before the rows exist, so a failed insert leaves an orphan file rather
     // than a row pointing at nothing. An orphan file is sweepable; a dangling row is a
     // 500 on read.
-    const referencePath = await this.storage.write(processed.reference);
-    const modelInputPath = await this.storage.write(processed.modelInput);
+    const referencePath = await this.storage.write(processed.reference.bytes);
+    const modelInputPath = await this.storage.write(processed.modelInput.bytes);
 
     const client = await this.pool.connect();
     try {
@@ -72,9 +72,7 @@ export class AssetsService {
         userId,
         kind: 'reference',
         path: referencePath,
-        processedWidth: processed.width,
-        processedHeight: processed.height,
-        bytes: processed.reference,
+        copy: processed.reference,
         isPrimary: Number(existing.rows[0]?.count ?? 0) === 0,
       });
 
@@ -83,9 +81,7 @@ export class AssetsService {
         userId,
         kind: 'model_input',
         path: modelInputPath,
-        processedWidth: processed.width,
-        processedHeight: processed.height,
-        bytes: processed.modelInput,
+        copy: processed.modelInput,
         isPrimary: false,
       });
 
@@ -110,8 +106,10 @@ export class AssetsService {
     assetId: string,
   ): Promise<{ bytes: Buffer; contentType: 'image/jpeg' }> {
     const rows = await this.query<{ path: string }>(
-      `SELECT path FROM assets
-        WHERE id = $2 AND user_id = $1 AND kind = 'reference'`,
+      `SELECT a.path FROM assets a
+         JOIN projects p ON p.id = a.project_id
+        WHERE a.id = $2 AND a.user_id = $1 AND a.kind = 'reference'
+          AND p.deleted_at IS NULL`,
       [userId, assetId],
     );
 
@@ -172,9 +170,8 @@ interface InsertInput {
   userId: string;
   kind: AssetKind;
   path: string;
-  processedWidth: number;
-  processedHeight: number;
-  bytes: Buffer;
+  /** Each row describes its own file, so width and height come from that copy. */
+  copy: RenderedCopy;
   isPrimary: boolean;
 }
 
@@ -188,10 +185,10 @@ async function insertAsset(client: PoolClient, input: InsertInput): Promise<Asse
       input.userId,
       input.kind,
       input.path,
-      input.processedWidth,
-      input.processedHeight,
-      input.bytes.byteLength,
-      createHash('sha256').update(input.bytes).digest('hex'),
+      input.copy.width,
+      input.copy.height,
+      input.copy.bytes.byteLength,
+      createHash('sha256').update(input.copy.bytes).digest('hex'),
       input.isPrimary,
     ],
   );

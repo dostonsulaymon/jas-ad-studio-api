@@ -1,9 +1,17 @@
 import { randomBytes } from 'node:crypto';
 import { Controller, Get, Inject, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { ApiNoContentResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { CurrentUserDto } from './auth.dto';
 import type { CookieOptions, Response } from 'express';
 import { GOOGLE_CONFIG, WEB_ORIGIN } from './auth.tokens';
 import { User } from './public/current-user.decorator';
-import { buildAuthorizeUrl, exchangeCode, GoogleAuthError, type GoogleConfig } from './google.client';
+import {
+  buildAuthorizeUrl,
+  exchangeCode,
+  GoogleAuthError,
+  OAuthStateError,
+  type GoogleConfig,
+} from './google.client';
 import { SESSION_COOKIE, SESSION_TTL_DAYS, type CurrentUser } from './public/auth.port';
 import { readCookie, SessionGuard, type RequestWithUser } from './public/session.guard';
 import { SessionService } from './session.service';
@@ -23,6 +31,13 @@ export class AuthController {
   ) {}
 
   @Get('auth/google')
+  @ApiOperation({
+    summary: 'Start Google sign-in. Open this in a browser, not from this page.',
+    description:
+      'Redirects to Google. It cannot be driven from Swagger — the consent screen needs a' +
+      ' real browser navigation. Once signed in, the session cookie is set on this origin' +
+      ' and every route below works from here.',
+  })
   start(@Res() response: Response): void {
     const google = this.requireGoogle();
 
@@ -39,6 +54,11 @@ export class AuthController {
   }
 
   @Get('auth/google/callback')
+  @ApiOperation({
+    summary: "Google's redirect target. Not called directly.",
+    description: 'A missing or stale state is 400 OAUTH_STATE_INVALID; only a genuine' +
+      ' provider failure is 502 AUTH_PROVIDER_FAILED (D-067).',
+  })
   async callback(
     @Query('code') code: string | undefined,
     @Query('state') state: string | undefined,
@@ -49,7 +69,7 @@ export class AuthController {
 
     const expected = readCookie(request.headers.cookie, STATE_COOKIE);
     if (!code || !state || !expected || state !== expected) {
-      throw new GoogleAuthError('OAuth state did not match');
+      throw new OAuthStateError('OAuth state did not match');
     }
     response.clearCookie(STATE_COOKIE, { path: STATE_PATH });
 
@@ -67,6 +87,8 @@ export class AuthController {
 
   @Post('auth/logout')
   @UseGuards(SessionGuard)
+  @ApiOperation({ summary: 'Revoke the session immediately, server-side.' })
+  @ApiNoContentResponse()
   async logout(@Req() request: RequestWithUser, @Res() response: Response): Promise<void> {
     const token = readCookie(request.headers.cookie, SESSION_COOKIE);
     if (token) await this.sessions.revoke(token);
@@ -77,6 +99,8 @@ export class AuthController {
 
   @Get('me')
   @UseGuards(SessionGuard)
+  @ApiOperation({ summary: 'The signed-in user. The role comes from OWNER_EMAILS (D-037).' })
+  @ApiOkResponse({ type: CurrentUserDto })
   me(@User() user: CurrentUser): CurrentUser {
     return user;
   }

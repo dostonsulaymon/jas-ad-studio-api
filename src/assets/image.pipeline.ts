@@ -26,12 +26,16 @@ export class UploadRejected extends DomainError {
   }
 }
 
-export interface ProcessedImage {
-  reference: Buffer;
-  modelInput: Buffer;
-  /** The ORIGINAL dimensions, recorded before resizing, for the assets row. */
+export interface RenderedCopy {
+  bytes: Buffer;
+  /** The dimensions of THIS copy, after EXIF rotation and resizing. */
   width: number;
   height: number;
+}
+
+export interface ProcessedImage {
+  reference: RenderedCopy;
+  modelInput: RenderedCopy;
 }
 
 /**
@@ -68,7 +72,7 @@ export async function processUpload(bytes: Buffer): Promise<ProcessedImage> {
     render(bytes, MODEL_INPUT_EDGE),
   ]);
 
-  return { reference, modelInput, width: metadata.width, height: metadata.height };
+  return { reference, modelInput };
 }
 
 /**
@@ -88,14 +92,20 @@ async function readMetadata(bytes: Buffer): Promise<sharp.Metadata> {
   }
 }
 
-function render(bytes: Buffer, edge: number): Promise<Buffer> {
-  return (
-    sharp(bytes, { limitInputPixels: MAX_PIXELS })
-      // Applies the EXIF orientation before it is stripped. Without this, every photo
-      // taken in portrait on a phone lands sideways.
-      .rotate()
-      .resize({ width: edge, height: edge, fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 90 })
-      .toBuffer()
-  );
+/**
+ * The dimensions come back from the encoder, not from metadata() read beforehand.
+ * .rotate() applies the EXIF orientation, so a portrait phone photo is encoded landscape
+ * with orientation 6 and comes out portrait — reading the header first reports it
+ * transposed, and every caller then lays out the wrong box.
+ */
+async function render(bytes: Buffer, edge: number): Promise<RenderedCopy> {
+  const { data, info } = await sharp(bytes, { limitInputPixels: MAX_PIXELS })
+    // Applies the EXIF orientation before it is stripped. Without this, every photo
+    // taken in portrait on a phone lands sideways.
+    .rotate()
+    .resize({ width: edge, height: edge, fit: 'inside', withoutEnlargement: true })
+    .jpeg({ quality: 90 })
+    .toBuffer({ resolveWithObject: true });
+
+  return { bytes: data, width: info.width, height: info.height };
 }

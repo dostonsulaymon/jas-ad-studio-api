@@ -66,12 +66,35 @@ it('stores exactly two rows per upload and no original', async () => {
   expect(rows.map((r) => r.kind)).toEqual(['model_input', 'reference']);
 });
 
-it('records the original dimensions, not the resized ones', async () => {
+it('records each row at the dimensions of the file it points at', async () => {
   const project = await projects.create(alice, input);
   const asset = await assets.upload(alice, project.id, await jpeg(3000, 2000));
 
-  expect(asset.width).toBe(3000);
-  expect(asset.height).toBe(2000);
+  expect(asset.width).toBe(2048);
+  expect(asset.height).toBe(1365);
+
+  const { rows } = await db.pool.query<{ kind: string; width: number; height: number }>(
+    'SELECT kind, width, height FROM assets ORDER BY kind',
+  );
+  expect(rows).toEqual([
+    { kind: 'model_input', width: 1024, height: 683 },
+    { kind: 'reference', width: 2048, height: 1365 },
+  ]);
+});
+
+// Delete is soft, so the project row survives. The photo must not keep serving: the
+// listing route already 404s, and two routes disagreeing about one asset is the bug.
+it('stops serving a reference once its project is deleted', async () => {
+  const project = await projects.create(alice, input);
+  const asset = await assets.upload(alice, project.id, await jpeg());
+
+  await expect(assets.readReference(alice, asset.id)).resolves.toMatchObject({
+    contentType: 'image/jpeg',
+  });
+
+  await projects.softDelete(alice, project.id);
+
+  await expect(assets.readReference(alice, asset.id)).rejects.toBeInstanceOf(AssetNotFoundError);
 });
 
 it('marks the first photo primary and later ones not', async () => {
