@@ -61,7 +61,9 @@ export async function createTestDatabase(): Promise<TestDatabase> {
     },
 
     async drop(): Promise<void> {
-      await pool.end();
+      // A suite that boots the Nest app has already ended this pool: the db module closes
+      // the injected pool in onModuleDestroy, and app.close() runs before drop().
+      if (!pool.ending && !pool.ended) await pool.end();
       const cleanup = new Pool({ connectionString: adminUrl.href });
       try {
         await cleanup.query(`DROP DATABASE IF EXISTS ${name} WITH (FORCE)`);
