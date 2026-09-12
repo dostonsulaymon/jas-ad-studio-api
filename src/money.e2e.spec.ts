@@ -39,7 +39,15 @@ let ownerCookie: string;
 let aliceId: string;
 let accounts: AccountsService;
 
-const WEB_ORIGIN = 'http://localhost:3040';
+/**
+ * The origin the CSRF guard accepts, read from the same env the app reads.
+ *
+ * This was hard-coded to localhost:3040 and broke all three e2e suites the moment
+ * WEB_ORIGIN was legitimately pointed at the web dev server on 3042. A test that asserts
+ * a guard's behaviour must take the guard's own configuration from the same place the
+ * guard does, or it is testing the developer's .env.
+ */
+const WEB_ORIGIN = process.env.WEB_ORIGIN ?? 'http://localhost:3040';
 
 /**
  * Every route this suite actually exercised SUCCESSFULLY, as `METHOD /templated/path`.
