@@ -1123,16 +1123,12 @@
             ]
           },
           "payerReference": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "nullable": true
           },
           "rejectionReason": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -1201,16 +1197,12 @@
             ]
           },
           "payerReference": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "nullable": true
           },
           "rejectionReason": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -1291,16 +1283,12 @@
             ]
           },
           "payerReference": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "nullable": true
           },
           "rejectionReason": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
@@ -1799,16 +1787,12 @@
             }
           },
           "messageUz": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "nullable": true
           },
           "errorCode": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+            "type": "string",
+            "nullable": true
           },
           "createdAt": {
             "type": "string",
