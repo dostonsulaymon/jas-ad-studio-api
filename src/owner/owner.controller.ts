@@ -38,6 +38,8 @@ import {
   type SupportContacts,
 } from '../settings/public/settings.port';
 import { AUDIT_WRITER, type AuditWriter } from './public/audit.port';
+import { OwnerReportsService } from './owner-reports.service';
+import type { OwnerGeneration, OwnerSpendDay } from './public/owner-reports.port';
 import { OwnerGuard } from './owner.guard';
 import {
   AdminPackDto,
@@ -46,6 +48,8 @@ import {
   GrantDto,
   OwnerOrderDto,
   OwnerUserDto,
+  OwnerGenerationDto,
+  OwnerSpendDayDto,
   PackEditDto,
   PaymentInstructionsDto,
   RejectOrderDto,
@@ -53,6 +57,8 @@ import {
 } from './owner.dto';
 
 const DEFAULT_LIMIT = 100;
+/** Thirty days of spend: enough to see a trend without turning a panel into a report. */
+const SPEND_DAYS = 30;
 
 /**
  * D-037. Every write runs in ONE transaction that also carries its audit row, and the
@@ -72,6 +78,7 @@ export class OwnerController {
     @Inject(CREDIT_ADMIN) private readonly credits: CreditAdminPort,
     @Inject(SETTINGS_ADMIN) private readonly settings: SettingsAdmin,
     @Inject(AUDIT_WRITER) private readonly audit: AuditWriter,
+    private readonly reports: OwnerReportsService,
   ) {}
 
   /** A read. Not audited — see the plan: a GET is not an action, and logging every list
@@ -207,6 +214,26 @@ export class OwnerController {
       await this.audit.record(ownerId, 'setting.update', 'site_setting', key, {}, tx);
       return stored;
     });
+  }
+
+  /**
+   * What has been generated, and what it cost per day (D-037).
+   *
+   * Read-only, and spend is the recorded cost of AI calls in USD, which is a different
+   * number from credits and is never presented as one.
+   */
+  @Get('generations')
+  @ApiOperation({ summary: 'Recent generations across all sellers, newest first. Read-only.' })
+  @ApiOkResponse({ type: OwnerGenerationDto, isArray: true })
+  listGenerations(): Promise<OwnerGeneration[]> {
+    return this.reports.listGenerations(DEFAULT_LIMIT);
+  }
+
+  @Get('spend')
+  @ApiOperation({ summary: 'Daily AI spend in USD for the last 30 days. Read-only.' })
+  @ApiOkResponse({ type: OwnerSpendDayDto, isArray: true })
+  listSpend(): Promise<OwnerSpendDay[]> {
+    return this.reports.listSpendByDay(SPEND_DAYS);
   }
 
   /** A support view, not an export: no session token, no project, no photo. */

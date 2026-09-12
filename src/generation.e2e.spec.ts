@@ -515,6 +515,10 @@ describe('endpoint coverage', () => {
 
     const routes: string[] = [];
     for (const [path, methods] of Object.entries(contract.paths)) {
+      // The owner tree is D-037's, not P4's, and money.e2e.spec.ts drives it. Without
+      // this, /api/owner/generations would be demanded here purely because its path
+      // contains the same word.
+      if (path.startsWith('/api/owner/')) continue;
       if (!path.includes('generations')) continue;
       for (const method of Object.keys(methods)) {
         routes.push(`${method.toUpperCase()} ${path}`);

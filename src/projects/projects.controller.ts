@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
-import { BriefDto, ProjectSummaryDto } from './projects.dto';
+import { BriefDto, ProjectDetailDto, ProjectSummaryDto } from './projects.dto';
 import { briefSchema, type Brief } from '../ai/public/brief.schema';
 import { User } from '../auth/public/current-user.decorator';
 import type { CurrentUser } from '../auth/public/auth.port';
 import { SessionGuard } from '../auth/public/session.guard';
 import { ProjectsService, type ProjectInput } from './projects.service';
-import type { ProjectSummary } from './public/projects.port';
+import type { ProjectDetail, ProjectSummary } from './public/projects.port';
 
 /**
  * Every route takes the caller's own id from the session and passes it as the first
@@ -34,10 +34,14 @@ export class ProjectsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'One project. 404 if it is not the caller\'s, never 403.' })
-  @ApiOkResponse({ type: ProjectSummaryDto })
-  get(@User() user: CurrentUser, @Param('id') id: string): Promise<ProjectSummary> {
-    return this.projects.getOwned(user.id, id);
+  @ApiOperation({
+    summary: "One project and the brief it was saved from. 404 if it is not the caller's, never 403.",
+  })
+  @ApiOkResponse({ type: ProjectDetailDto })
+  get(@User() user: CurrentUser, @Param('id') id: string): Promise<ProjectDetail> {
+    // Returns the brief too: PATCH requires all 11 fields, so a client that could only
+    // read 3 of them could not edit a saved project without wiping the rest.
+    return this.projects.getOwnedDetail(user.id, id);
   }
 
   @Patch(':id')
