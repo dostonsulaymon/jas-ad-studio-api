@@ -1004,6 +1004,30 @@ It is now `generationResultSchema`, imported from the ai port rather than restat
 This is T-09's defect one level down: a route can carry a documented body and still describe its most important field as `any`. So `src/contract.spec.ts` now walks every schema and fails on any empty field, checks the ad package's fields by name, and requires a request body on every state-changing route — with a short explicit allowlist for the four that genuinely take only a path and headers, listed so adding one is a decision rather than a regex quietly widening.
 
 
+### D-084 · 2026-09-12 · Every nullable field in the contract was an array of its own type
+
+Found by regenerating the web client and **reading it**, which is the first time anyone had.
+
+`zod 4` emits a nullable as JSON Schema's `type: ["string", "null"]` — legal JSON Schema, illegal in OpenAPI 3.0 — and somewhere in `createZodDto` → `@nestjs/swagger` → `cleanupOpenApiDoc` that type array is read as `type: "array"`. So **every nullable field in the contract was published as an array of its own type**:
+
+| field | was | is |
+|---|---|---|
+| `GenerationDetailDto.messageUz` | `string[]` | `string \| null` |
+| `GenerationDetailDto.errorCode` | `string[]` | `string \| null` |
+| `CreditOrderSummaryDto.payerReference` | `string[]` | `string \| null` |
+| `CreditOrderSummaryDto.rejectionReason` | `string[]` | `string \| null` |
+
+The order fields have been wrong **since P3 merged**. A generated client types them that way, so the web app would render a nullable string as a list — and D-031's whole point is that the client cannot drift from the API.
+
+**Setting OpenAPI 3.1 does not fix it**; the information is already gone by then. What makes the repair decidable rather than guesswork is that, *before* `cleanupOpenApiDoc` runs, nestjs-zod leaves `x-nestjs_zod-empty-type: true` on exactly the fields it mangled and **not** on genuine arrays. Verified against seven variants: `.nullable()`, `.nullish()`, `z.union([x, z.null()])` and `.or(z.null())` all carry the marker; `z.array()` and `.optional()` do not.
+
+So `repairNullableFields` in `bootstrap.ts` rewrites `{ marker, type: 'array', items: X }` to `{ ...X, nullable: true }` — OpenAPI 3.0's spelling — and it runs **before** cleanup, because cleanup strips the marker it depends on.
+
+`src/contract.spec.ts` keeps it shut from both sides: the nullable fields must be nullable scalars, **and** a genuine array must come through untouched, so the fix cannot become worse than the bug.
+
+**The lesson is not about zod.** `openapi:check` was green through all of this, and so were 525 tests: nothing on this side reads the contract as a client. The bug was only visible from the web repo, by generating the client and looking at the types it produced.
+
+
 ---
 
 ## Inputs recorded but not yet decided

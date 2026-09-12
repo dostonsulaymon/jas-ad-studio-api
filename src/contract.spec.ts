@@ -102,3 +102,60 @@ it('gives every state-changing route a documented request body', () => {
 
   expect(missing, `no request body documented: ${missing.join(', ')}`).toEqual([]);
 });
+
+/**
+ * Every field that is nullable in a zod schema must reach the client as a nullable
+ * scalar, not as an array.
+ *
+ * zod 4 emits a nullable as JSON Schema's `type: ["string","null"]`, which OpenAPI 3.0
+ * cannot express, and the conversion read that type array as `type: "array"`. So
+ * `messageUz`, `errorCode`, `payerReference` and `rejectionReason` were all `string[]`
+ * in the contract — `payerReference` since P3 merged — and a generated client would have
+ * rendered a nullable string as a list. `repairNullableFields` in bootstrap.ts undoes it;
+ * this is what stops it coming back.
+ */
+const MUST_BE_NULLABLE_SCALARS: [string, string][] = [
+  ['GenerationDetailDto', 'messageUz'],
+  ['GenerationDetailDto', 'errorCode'],
+  ['GenerationDetailDto', 'finishedAt'],
+  ['CreditOrderSummaryDto', 'payerReference'],
+  ['CreditOrderSummaryDto', 'rejectionReason'],
+  ['CreditOrderSummaryDto', 'confirmedAt'],
+  ['OwnerOrderDto', 'payerReference'],
+  ['AdminPackDto', 'priceUzs'],
+];
+
+it('spells a nullable field as a nullable scalar, never as an array', () => {
+  const schemas = contract().components.schemas as Record<
+    string,
+    { properties?: Record<string, { type?: unknown; nullable?: boolean }> }
+  >;
+
+  const wrong: string[] = [];
+  for (const [dto, field] of MUST_BE_NULLABLE_SCALARS) {
+    const property = schemas[dto]?.properties?.[field];
+    if (!property) {
+      wrong.push(`${dto}.${field} is missing`);
+    } else if (property.type === 'array') {
+      wrong.push(`${dto}.${field} is an array`);
+    } else if (property.nullable !== true) {
+      wrong.push(`${dto}.${field} is not marked nullable`);
+    }
+  }
+
+  expect(wrong, wrong.join('; ')).toEqual([]);
+});
+
+it('leaves genuine arrays alone', () => {
+  const schemas = contract().components.schemas as Record<
+    string,
+    { properties?: Record<string, { type?: unknown; items?: unknown; nullable?: boolean }> }
+  >;
+
+  // The repair keys on a marker nestjs-zod leaves only on what it mangled, so a real
+  // array must come through untouched — otherwise the fix would be worse than the bug.
+  const questions = schemas.GenerationDetailDto?.properties?.questionsUz;
+  expect(questions?.type).toBe('array');
+  expect(questions?.items).toBeDefined();
+  expect(questions?.nullable).toBeUndefined();
+});

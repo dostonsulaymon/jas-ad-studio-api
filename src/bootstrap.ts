@@ -17,6 +17,71 @@ export function applyGlobalSetup(app: INestApplication): void {
 }
 
 /**
+ * nestjs-zod's own marker for a schema it could not express. It is the only thing that
+ * distinguishes a mangled nullable from a genuine array, and `cleanupOpenApiDoc` strips
+ * it — so the repair has to happen before that runs.
+ */
+const EMPTY_TYPE_MARKER = 'x-nestjs_zod-empty-type';
+
+interface MutableSchema {
+  type?: unknown;
+  items?: MutableSchema;
+  properties?: Record<string, MutableSchema>;
+  nullable?: boolean;
+  [key: string]: unknown;
+}
+
+/**
+ * Repairs every nullable field in the document.
+ *
+ * zod 4 emits a nullable as JSON Schema's `type: ["string", "null"]`, which is legal
+ * JSON Schema and illegal in OpenAPI 3.0. Somewhere in the conversion that type array is
+ * read as `type: "array"`, so **every nullable field arrived in the contract as an array
+ * of its own type**: `messageUz` and `errorCode` as `string[]`, `payerReference` and
+ * `rejectionReason` as `string[]` since P3 merged. A generated client (D-031) types them
+ * that way, and the web app would render a nullable string as a list.
+ *
+ * Setting OpenAPI 3.1 does not help — the information is already gone by then. But
+ * before `cleanupOpenApiDoc` runs, nestjs-zod leaves `x-nestjs_zod-empty-type` on
+ * exactly the fields it mangled and not on real arrays, which is what makes the repair
+ * decidable rather than guesswork.
+ *
+ * `{ marker, type: 'array', items: X }` becomes `{ ...X, nullable: true }`, which is how
+ * OpenAPI 3.0 spells it.
+ */
+function repairNullableFields(node: MutableSchema | undefined): void {
+  if (!node || typeof node !== 'object') return;
+
+  for (const value of Object.values(node.properties ?? {})) repairNullableFields(value);
+  repairNullableFields(node.items);
+
+  for (const key of ['anyOf', 'oneOf', 'allOf'] as const) {
+    const branch = node[key];
+    if (Array.isArray(branch)) for (const child of branch) repairNullableFields(child as MutableSchema);
+  }
+
+  if (node[EMPTY_TYPE_MARKER] === true && node.type === 'array' && node.items) {
+    const inner = node.items;
+    delete node.items;
+    delete node.type;
+    Object.assign(node, inner, { nullable: true });
+  }
+}
+
+/** Every component schema and every inline request/response body. */
+function repairDocument(document: OpenAPIObject): OpenAPIObject {
+  for (const schema of Object.values(document.components?.schemas ?? {})) {
+    repairNullableFields(schema as MutableSchema);
+  }
+  for (const methods of Object.values(document.paths)) {
+    for (const operation of Object.values(methods)) {
+      repairNullableFields(operation as MutableSchema);
+    }
+  }
+  return document;
+}
+
+/**
  * The one document factory. `openapi.json` and the browsable UI are built from it by the
  * same code, so the page a human reads can never disagree with the contract the web repo
  * generates its client from (D-031).
@@ -31,7 +96,8 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
     .setVersion('0.0.1')
     .build();
 
-  return cleanupOpenApiDoc(SwaggerModule.createDocument(app, config));
+  // repair BEFORE cleanup: cleanup strips the marker the repair depends on.
+  return cleanupOpenApiDoc(repairDocument(SwaggerModule.createDocument(app, config)));
 }
 
 /**
