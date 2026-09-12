@@ -31,6 +31,43 @@ export const envSchema = z.object({
    * rather than reporting every generation as free.
    */
   OPENAI_MODEL: z.string().min(1).optional(),
+
+  /**
+   * D-061. Optional at boot on purpose: CI and a fresh checkout must start without them,
+   * and the auth controller refuses at the point of use — so a missing key fails sign-in
+   * rather than killing the whole process.
+   */
+  GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+  GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
+  GOOGLE_REDIRECT_URI: z
+    .url('GOOGLE_REDIRECT_URI must be an absolute URL')
+    .default('http://localhost:3040/api/auth/google/callback'),
+
+  /** Where a completed sign-in lands, and the only origin CSRF accepts (spec §10). */
+  WEB_ORIGIN: z.url('WEB_ORIGIN must be an absolute URL').default('http://localhost:3040'),
+
+  /**
+   * D-037. Role `owner` comes only from here, never from a request. Empty means nobody is
+   * an owner, which is the safe direction to fail in.
+   */
+  OWNER_EMAILS: z
+    .string()
+    .default('')
+    .transform((raw) =>
+      raw
+        .split(',')
+        .map((entry) => entry.trim().toLowerCase())
+        .filter((entry) => entry.length > 0),
+    ),
+
+  /** R-6. Private photo volume root, mounted at /app/storage/photos in the container. */
+  STORAGE_ROOT: z.string().min(1).default('./storage/photos'),
+
+  /** Serves the docs page in production too. Off by default: it lists every route. */
+  SWAGGER_ENABLED: z
+    .enum(['true', 'false'])
+    .default('false')
+    .transform((raw) => raw === 'true'),
 });
 
 export type Env = z.infer<typeof envSchema>;

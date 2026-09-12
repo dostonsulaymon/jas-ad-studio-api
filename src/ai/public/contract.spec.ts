@@ -12,7 +12,7 @@ const validBrief = {
   productName: 'Termos 500ml',
   description: 'Issiqni 12 soat saqlaydigan po‘lat termos.',
   goal: 'sales',
-  style: 'clean-studio',
+  formatId: 'product-film',
   platform: 'instagram',
   aspectRatio: '9:16',
   durationSeconds: 8,
@@ -37,7 +37,7 @@ const validResult = {
   concept: {
     titleUz: 'Kun bo‘yi issiq',
     rationaleUz: 'Mahsulotning asosiy foydasini ko‘rsatadi.',
-    style: 'clean-studio',
+    formatId: 'product-film',
     hookUz: 'Bug‘ ko‘tarilayotgan qopqoq',
     ctaUz: 'Buyurtma bering',
   },

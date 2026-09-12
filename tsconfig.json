@@ -14,6 +14,14 @@
     "sourceMap": true,
     "outDir": "./dist",
     "baseUrl": "./",
+    "paths": {
+      // sharp 0.35 ships dual types behind an "exports" map, which moduleResolution
+      // "node" (Node10) does not read — it falls back to the `types` field, an ESM
+      // .d.mts that cannot be loaded for a CommonJS import, and every sharp call becomes
+      // `any`. Pointing at the CJS declarations fixes the types without changing module
+      // resolution for the whole project, which module: "commonjs" would not allow.
+      "sharp": ["./node_modules/sharp/dist/index.d.cts"]
+    },
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,

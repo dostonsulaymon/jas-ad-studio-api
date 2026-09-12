@@ -40,7 +40,7 @@ function main(): void {
   rmSync(outDir, { recursive: true, force: true });
   mkdirSync(outDir, { recursive: true });
 
-  const index: string[] = ['# Test pack', '', '| # | Product | Style | Words | Status |', '|---|---|---|---|---|'];
+  const index: string[] = ['# Test pack', '', '| # | Product | Format | Words | Status |', '|---|---|---|---|---|'];
   let n = 0;
 
   for (const product of products) {
@@ -64,11 +64,11 @@ function main(): void {
     copyFileSync(join('out', report), join(slot, 'full-report.md'));
 
     const brief: unknown = JSON.parse(readFileSync(join(productsDir, product, 'brief.json'), 'utf8'));
-    const style = (brief as { style: string }).style;
+    const formatId = (brief as { formatId: string }).formatId;
     const words = prompt ? prompt.trim().split(/\s+/).length : 0;
 
     index.push(
-      `| ${String(n)} | ${product} | ${style} | ${words === 0 ? '—' : String(words)} | ${status} |`,
+      `| ${String(n)} | ${product} | ${formatId} | ${words === 0 ? '—' : String(words)} | ${status} |`,
     );
   }
 

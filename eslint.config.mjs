@@ -13,6 +13,7 @@ export default tseslint.config(
       'vitest.config.ts',
       'vitest.setup.ts',
       'drizzle.config.ts',
+      'ecosystem.config.cjs',
       'tools/**',
     ],
   },
@@ -87,6 +88,11 @@ export default tseslint.config(
     files: ['**/*.spec.ts'],
     rules: {
       '@typescript-eslint/unbound-method': 'off',
+      // R-7 exists to stop PRODUCTION coupling between modules. An integration test
+      // legitimately wires two real modules together — assets + projects, to prove the
+      // ownership check actually holds — and substituting a fake there would weaken
+      // exactly the test P2's exit criterion depends on. Specs ship to nobody.
+      'boundaries/element-types': 'off',
     },
   },
   prettier,

@@ -32,7 +32,7 @@ const brief: Brief = {
   productName: 'Termos',
   description: 'Oddiy kulrang termos. Yorliqsiz, logotipsiz.',
   goal: 'sales',
-  style: 'clean-studio',
+  formatId: 'product-film',
   platform: 'instagram',
   aspectRatio: '9:16',
   durationSeconds: 8,

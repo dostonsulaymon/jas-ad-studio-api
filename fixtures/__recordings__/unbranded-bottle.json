@@ -45,7 +45,7 @@
     "concept": {
       "titleUz": "Ofis va talaba hayotingiz uchun ishonchli termos",
       "rationaleUz": "Ushbu termos oddiy, zamonaviy dizayni va silliq kulrang yuzasi bilan ofis va talaba turmush tarziga mos keladi. Yorliq va logotip boʻlmagani uchun minimalist va universal koʻrinishda, har qanday muhitga moslashadi.",
-      "style": "clean-studio",
+      "formatId": "product-film",
       "hookUz": "Oddiy, zamonaviy termos — bu siz uchun ishonchli hamroh.",
       "ctaUz": "Bugun tanlang!"
     },

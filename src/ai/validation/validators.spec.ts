@@ -34,7 +34,7 @@ function resultWith(overrides: Partial<GenerationResult> = {}): GenerationResult
     concept: {
       titleUz: 'Kun bo‘yi issiq',
       rationaleUz: 'Asosiy foydani ko‘rsatadi.',
-      style: 'clean-studio',
+      formatId: 'product-film',
       hookUz: 'Bug‘ ko‘tariladi',
       ctaUz: 'Buyurtma bering',
     },

@@ -1,7 +1,7 @@
 {
   "productName": "Oddiy idish",
   "description": "Oq yorliqli kulrang idish.",
-  "goal": "sales", "style": "clean-studio", "platform": "instagram",
+  "goal": "sales", "formatId": "product-film", "platform": "instagram",
   "aspectRatio": "9:16", "durationSeconds": 8,
   "audience": null,
   "confirmedClaims": [], "offer": null, "galleryInspirationId": null

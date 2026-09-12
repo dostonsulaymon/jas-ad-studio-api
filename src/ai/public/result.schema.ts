@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { ASPECT_RATIOS } from './video-format';
-import { AD_STYLES } from './brief.schema';
+import { FORMAT_IDS } from './creative-format';
 
 /**
  * The model's output (source 01 §26), minus `editingAssets`: voiceover and overlay text
@@ -30,7 +30,13 @@ const concept = z
   .object({
     titleUz: uzLine,
     rationaleUz: uzText,
-    style: z.enum(AD_STYLES),
+    /**
+     * The format the model believes it wrote for, echoed back (D-065, replacing `style`).
+     * Nothing validates it today; it exists so a model that quietly writes a high-energy
+     * prompt when asked for a restrained one can be caught, the way D-044 catches an
+     * invented targetId.
+     */
+    formatId: z.enum(FORMAT_IDS),
     hookUz: uzLine,
     ctaUz: uzLine,
   })

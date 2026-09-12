@@ -16,7 +16,8 @@ const PRODUCT_FILM = {
   id: 'product-film',
   version: 1,
   labelUz: 'Studiya reklamasi',
-  styles: ['clean-studio', 'premium-cinematic'],
+  descriptionUz:
+    "Toza fonda, sokin kamera bilan mahsulotni diqqat bilan ko'rsatadigan reklama.",
   intent:
     'A composed product film that lets the viewer study the object. Restraint is the point: the product is the subject and the camera serves it.',
   sections: [
@@ -56,7 +57,8 @@ const HIGH_ENERGY = {
   id: 'high-energy',
   version: 1,
   labelUz: 'Tezkor reklama',
-  styles: ['energetic-social'],
+  descriptionUz:
+    "Tez kadrlar va keskin o'tishlar bilan, ijtimoiy tarmoqlar uchun shiddatli reklama.",
   intent:
     'A fast product launch film with the pacing of a music video. It must grab attention in the first half second and never let the product become unreadable while doing it.',
   sections: [
@@ -103,7 +105,8 @@ const LIFESTYLE_STORY = {
   id: 'lifestyle-story',
   version: 1,
   labelUz: 'Hayotiy lavha',
-  styles: ['lifestyle'],
+  descriptionUz:
+    "Mahsulot kundalik hayotda ishlatilayotgan qisqa va tabiiy lavha.",
   intent:
     'A small believable moment from someone’s day in which the product is used. The product stays dominant; the person is context, never the subject.',
   sections: [
@@ -140,7 +143,8 @@ const UGC_AUTHENTIC = {
   id: 'ugc-authentic',
   version: 1,
   labelUz: 'Tabiiy UGC',
-  styles: ['ugc'],
+  descriptionUz:
+    "Xaridorning o'zi telefonda suratga olgandek ko'rinadigan, sun'iy bo'lmagan video.",
   intent:
     'Footage that looks filmed by a real customer on a phone, not by a crew. Slight imperfection is the point, but the product must still read clearly.',
   sections: [
@@ -187,14 +191,14 @@ export function findFormat(id: string): CreativeFormat | undefined {
 }
 
 /**
- * The seller picks a style (source 01 §9); the format follows from it. Falling back to
- * the restrained format is deliberate: an unmapped style must not silently gain
- * permission to whip-pan around a product.
+ * D-065: the seller names the format themselves, so there is no style to map from.
+ *
+ * Falling back to the restrained format is deliberate and stays: an id nothing defines
+ * must not silently gain permission to whip-pan around a product. The zod enum on the
+ * brief means this should be unreachable through the API — it guards the CLI and any
+ * future caller that builds a brief by hand.
  */
 export function formatForBrief(brief: Brief): CreativeFormat {
-  for (const format of REGISTRY.values()) {
-    if ((format.styles as readonly string[]).includes(brief.style)) return format;
-  }
-
-  return REGISTRY.get(DEFAULT_FORMAT_ID) as CreativeFormat;
+  return REGISTRY.get(brief.formatId) ?? (REGISTRY.get(DEFAULT_FORMAT_ID) as CreativeFormat);
 }
+

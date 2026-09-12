@@ -17,7 +17,7 @@ const brief: Brief = {
   productName: 'Termos 500ml',
   description: 'Po‘lat termos.',
   goal: 'sales',
-  style: 'clean-studio',
+  formatId: 'product-film',
   platform: 'instagram',
   aspectRatio: '9:16',
   durationSeconds: 8,
@@ -47,7 +47,7 @@ function goodResult(overrides: Partial<GenerationResult> = {}): GenerationResult
     concept: {
       titleUz: 'Kun bo‘yi issiq',
       rationaleUz: 'Foydani ko‘rsatadi.',
-      style: 'clean-studio',
+      formatId: 'product-film',
       hookUz: 'Bug‘',
       ctaUz: 'Buyurtma bering',
     },
