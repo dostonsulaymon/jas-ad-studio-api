@@ -45,11 +45,12 @@ At the end of every step, update **Resume here** so the next session starts from
 1. Never implement past an unanswered question. Present options with honest tradeoffs and one recommendation, then **stop** and wait.
 2. Every phase follows the same order: write the plan in `docs/superpowers/plans/`, Doston reviews it, we discuss, he approves, then we build.
 3. Deliver code **one part at a time**. Stop after each part for review.
-4. Record every answer in `DECISIONS.md`. Once recorded, it is locked. Changing it takes a new entry that supersedes it.
-5. **One branch per phase.** A phase is built on its own branch, named `p<n>-<short-slug>` after the phase title in `docs/PLAN.md` — `p2-accounts-uploads`, `p3-credits-orders`. Cut it from `main` before the first task and never build a new phase on the branch of the one before it. It merges to `main` only after the phase's exit check passes and Doston has reviewed it. `main` stays a line of closed phases (D-070).
-6. Ask, don't assume.
+4. **Never commit while working on a task.** Work lands in the working tree, not in history. At the end of a task, stop and report what changed with its real output; **Doston reviews the diff and says when to commit.** When he does: one commit per task, with that task's doc updates folded in — never a separate commit for `PROGRESS.md` or `DECISIONS.md`. "Prefer small, focused commits" in the global CLAUDE.md is about the *shape* of a commit, not permission to make one (D-071).
+5. Record every answer in `DECISIONS.md`. Once recorded, it is locked. Changing it takes a new entry that supersedes it.
+6. **One branch per phase.** A phase is built on its own branch, named `p<n>-<short-slug>` after the phase title in `docs/PLAN.md` — `p2-accounts-uploads`, `p3-credits-orders`. Cut it from `main` before the first task and never build a new phase on the branch of the one before it. It merges to `main` only after the phase's exit check passes and Doston has reviewed it. `main` stays a line of closed phases (D-070).
+7. Ask, don't assume.
 
-**Standing gate. Never do these without asking:** add a dependency · change the database schema · delete or rewrite data · deploy · change an existing `DECISIONS.md` entry · change the AI system prompt · touch anything that moves money or credits.
+**Standing gate. Never do these without asking:** **commit** · add a dependency · change the database schema · delete or rewrite data · deploy · change an existing `DECISIONS.md` entry · change the AI system prompt · touch anything that moves money or credits.
 
 **Working with Doston:** one question at a time, not batched walls of text. After each step, report what changed, how it was verified with real output, and the commands for him to verify it himself. Then stop. Update `docs/PROGRESS.md` at the end of every step.
 

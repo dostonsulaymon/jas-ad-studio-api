@@ -852,6 +852,87 @@ It merges to `main` only after the phase's exit check in `docs/PLAN.md` passes a
 `p3-credits-orders` is the first branch cut under this rule.
 
 
+### D-071 · 2026-09-12 · Doston commits; Claude does not
+
+Asked for by Doston after a session committed three times in a row while working through one task — the task's code, then its `PROGRESS.md` update as a separate commit, then the plan.
+
+**Claude never commits.** Work is left in the working tree, the task is reported with its real output, and Doston reviews the diff and says when to commit. When he does, it is **one commit per task** with that task's doc updates folded in — no separate commit for `PROGRESS.md` or `DECISIONS.md`.
+
+Why: a commit is the point where work stops being reviewable at a glance. Doston reads diffs, and three commits deep into a task he is reading history instead of changes. `git reset` makes it recoverable, not free.
+
+The misreading worth naming: the global `CLAUDE.md` says "prefer small, focused commits over large sweeping changes". That is about the **shape** of a commit, not permission to make one. `commit` is now on the standing gate for that reason.
+
+
+### D-072 · 2026-09-12 · Packs carry editable placeholder prices and ship inactive
+
+Doston asked for "some prices which are editable" rather than the null prices D-009 implies. Addendum A §A3 forbids inventing prices and A8 forbids showing one before the owner configures a pack, so the two are reconciled by making the price real in the table and unreachable by a seller.
+
+**The seed** (`0005_seed_packs_and_settings.sql`) gives `pack_1` 9,000 som, `pack_5` 40,000 and `pack_15` 105,000, all with `is_active = false`. **Those three figures are Claude's placeholders, not prices Jakhongir has agreed.** They exist so the flow is walkable and the owner edits a number instead of inventing a record.
+
+Two independent rules keep them away from sellers:
+
+1. `GET /api/packs` returns only `is_active AND price_uzs IS NOT NULL`, so the list is empty until an owner acts. A `credit_packs_active_needs_price` CHECK makes the pair impossible to break from any direction.
+2. **Activation must re-state the price.** `packEditSchema` refuses `{ isActive: true }` unless the same request carries a `priceUzs`. A placeholder cannot go live by one careless toggle. Verified on the running server: `{"isActive":true}` → 400, path `priceUzs`.
+
+The seed uses `ON CONFLICT DO NOTHING`, so re-running migrations never overwrites a price the owner has since set.
+
+### D-073 · 2026-09-12 · The ledger sign convention, and four new error codes
+
+**`credit_ledger.amount` is always a positive magnitude; the `type` decides direction.** A row reads on its own — "debit 1" is one credit spent, not "amount 0" — and both balances derive from one query:
+
+```
+available = Σ purchase + Σ owner_grant + Σ release − Σ reserve
+reserved  = Σ reserve  − Σ release     − Σ debit
+```
+
+`assertLedgerMatchesAccounts()` in `src/common/testing/ledger.ts` is that query, and every money test in P3 ends on it. Rejected: a signed `amount` meaning the delta to `available`, which would make every `debit` row read `0`.
+
+**Four codes beyond spec §9's list:** `ORDER_NOT_PENDING` (409), `PACK_NOT_AVAILABLE` (409), `GRANT_NOTE_REQUIRED` (400), `PAYMENT_NOT_CONFIGURED` (409). Plus one that is deliberately *not* a `DomainError`: `LEDGER_INVARIANT` is an `InfraError`, 500, because a debit against an empty reservation cannot be caused by a seller — only by our own bug — so it must page us rather than apologise to them.
+
+### D-074 · 2026-09-12 · `site_settings` is built in P3, not P5
+
+Doston deferred it to P5 when the plan was commissioned, then reversed it while the plan was being written: *"add the payment part to phase 3."*
+
+Without it P3 shipped a dead end — a seller could place an order and the app could never tell them where to send money (Addendum A §A4 step 2). One `site_settings` table, `GET /api/settings/public` (works signed out, per spec §3), and two owner routes.
+
+**`POST /api/orders` now refuses with `PAYMENT_NOT_CONFIGURED` when no card, Payme or Click is set.** An order the seller cannot act on banks a pending row the owner can never match to a payment, and a seller who believes they have bought something.
+
+**No card number is seeded.** The migration is committed and this repo will have a remote, so `payment_instructions` ships with every field null and the owner sets it through the API. The D-023 support contacts *are* seeded, because they are published addresses rather than secrets.
+
+**Still out of scope:** automatic Payme or Click checkout. D-008 stands — it needs a registered business and a merchant agreement. Nothing in P3 talks to a provider; the confirm path is one service method so a verified merchant callback can call it later.
+
+### D-075 · 2026-09-12 · The reserve/debit/release primitives are built in P3
+
+Asked of Doston before the plan was written, because `docs/PLAN.md` assigns the generation flow to P4. His answer: build the primitives and their race tests now.
+
+So P3 ships `reserveOne`, `debit` and `release` with nothing calling them but their tests, and **every money method takes an optional `Executor`** (`src/common/db/transaction.ts`) so P4's `POST /generations` can reserve a credit inside the transaction that inserts the generation row — or neither happens.
+
+Why it was worth the extra half day: the reserve race is where a bug costs money, and in P4 it would compete for attention with job leases, sweepers and the AI call. Proven instead in `accounts.race.spec.ts` — one credit against two concurrent reserves, three against ten, a grant racing a reserve, and a 50-operation storm across five users that ends on the invariant. Run five times over, stable each time.
+
+The guard is `WHERE available >= 1` **inside the UPDATE**, never a SELECT followed by an UPDATE. That single statement is what makes concurrency safe without a lock the application has to remember to take (R-3).
+
+### D-076 · 2026-09-12 · An idempotent POST answers 200, not 201
+
+Found by walking P3 by hand against the running server, which is the step that earned its place in P2 (D-066 to D-069).
+
+`POST /api/owner/orders/:id/confirm` was answering **201 Created** — Nest's default for a POST — for an action that creates nothing, and which on a second call is explicitly a no-op returning `{"credited":0,"alreadyPaid":true}`. A client generated from that contract (D-031) would describe a resource that does not exist.
+
+`confirm`, `reject`, `grants` and `orders/:id/cancel` now carry `@HttpCode(200)`. `POST /api/orders` keeps 201: it really does create an order.
+
+Not a money bug — the balance was always right — which is exactly why no unit test saw it. The exit gate asserted the 201 it observed, so **the test was encoding the defect**, the same trap two P2 specs fell into (D-066).
+
+
+### D-077 · 2026-09-12 · Endpoint coverage is asserted from the contract, not claimed
+
+Doston asked, at the end of P3, whether every endpoint had been tested. It had not. Twelve of the fourteen P3 routes had been driven to a success; `GET /api/owner/users` and `GET /api/owner/orders` appeared only in the 404/401 refusal loops, and **`PATCH /api/owner/settings/support-contacts` had never been called at all**.
+
+The fix is not "add two tests and say yes again". **`src/money.e2e.spec.ts` now records every route that answers 2xx, reads the route list out of `openapi.json`, and fails on any P3 route never driven to a success.** A 404 probe proves a door is shut, not that the room behind it works, so refusals do not count toward coverage.
+
+Verified to have teeth: breaking only the support-contacts call makes the suite report exactly `never driven to a 2xx: PATCH /api/owner/settings/support-contacts`.
+
+Because the list comes from the generated contract rather than a hand-kept array, **a route added to the API without a test that exercises it now fails the build.** Every future phase inherits that.
+
+
 ---
 
 ## Inputs recorded but not yet decided
