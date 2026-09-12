@@ -29,7 +29,7 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 ## 2026-09-11 — project set up for planning
 
 **Done:**
-- Read build prompt v1, build prompt v2 and the prompt quality standard in full.
+- Read build prompt v1, build prompt v2 and the prompt quality standard in full. (v1 was deleted on 2026-09-12, D-049.)
 - Wrote Addendum A with the owner decisions: paid credits, free gallery, Supabase Free constraints.
 - Ran a cost analysis (tabbed artifact with a calculator): https://claude.ai/code/artifact/56eddb3d-8d0e-47e8-93e6-beef1a4509a1
 - Created both folders, copied the sources into `docs/source/`, and wrote this doc set.

@@ -59,7 +59,8 @@ The owner's product documents live in `docs/source/`. When they disagree, the hi
 2. `docs/source/03-addendum-a-paid-credits.md`: owner decisions. Overrides 01 and 02.
 3. `docs/source/02-prompt-quality-standard.md`: how the final video prompt must read.
 4. `docs/source/01-build-prompt-v2.md`: product requirements. **Its technology suggestions are only suggestions (D-001).**
-5. `docs/source/00-build-prompt-v1-superseded.md`: history only. Do not build from it.
+
+Build prompt v1 was deleted on 2026-09-12 (D-049). It was superseded by v2 and was only ever a source of confusion. Recover it from git if a provenance question ever needs it: `git show e3e7d90:docs/source/00-build-prompt-v1-superseded.md`.
 
 Sources 01 and 02 contradict each other in places. The conflicts are listed in `docs/BRIEF.md` and must be resolved in `DECISIONS.md` before the AI phase starts.
 

@@ -497,6 +497,17 @@ Structure is a stronger lever than the length instruction. `gpt-4.1` nearly doub
 This is a standing-gate change to the AI system prompt. Doston directed it: "that example prompt has 2373 words and ours should have such words."
 
 
+### D-049 · 2026-09-12 · Build prompt v1 is deleted from the repository
+
+`docs/source/00-build-prompt-v1-superseded.md` is removed. It was superseded by build prompt v2 on day one, was never built from, and appeared in no code or plan — it only invited a reader to wonder whether it still counted.
+
+Doston: "it is causing distraction and confusion."
+
+**Recoverable:** `git show e3e7d90:docs/source/00-build-prompt-v1-superseded.md`. Nothing is lost, only removed from the working tree where it could mislead.
+
+The precedence list in `CLAUDE.md` now has four entries instead of five, and says where to find v1 if a provenance question ever needs it.
+
+
 ---
 
 ## Inputs recorded but not yet decided
