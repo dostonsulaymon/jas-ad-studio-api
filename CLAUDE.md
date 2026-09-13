@@ -118,6 +118,7 @@ Two gotchas, both learned the hard way:
 
 - **Any script that boots the Nest app must be compiled, not run through tsx.** esbuild emits no decorator metadata, so `NestFactory.create()` cannot resolve constructor types and exits silently with no error. `src/openapi.ts` is compiled by `nest build` for this reason.
 - **Never find a process with `pgrep -f` here.** Other projects on this machine run `dist/main.api` and `dist/main.worker` too, and the pattern also matches the searching shell's own command line. Match on `/proc/<pid>/cwd` instead.
+- **The `.env` points at the public site, not localhost** (since 2026-09-13). `WEB_ORIGIN=https://jas.kitobnarxi.uz` and `GOOGLE_REDIRECT_URI=https://jas.kitobnarxi.uz/api/auth/google/callback`, with `EXTRA_WEB_ORIGINS` letting `http://localhost:3042` write too. Google sign-in always returns to the public host. Do not "fix" these back to localhost: the whole public setup is in `../jas-ad-studio-web/CLAUDE.md` → *Running it publicly*. The api runs from `dist/` under pm2 as `jas-api` and `jas-worker`, so after `pnpm build` restart them with pm2 or the site keeps serving the old code.
 
 ---
 

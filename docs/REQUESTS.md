@@ -37,7 +37,7 @@ Template:
 ## Requests
 
 ### R-001 · 2026-09-13 · "Use this style" skips step 1
-**Area:** web · **Status:** new
+**Area:** web · **Status:** done on `p6d-requests` (web `fix(studio)… (R-001)`), not yet merged
 **Ask:** In the example gallery, the **Prompt** button opens a side panel with **"Shu uslubdan foydalanish"**. Clicking it takes the seller straight to **step 2** of the studio, even when step 1 is empty — no photo, no product name. The seller ends up in step 2 with nothing entered. It should not skip step 1.
 **Note:** found while P6 (gallery) was still being built, so it may belong in P6's own fixes rather than a later phase. The P6 plan (Task 12) has step 2 *show* the selected style; it does not say the studio should jump there.
 
@@ -45,7 +45,7 @@ Template:
 **Outcome:**
 
 ### R-002 · 2026-09-13 · A seller's generated prompts are lost once they leave the result
-**Area:** web, api · **Status:** new
+**Area:** web, api · **Status:** done on `p6d-requests` — api route merged to `main` 2026-09-13; web reopens a project on its newest prompt with Versiya buttons (confirmed by Doston on the real Pixel 9a project)
 **Ask:** After a prompt is generated, the seller cannot find it again. Reopening a project should show its prompts, including earlier ones — version 1, version 2 and so on. Losing a prompt the seller already paid a credit for is bad.
 **Note (checked 2026-09-13, not assumed):** the prompts *are* stored — the `packages` table holds `prompt_en` and `result`, and the one test project has 2 generations with 2 packages. What is missing is any way to reach them: `GET /api/projects/{id}` returns no generation ids, there is no route listing a project's generations, and `GET /api/generations/{id}` needs an id the web no longer has. Reopening the project in the browser restores step 1 (photo, name) and shows no prompt at all.
 **Outcome:**
@@ -69,7 +69,7 @@ Template:
 **Outcome:**
 
 ### R-006 · 2026-09-13 · The support contact cards need icons
-**Area:** web · **Status:** new
+**Area:** web · **Status:** done on `p6d-requests` (web `feat(footer)… (R-006)`), not yet merged
 **Ask:** "The contact panel, add the stickers. Find sticker, please. Like, this is shit."
 **Note:** the footer cards are label + handle in plain text. A Telegram mark and a mail glyph would make the three channels scannable at a glance instead of read word by word. Needs an icon source that does not add a dependency — inline SVG, sized to the text.
 **Outcome:**
@@ -81,6 +81,6 @@ Template:
 **Outcome:**
 
 ### R-008 · 2026-09-13 · Refreshing `/admin` throws the owner back to its first screen
-**Area:** web · **Status:** new
+**Area:** web · **Status:** done on `p6d-requests` (web `fix(admin)… (R-008)`), not yet merged. Only the tab survives a refresh; an open edit form inside a tab does not (Q-4 in the p6d plan)
 **Ask:** In the admin panel, refreshing the page goes back to the main screen instead of staying where the owner was. Doston: the admin panel "has lots of problems" — this is one; look at each part.
 **Outcome:**
