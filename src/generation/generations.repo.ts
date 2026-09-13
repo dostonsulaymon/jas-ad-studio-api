@@ -217,44 +217,62 @@ export class GenerationsRepo {
   }
 
   async findOwned(userId: string, generationId: string): Promise<GenerationDetail | null> {
-    const { rows } = await this.pool.query<
-      GenerationRow & {
-        pkg_result: unknown;
-        pkg_prompt: string | null;
-        pkg_created: Date | null;
-      }
-    >(
-      `SELECT ${VIEW_COLUMNS.split(', ').map((c) => 'g.' + c.trim()).join(', ')},
-              p.result AS pkg_result, p.prompt_en AS pkg_prompt, p.created_at AS pkg_created
-         FROM generations g
-         LEFT JOIN packages p ON p.generation_id = g.id
-        WHERE g.id = $2 AND g.user_id = $1`,
+    const { rows } = await this.pool.query<DetailRow>(
+      `${DETAIL_SELECT} WHERE g.id = $2 AND g.user_id = $1`,
       [userId, generationId],
     );
 
-    const row = rows[0];
-    if (!row) return null;
-
-    return {
-      ...toView(row),
-      package:
-        row.pkg_prompt === null || row.pkg_created === null
-          ? null
-          : {
-              generationId: row.id,
-              promptEn: row.pkg_prompt,
-              /**
-               * Parsed on the way out, not cast. jsonb comes back as `unknown`, and the
-               * contract now promises the web app a real §26 shape — so the promise is
-               * checked rather than asserted. A package is validated before it is
-               * stored, so a failure here means the schema changed incompatibly with
-               * rows a seller already paid for, which should be loud.
-               */
-              result: generationResultSchema.parse(row.pkg_result),
-              createdAt: row.pkg_created.toISOString(),
-            },
-    };
+    return rows[0] ? toDetail(rows[0]) : null;
   }
+
+  /**
+   * Every generation of one project, newest first (R-002). Ownership of the project is
+   * the caller's check; `user_id` is filtered here too, so this can never return another
+   * seller's rows even if that check were skipped.
+   */
+  async listForProject(userId: string, projectId: string): Promise<GenerationDetail[]> {
+    const { rows } = await this.pool.query<DetailRow>(
+      `${DETAIL_SELECT} WHERE g.project_id = $2 AND g.user_id = $1
+        ORDER BY g.created_at DESC, g.id DESC`,
+      [userId, projectId],
+    );
+
+    return rows.map(toDetail);
+  }
+}
+
+type DetailRow = GenerationRow & {
+  pkg_result: unknown;
+  pkg_prompt: string | null;
+  pkg_created: Date | null;
+};
+
+const DETAIL_SELECT = `SELECT ${VIEW_COLUMNS.split(', ').map((c) => 'g.' + c.trim()).join(', ')},
+       p.result AS pkg_result, p.prompt_en AS pkg_prompt, p.created_at AS pkg_created
+  FROM generations g
+  LEFT JOIN packages p ON p.generation_id = g.id`;
+
+/** One mapping for one generation and for a list of them, so the two cannot drift. */
+function toDetail(row: DetailRow): GenerationDetail {
+  return {
+    ...toView(row),
+    package:
+      row.pkg_prompt === null || row.pkg_created === null
+        ? null
+        : {
+            generationId: row.id,
+            promptEn: row.pkg_prompt,
+            /**
+             * Parsed on the way out, not cast. jsonb comes back as `unknown`, and the
+             * contract now promises the web app a real §26 shape — so the promise is
+             * checked rather than asserted. A package is validated before it is
+             * stored, so a failure here means the schema changed incompatibly with
+             * rows a seller already paid for, which should be loud.
+             */
+            result: generationResultSchema.parse(row.pkg_result),
+            createdAt: row.pkg_created.toISOString(),
+          },
+  };
 }
 
 function toView(row: GenerationRow | undefined): GenerationView {
