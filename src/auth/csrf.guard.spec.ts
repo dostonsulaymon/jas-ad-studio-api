@@ -64,3 +64,40 @@ it('applies to DELETE and PATCH, not only POST', () => {
     expect(() => guard.canActivate(context(method, {}))).toThrow(CrossOriginRefusedError);
   }
 });
+
+/**
+ * The failure Doston hit on 2026-09-13: `WEB_ORIGIN` was the Cloudflare tunnel domain
+ * while he was working at `localhost:3042`, so `POST /api/owner/grants` returned 403 and
+ * the admin panel looked healthy because every read still worked. D-086 the second time.
+ */
+const twoOrigins = new CsrfGuard(['https://jas.example.uz', 'http://localhost:3042']);
+
+it('accepts a write from any named origin, not only the first', () => {
+  for (const origin of ['https://jas.example.uz', 'http://localhost:3042']) {
+    expect(
+      twoOrigins.canActivate(
+        context('POST', { origin, 'x-requested-with': 'XMLHttpRequest' }),
+      ),
+    ).toBe(true);
+  }
+});
+
+it('still refuses an origin nobody named', () => {
+  expect(() =>
+    twoOrigins.canActivate(
+      context('POST', { origin: 'http://localhost:9999', 'x-requested-with': 'XMLHttpRequest' }),
+    ),
+  ).toThrow(CrossOriginRefusedError);
+});
+
+// The list is matched exactly, never by prefix — a widened list must not widen that.
+it('refuses a lookalike of a named origin', () => {
+  expect(() =>
+    twoOrigins.canActivate(
+      context('POST', {
+        origin: 'https://jas.example.uz.evil.test',
+        'x-requested-with': 'XMLHttpRequest',
+      }),
+    ),
+  ).toThrow(CrossOriginRefusedError);
+});

@@ -2,7 +2,13 @@
 import { z } from 'zod';
 import type { Executor } from '../../common/db/transaction';
 
-export const AUDIT_TARGETS = ['credit_order', 'user', 'credit_pack', 'site_setting'] as const;
+export const AUDIT_TARGETS = [
+  'credit_order',
+  'user',
+  'credit_pack',
+  'site_setting',
+  'gallery_example',
+] as const;
 export type AuditTarget = (typeof AUDIT_TARGETS)[number];
 
 export const auditEntrySchema = z.object({

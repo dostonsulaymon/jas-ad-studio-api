@@ -4,6 +4,13 @@
  * That was learned the hard way in T-09.
  */
 import { createZodDto } from 'nestjs-zod';
+import { heroPhotosSchema } from '../settings/public/settings.port';
+import {
+  galleryExampleInputSchema,
+  galleryMediaSchema,
+  ownerGalleryExampleSchema,
+  ownerGalleryListSchema,
+} from '../gallery/public/gallery.port';
 import {
   ownerGenerationSchema,
   ownerSpendDaySchema,
@@ -45,3 +52,17 @@ export class OwnerSpendDayDto extends createZodDto(ownerSpendDaySchema) {}
  */
 export class PaymentInstructionsDto extends createZodDto(paymentInstructionsSchema) {}
 export class SupportContactsDto extends createZodDto(supportContactsSchema) {}
+
+/**
+ * The gallery's owner-facing shapes (D-090). Built here from the gallery module's port
+ * schemas rather than imported from its dto file, because R-7 allows a module to read
+ * another's public contract and nothing else — the same reason T-09 put DTO classes
+ * per-module in the first place.
+ */
+export class OwnerGalleryListDto extends createZodDto(ownerGalleryListSchema) {}
+export class OwnerGalleryExampleDto extends createZodDto(ownerGalleryExampleSchema) {}
+export class GalleryExampleInputDtoClass extends createZodDto(galleryExampleInputSchema) {}
+export class GalleryMediaDto extends createZodDto(galleryMediaSchema) {}
+
+/** D-091. Declared here for the same R-7 reason as the gallery classes above. */
+export class HeroPhotosDto extends createZodDto(heroPhotosSchema) {}

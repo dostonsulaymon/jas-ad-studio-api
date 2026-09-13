@@ -30,12 +30,38 @@ export const supportContactsSchema = z.object({
 export type SupportContacts = z.infer<typeof supportContactsSchema>;
 
 /**
+ * The hero tray's photos (D-091).
+ *
+ * Only the image and its alt text: the size and tilt of each plate stay in
+ * `hero-tray.tsx`, because they are how the tray is composed rather than what it shows.
+ * An owner changing a product photo should not be able to break the layout.
+ *
+ * Empty is the shipping default, and the tray falls back to its committed photos rather
+ * than rendering a gap — an empty hero is worse than a slightly stale one.
+ */
+export const heroPhotosSchema = z.object({
+  photos: z
+    .array(
+      z.object({
+        /** A path into the gallery media volume, from an owner upload. */
+        path: z.string().trim().min(1).max(200),
+        /** Required: a decorative-looking product photo still needs a name (§39). */
+        altUz: z.string().trim().min(1).max(120),
+      }),
+    )
+    .max(12)
+    .default([]),
+});
+export type HeroPhotos = z.infer<typeof heroPhotosSchema>;
+
+/**
  * The whitelist. A PATCH to a key that is not here is a 404, so the table can never grow
  * a key that nothing validates.
  */
 export const SETTINGS_KEYS = {
   payment_instructions: paymentInstructionsSchema,
   support_contacts: supportContactsSchema,
+  hero_photos: heroPhotosSchema,
 } as const;
 
 export type SettingKey = keyof typeof SETTINGS_KEYS;
@@ -49,11 +75,13 @@ export function isSettingKey(value: string): value is SettingKey {
  * only a DTO *class* cannot be one, which is why the owner routes are split per key
  * rather than taking `:key` with a union body.
  */
-export type SettingValue = PaymentInstructions | SupportContacts;
+export type SettingValue = PaymentInstructions | SupportContacts | HeroPhotos;
 
 export const publicSettingsSchema = z.object({
   paymentInstructions: paymentInstructionsSchema,
   supportContacts: supportContactsSchema,
+  /** Public because the landing page renders them before anyone signs in. */
+  heroPhotos: heroPhotosSchema,
 });
 export type PublicSettings = z.infer<typeof publicSettingsSchema>;
 

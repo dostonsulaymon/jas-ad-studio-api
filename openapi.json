@@ -501,6 +501,194 @@
         ]
       }
     },
+    "/api/owner/gallery": {
+      "get": {
+        "operationId": "OwnerController_listGallery",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerGalleryListDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Every gallery example, published or not.",
+        "tags": [
+          "Owner"
+        ]
+      },
+      "post": {
+        "operationId": "OwnerController_createGalleryExample",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GalleryExampleInputDtoClass"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerGalleryExampleDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Create a gallery example. Never published unless asked.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
+    "/api/owner/gallery/{id}": {
+      "patch": {
+        "operationId": "OwnerController_editGalleryExample",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GalleryExampleInputDtoClass"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OwnerGalleryExampleDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Edit a gallery example, including whether it is published.",
+        "tags": [
+          "Owner"
+        ]
+      },
+      "delete": {
+        "operationId": "OwnerController_deleteGalleryExample",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Delete a gallery example. The media file is left in place.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
+    "/api/owner/gallery/media": {
+      "post": {
+        "operationId": "OwnerController_uploadGalleryMedia",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GalleryMediaDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Upload a gallery clip or poster.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
+    "/api/owner/settings/hero-photos": {
+      "patch": {
+        "operationId": "OwnerController_setHeroPhotos",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HeroPhotosDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HeroPhotosDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Set the hero tray photos, in display order.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
     "/api/owner/generations": {
       "get": {
         "operationId": "OwnerController_listGenerations",
@@ -1141,11 +1329,41 @@
                 "nullable": true
               }
             }
+          },
+          "heroPhotos": {
+            "type": "object",
+            "properties": {
+              "photos": {
+                "default": [],
+                "maxItems": 12,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 200
+                    },
+                    "altUz": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 120
+                    }
+                  },
+                  "required": [
+                    "path",
+                    "altUz"
+                  ]
+                }
+              }
+            }
           }
         },
         "required": [
           "paymentInstructions",
-          "supportContacts"
+          "supportContacts",
+          "heroPhotos"
         ]
       },
       "CreditPackDto": {
@@ -1614,6 +1832,539 @@
             "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$",
             "default": null,
             "nullable": true
+          }
+        }
+      },
+      "OwnerGalleryListDto": {
+        "type": "object",
+        "properties": {
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "slug": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 80,
+                  "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+                },
+                "titleUz": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "kiyim",
+                    "poyabzal",
+                    "parfyum",
+                    "kosmetika",
+                    "uy-rozgor",
+                    "elektronika",
+                    "oziq-ovqat",
+                    "aksessuar"
+                  ]
+                },
+                "style": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 40
+                },
+                "videoPath": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "posterPath": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "aspectRatio": {
+                  "type": "string",
+                  "enum": [
+                    "9:16",
+                    "16:9",
+                    "1:1"
+                  ]
+                },
+                "durationSeconds": {
+                  "type": "number",
+                  "exclusiveMinimum": true,
+                  "maximum": 600,
+                  "minimum": 0
+                },
+                "promptEn": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "conceptUz": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 600
+                },
+                "creativePreset": {
+                  "type": "object",
+                  "properties": {
+                    "environment": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 120
+                    },
+                    "lighting": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 120
+                    },
+                    "cameraLanguage": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 120
+                    },
+                    "pacing": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 120
+                    },
+                    "mood": {
+                      "type": "string",
+                      "minLength": 3,
+                      "maxLength": 120
+                    }
+                  },
+                  "required": [
+                    "environment",
+                    "lighting",
+                    "cameraLanguage",
+                    "pacing",
+                    "mood"
+                  ]
+                },
+                "sourceType": {
+                  "type": "string",
+                  "enum": [
+                    "app-prompt",
+                    "studio-made",
+                    "external"
+                  ]
+                },
+                "sourceNote": {
+                  "type": "string",
+                  "maxLength": 200
+                },
+                "flowModel": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60,
+                  "nullable": true
+                },
+                "flowMode": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 60,
+                  "nullable": true
+                },
+                "isPublished": {
+                  "type": "boolean"
+                },
+                "sortOrder": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                },
+                "id": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "slug",
+                "titleUz",
+                "category",
+                "style",
+                "videoPath",
+                "posterPath",
+                "aspectRatio",
+                "durationSeconds",
+                "promptEn",
+                "conceptUz",
+                "creativePreset",
+                "sourceType",
+                "sourceNote",
+                "flowModel",
+                "flowMode",
+                "isPublished",
+                "sortOrder",
+                "id"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "examples"
+        ],
+        "additionalProperties": false
+      },
+      "GalleryExampleInputDtoClass": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "titleUz": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "kiyim",
+              "poyabzal",
+              "parfyum",
+              "kosmetika",
+              "uy-rozgor",
+              "elektronika",
+              "oziq-ovqat",
+              "aksessuar"
+            ]
+          },
+          "style": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "videoPath": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "posterPath": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "aspectRatio": {
+            "type": "string",
+            "enum": [
+              "9:16",
+              "16:9",
+              "1:1"
+            ]
+          },
+          "durationSeconds": {
+            "type": "number",
+            "exclusiveMinimum": true,
+            "maximum": 600,
+            "minimum": 0
+          },
+          "promptEn": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conceptUz": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 600
+          },
+          "creativePreset": {
+            "type": "object",
+            "properties": {
+              "environment": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              "lighting": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              "cameraLanguage": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              "pacing": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              "mood": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "environment",
+              "lighting",
+              "cameraLanguage",
+              "pacing",
+              "mood"
+            ]
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": [
+              "app-prompt",
+              "studio-made",
+              "external"
+            ]
+          },
+          "sourceNote": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "flowModel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60,
+            "nullable": true
+          },
+          "flowMode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60,
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "slug",
+          "titleUz",
+          "category",
+          "style",
+          "videoPath",
+          "posterPath",
+          "aspectRatio",
+          "durationSeconds",
+          "promptEn",
+          "conceptUz",
+          "creativePreset",
+          "sourceType",
+          "sourceNote",
+          "flowModel",
+          "flowMode",
+          "isPublished",
+          "sortOrder"
+        ],
+        "additionalProperties": false
+      },
+      "OwnerGalleryExampleDto": {
+        "type": "object",
+        "properties": {
+          "slug": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 80,
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+          },
+          "titleUz": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "kiyim",
+              "poyabzal",
+              "parfyum",
+              "kosmetika",
+              "uy-rozgor",
+              "elektronika",
+              "oziq-ovqat",
+              "aksessuar"
+            ]
+          },
+          "style": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 40
+          },
+          "videoPath": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "posterPath": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "aspectRatio": {
+            "type": "string",
+            "enum": [
+              "9:16",
+              "16:9",
+              "1:1"
+            ]
+          },
+          "durationSeconds": {
+            "type": "number",
+            "exclusiveMinimum": true,
+            "maximum": 600,
+            "minimum": 0
+          },
+          "promptEn": {
+            "type": "string",
+            "minLength": 1
+          },
+          "conceptUz": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 600
+          },
+          "creativePreset": {
+            "type": "object",
+            "properties": {
+              "environment": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              "lighting": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              "cameraLanguage": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              "pacing": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              },
+              "mood": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 120
+              }
+            },
+            "required": [
+              "environment",
+              "lighting",
+              "cameraLanguage",
+              "pacing",
+              "mood"
+            ]
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": [
+              "app-prompt",
+              "studio-made",
+              "external"
+            ]
+          },
+          "sourceNote": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "flowModel": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60,
+            "nullable": true
+          },
+          "flowMode": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 60,
+            "nullable": true
+          },
+          "isPublished": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "slug",
+          "titleUz",
+          "category",
+          "style",
+          "videoPath",
+          "posterPath",
+          "aspectRatio",
+          "durationSeconds",
+          "promptEn",
+          "conceptUz",
+          "creativePreset",
+          "sourceType",
+          "sourceNote",
+          "flowModel",
+          "flowMode",
+          "isPublished",
+          "sortOrder",
+          "id"
+        ],
+        "additionalProperties": false
+      },
+      "GalleryMediaDto": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "contentType": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "contentType"
+        ],
+        "additionalProperties": false
+      },
+      "HeroPhotosDto": {
+        "type": "object",
+        "properties": {
+          "photos": {
+            "default": [],
+            "maxItems": 12,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 200
+                },
+                "altUz": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 120
+                }
+              },
+              "required": [
+                "path",
+                "altUz"
+              ]
+            }
           }
         }
       },

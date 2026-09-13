@@ -122,7 +122,7 @@ export class GenerationWorker implements GenerationRunner, OnApplicationShutdown
      * hint — the seller's own product is unaffected.
      */
     const inspiration = brief.galleryInspirationId
-      ? this.gallery.resolveInspiration(brief.galleryInspirationId)
+      ? await this.gallery.resolveInspiration(brief.galleryInspirationId)
       : null;
 
     // OUTSIDE any transaction — see the class comment.

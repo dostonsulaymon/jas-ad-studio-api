@@ -1,26 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import type { GalleryInspiration } from '../ai/public/generator.port';
-import { GalleryContentStore } from './content';
 import type { GalleryExample } from './example.schema';
+import { GalleryMediaStore } from './gallery.media-store';
+import { GalleryRepo, type StoredExample } from './gallery.repo';
 import { GalleryExampleNotFoundError } from './public/gallery.errors';
 import type {
+  GalleryAdmin,
   GalleryCard,
+  GalleryExampleInputDto,
   GalleryExampleView,
+  GalleryMediaUpload,
   GalleryReader,
+  OwnerGalleryExample,
 } from './public/gallery.port';
 
 export const MEDIA_BASE = '/api/gallery/media';
 
 @Injectable()
-export class GalleryService implements GalleryReader {
-  constructor(private readonly content: GalleryContentStore) {}
+export class GalleryService implements GalleryReader, GalleryAdmin {
+  constructor(
+    private readonly repo: GalleryRepo,
+    private readonly media: GalleryMediaStore,
+  ) {}
 
-  list(): GalleryCard[] {
-    return this.content.listPublished().map((example) => toCard(example));
+  async list(): Promise<GalleryCard[]> {
+    const examples = await this.repo.listPublished();
+    return examples.map((example) => toCard(example));
   }
 
-  get(slug: string): GalleryExampleView {
-    const example = this.content.findPublishedBySlug(slug);
+  async get(slug: string): Promise<GalleryExampleView> {
+    const example = await this.repo.findPublishedBySlug(slug);
     if (!example) throw new GalleryExampleNotFoundError(`No published example: ${slug}`);
 
     return { ...toCard(example), promptEn: example.promptEn };
@@ -34,8 +43,8 @@ export class GalleryService implements GalleryReader {
    * and nothing would fail until a customer noticed their ad describing another
    * product. Adding a field here has to be a decision somebody typed.
    */
-  resolveInspiration(id: string): GalleryInspiration | null {
-    const example = this.content.findPublishedById(id);
+  async resolveInspiration(id: string): Promise<GalleryInspiration | null> {
+    const example = await this.repo.findPublishedBySlug(id);
     if (!example) return null;
 
     return {
@@ -48,8 +57,41 @@ export class GalleryService implements GalleryReader {
     };
   }
 
-  isSelectable(id: string): boolean {
-    return this.content.findPublishedById(id) !== undefined;
+  async isSelectable(id: string): Promise<boolean> {
+    return (await this.repo.findPublishedBySlug(id)) !== null;
+  }
+
+  // ---- the owner's side (D-090) -------------------------------------------------
+
+  async listForOwner(): Promise<OwnerGalleryExample[]> {
+    const examples = await this.repo.listAll();
+    return examples.map((example) => toOwnerView(example));
+  }
+
+  async create(input: GalleryExampleInputDto, ownerId: string): Promise<OwnerGalleryExample> {
+    return toOwnerView(await this.repo.insert(input, ownerId));
+  }
+
+  async edit(
+    id: string,
+    input: GalleryExampleInputDto,
+    ownerId: string,
+  ): Promise<OwnerGalleryExample> {
+    const updated = await this.repo.update(id, input, ownerId);
+    if (!updated) throw new GalleryExampleNotFoundError(`No example with id ${id}`);
+
+    return toOwnerView(updated);
+  }
+
+  async remove(id: string): Promise<void> {
+    const deleted = await this.repo.remove(id);
+    // A delete that hit nothing is a 404, not a quiet success: the owner pressed the
+    // button believing something was there.
+    if (!deleted) throw new GalleryExampleNotFoundError(`No example with id ${id}`);
+  }
+
+  storeMedia(bytes: Buffer, filename: string): Promise<GalleryMediaUpload> {
+    return this.media.store(bytes, filename);
   }
 }
 
@@ -67,5 +109,30 @@ function toCard(example: GalleryExample): GalleryCard {
     conceptUz: example.conceptUz,
     sourceType: example.sourceType,
     sourceNote: example.sourceNote,
+  };
+}
+
+
+
+function toOwnerView(example: StoredExample): OwnerGalleryExample {
+  return {
+    id: example.rowId,
+    slug: example.slug,
+    titleUz: example.titleUz,
+    category: example.category,
+    style: example.style,
+    videoPath: example.videoPath,
+    posterPath: example.posterPath,
+    aspectRatio: example.aspectRatio,
+    durationSeconds: example.durationSeconds,
+    promptEn: example.promptEn,
+    conceptUz: example.conceptUz,
+    creativePreset: example.creativePreset,
+    sourceType: example.sourceType,
+    sourceNote: example.sourceNote,
+    flowModel: example.flowModel,
+    flowMode: example.flowMode,
+    isPublished: example.isPublished,
+    sortOrder: example.sortOrder,
   };
 }

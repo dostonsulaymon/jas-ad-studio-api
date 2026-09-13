@@ -73,6 +73,70 @@ export type GalleryCard = z.infer<typeof galleryCardSchema>;
 export type GalleryList = z.infer<typeof galleryListSchema>;
 export type GalleryExampleView = z.infer<typeof galleryExampleViewSchema>;
 
+/**
+ * What the owner sends when creating or editing an example. The id is the table's, the
+ * slug is the caller's, and `isPublished` is the only field that changes what a visitor
+ * sees — which is why nothing here defaults it to true.
+ */
+export const galleryExampleInputSchema = z
+  .object({
+    slug: z
+      .string()
+      .min(1)
+      .max(80)
+      .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'must be a lowercase slug'),
+    titleUz: z.string().min(1).max(120),
+    category: z.enum(GALLERY_CATEGORIES),
+    style: z.string().min(1).max(40),
+    videoPath: z.string().min(1).max(200),
+    posterPath: z.string().min(1).max(200),
+    aspectRatio: z.enum(ASPECT_RATIOS),
+    durationSeconds: z.number().positive().max(600),
+    promptEn: z.string().min(1),
+    conceptUz: z.string().min(1).max(600),
+    creativePreset: z.object({
+      environment: z.string().min(3).max(120),
+      lighting: z.string().min(3).max(120),
+      cameraLanguage: z.string().min(3).max(120),
+      pacing: z.string().min(3).max(120),
+      mood: z.string().min(3).max(120),
+    }),
+    sourceType: z.enum(SOURCE_TYPES),
+    sourceNote: z.string().max(200),
+    flowModel: z.string().min(1).max(60).nullable(),
+    flowMode: z.string().min(1).max(60).nullable(),
+    isPublished: z.boolean(),
+    sortOrder: z.number().int(),
+  })
+  .strict();
+
+export type GalleryExampleInputDto = z.infer<typeof galleryExampleInputSchema>;
+
+/** The owner's view: every example, published or not, with the row id to address it. */
+export const ownerGalleryExampleSchema = galleryExampleInputSchema.extend({
+  id: z.string(),
+});
+export const ownerGalleryListSchema = z
+  .object({ examples: z.array(ownerGalleryExampleSchema) })
+  .strict();
+
+export type OwnerGalleryExample = z.infer<typeof ownerGalleryExampleSchema>;
+export type OwnerGalleryList = z.infer<typeof ownerGalleryListSchema>;
+
+/** What an upload returns: the path an example's videoPath/posterPath then points at. */
+export const galleryMediaSchema = z.object({ path: z.string(), contentType: z.string() }).strict();
+export type GalleryMediaUpload = z.infer<typeof galleryMediaSchema>;
+
+export const GALLERY_ADMIN = Symbol('GALLERY_ADMIN');
+
+export interface GalleryAdmin {
+  listForOwner(): Promise<OwnerGalleryExample[]>;
+  create(input: GalleryExampleInputDto, ownerId: string): Promise<OwnerGalleryExample>;
+  edit(id: string, input: GalleryExampleInputDto, ownerId: string): Promise<OwnerGalleryExample>;
+  remove(id: string): Promise<void>;
+  storeMedia(bytes: Buffer, filename: string): Promise<GalleryMediaUpload>;
+}
+
 export const GALLERY_READER = Symbol('GALLERY_READER');
 
 export interface GalleryReader {
@@ -83,8 +147,8 @@ export interface GalleryReader {
    * caller cannot tell the difference, and neither case is an error worth failing a
    * paid generation over.
    */
-  resolveInspiration(id: string): GalleryInspiration | null;
+  resolveInspiration(id: string): Promise<GalleryInspiration | null>;
 
   /** Whether a seller may select this id on a brief: it exists and it is published. */
-  isSelectable(id: string): boolean;
+  isSelectable(id: string): Promise<boolean>;
 }

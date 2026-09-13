@@ -6,8 +6,10 @@ import type { Executor } from '../common/db/transaction';
 import {
   isSettingKey,
   paymentInstructionsSchema,
+  heroPhotosSchema,
   SETTINGS_KEYS,
   supportContactsSchema,
+  type HeroPhotos,
   type PaymentInstructions,
   type PublicSettings,
   type SettingsAdmin,
@@ -40,6 +42,10 @@ export class SettingsService implements SettingsReader, SettingsAdmin {
     return supportContactsSchema.parse(await this.readKey('support_contacts', tx));
   }
 
+  async getHeroPhotos(tx: Executor = this.pool): Promise<HeroPhotos> {
+    return heroPhotosSchema.parse(await this.readKey('hero_photos', tx));
+  }
+
   async isPaymentConfigured(tx: Executor = this.pool): Promise<boolean> {
     const instructions = await this.getPaymentInstructions(tx);
     return Boolean(instructions.cardNumber ?? instructions.paymeUrl ?? instructions.clickUrl);
@@ -49,6 +55,7 @@ export class SettingsService implements SettingsReader, SettingsAdmin {
     return {
       paymentInstructions: await this.getPaymentInstructions(tx),
       supportContacts: await this.getSupportContacts(tx),
+      heroPhotos: await this.getHeroPhotos(tx),
     };
   }
 

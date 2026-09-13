@@ -10,13 +10,66 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0-P6 all closed and merged.** P7 (hardening) is next and has no plan yet. |
-| Branch | `main` in both repos. P6 merged 2026-09-13: api `cb57ce9`, web `c0a4697`. A new phase gets a new branch cut from `main` (D-070). |
-| Active plan | None. `docs/superpowers/plans/2026-09-13-phase-6-gallery.md` is finished except Task 6 Step 4, which is Doston's and Jakhongir's, not code. |
+| Phase | **P0-P6 closed and merged, plus phase 6b (owner-editable content).** P7 (hardening) is next. |
+| Branch | `p6b-owner-content` in this repo, `p6-gallery` in the web repo. |
+| Active plan | `docs/superpowers/plans/2026-09-13-phase-6b-owner-content.md`. Parts A, B and C done. |
 | Doing now | Nothing in flight. |
-| Next | **P7: hardening** — security review, backups with a rehearsed restore, abuse limits, analytics events (including the gallery events §37 deferred from P6), privacy and terms text, project deletion. Write its plan first. |
-| Blocked | **Nothing.** The three curated examples went live 2026-09-13 (D-089) and render on the running stack. Their `flowMode` is `not-recorded` and `flowModel` is `Omni yoki Veo 3.1`, because the P1 clips were made with a mix and which made which was never written down — recoverable from Flow's history whenever Doston checks. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8, not the gallery. |
-| Last verified state | **2026-09-13, both repos, gallery live.** api on `main`: lint and typecheck silent, **627 tests in 46 files**, build clean, `openapi:check` up to date at **31 paths**. web on `main`: lint and typecheck silent, **61 unit tests**, **57 Playwright assertions** at 1440, 390 and 360, `api:check` matching `main`, build clean. Both halves walked by hand against a running stack with real clip bytes. |
+| Next | **P7: hardening.** Before its plan is written, go through every `new` request in `docs/REQUESTS.md` with Doston — **R-001, R-002, R-003, R-005, R-006** are open, and R-005 is a defect in 6b's own hero-photo screen. |
+| Blocked | Nothing. The gallery is live with three examples; the support contacts render in the footer signed out; the card number appears in the credits drawer once set. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. |
+| Last verified state | **2026-09-13, both repos.** api: lint and typecheck silent, **635 tests in 46 files**, build clean, `openapi:check` up to date at **35 paths**. web: lint and typecheck silent, **68 unit tests**, **63 Playwright assertions** at 1440, 390 and 360, build clean. Every part driven by hand in Chrome against the running stack with a real owner session. |
+
+## 2026-09-13 — phase 6b: the owner edits what the site shows (D-090, D-091)
+
+Doston asked for the gallery to be editable from `/admin`, asked why the support contacts
+appear nowhere, and asked whether a card number he enters will show up. Two of those had
+answers before any code was written.
+
+### What was actually wrong
+
+**The contacts were never missing.** They were in `site_settings` and `GET
+/api/settings/public` served them; the web app simply never asked outside the credits
+drawer and the admin panel, both behind sign-in. So the seller most likely to need help —
+the one who has not signed in — had no way to ask for it. They now render in the footer,
+server-side, signed out, as labelled cards.
+
+**The card number already worked.** `credits-drawer.tsx` reads `paymentInstructions` and
+shows the payment block once one is set. Verified by driving the real screen, not asserted.
+
+**The gallery genuinely did not exist** in the panel, and building it reversed R-5.
+
+### The bug that was blocking him, found from a screenshot
+
+`POST /api/owner/grants` returned 403 and the panel said *"Soʻrov qabul qilinmadi"*. The
+api's `.env` had `WEB_ORIGIN=https://jas.kitobnarxi.uz` while he was working at
+`localhost:3042`, and the CSRF guard matches one exact origin — so every write from
+localhost was refused while every read succeeded. **D-086's failure mode, a second time,
+from a different direction.**
+
+`ALLOWED_ORIGINS` was already a `string[]` whose comment read *"A list because dev and
+production differ"* — it had simply never been given a second source. `EXTRA_WEB_ORIGINS`
+now widens it, `WEB_ORIGIN` stays the single redirect target, and the list is still matched
+exactly. Measured after the fix: `localhost:3042` → 401 (CSRF passes, session takes over),
+`evil.test` → 403. Then the grant driven through the real form in Chrome: 200, and
+`owner_grant 2` in the ledger.
+
+### Built
+
+Three owner routes for the gallery plus an upload, a `hero_photos` settings key with its
+own `/admin` tab, and the footer contacts. Uploads are validated by their **bytes**, not
+their filename, and stored content-addressed — which is what makes the media route's
+year-long immutable cache honest.
+
+### What this phase got wrong, recorded the same day
+
+**R-005: the hero photo screen is not usable.** It announces that default images are in use
+and then shows none of them; it cannot replace the third plate, only the whole set. Doston
+said so plainly and he is right. **R-006:** the contact cards need icons. Both are logged,
+neither is fixed — his call, next session.
+
+**R-001 was attempted and reverted.** Routing "Shu uslubdan foydalanish" to step 1 when the
+brief is empty works, but the "Ilhom: …" chip lives inside step 2, so the button then looks
+broken. The chip has to move up to the workbench first. Reverted rather than half-shipped,
+and the finding is written into the request so nobody rediscovers it.
 
 ## 2026-09-13 — the gallery is live, with an honest gap in its provenance (D-089)
 

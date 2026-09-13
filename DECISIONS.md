@@ -1273,3 +1273,78 @@ are the internal record D-011 asked for.
 
 **Recoverable:** Flow keeps a generation history. If Doston checks it, the real values
 replace these and this entry becomes a footnote. Until then the file says what is true.
+
+---
+
+### D-090 · 2026-09-13 · The gallery lives in a table, not a file — R-5 reversed
+
+**Supersedes R-5 (D-038)**, which put gallery metadata in a committed JSON file and named
+a `gallery_examples` table as the rejected alternative.
+
+R-5 was right for the world it was written in: content seeded by hand, no owner panel, and
+a file that a developer edits in a commit. It stopped being right the moment Jakhongir had
+to edit the gallery himself. A file cannot be written by a signed-in owner; a server
+writing to its own source tree is not a design; and a container redeploy would discard
+every edit he made.
+
+**What moved:** the metadata, and only the metadata. Clips and posters stay on the media
+volume behind the same public route with the same immutable caching, because that part of
+R-5 was never the problem.
+
+**What did not change:** `galleryExampleSchema` is still the single definition of a valid
+example. The table stores it and rows are **parsed** through the schema on the way out,
+never cast — a column that drifts should fail at the repository rather than reach a
+seller's prompt. Two definitions of "valid" would disagree within a month.
+
+**The public identifier is the slug, not the uuid.** A brief stores it in
+`gallery_inspiration_id`, so it has to survive the row being edited; the uuid addresses the
+row for the owner's own routes, where stability across a rename is the point.
+
+**The reads became async, and that was the right trade.** A cached copy would keep the
+service synchronous, but the api and the worker are separate processes — the worker's cache
+would go stale the moment the owner published something, and it is the worker that resolves
+an inspiration into a prompt. Correctness over a saved `await`.
+
+Migration 0009 seeds the three shipped examples and is `ON CONFLICT DO NOTHING`, so
+re-running it can never revert an edit the owner has since made. `content/gallery.json`
+stays in the repo as the record of what was seeded and is read by nothing at runtime.
+
+### D-091 · 2026-09-13 · Example content is the owner's; product copy stays in code
+
+Doston asked for "everything which is being shown on website, main website, as example, the
+pictures and other parts" to be editable in `/admin` (R-004). The line was drawn at
+**example content**, and this entry is the argument, because it is a line worth revisiting
+rather than assuming.
+
+| Editable in `/admin` | Stays in code |
+|---|---|
+| Gallery examples, and their clips and posters | Hero headline, how-it-works, FAQ, every error string |
+| Hero tray photos, and their alt text | The plates' size and tilt |
+| Support contacts, payment details, pack prices | — |
+
+**Why product copy stays.** Source 01 §55 rules out a heavyweight CMS and D-037 kept the
+panel small deliberately. The sharper reason is mechanical: every Uzbek string lives in one
+catalogue that `uzbek-source.test.ts` guards, failing the build when a quotation mark is
+used where `oʻ` and `gʻ` need U+02BB. Moving copy into a database moves it out from behind
+that guard, and the first apostrophe typed on a phone keyboard ships mojibake to every
+visitor. Copy changes are rare and cheap as a commit.
+
+**Why the plates' size and tilt stay.** They are how the tray is composed — the overlap,
+the rhythm, the bleed off both edges. One bad number from a form breaks the hero, and
+nobody swapping a product photo is thinking about layout. The owner's photos are poured
+into the shape the component defines; an empty list keeps the committed images, because an
+empty hero is worse than a slightly stale one.
+
+**Uploads are validated by their bytes, never their filename**, and stored content-addressed
+under a hash — the same names `tools/gallery-ingest.mjs` produces. That is what makes the
+public route's `immutable, max-age=31536000` honest: the same path can never hold different
+bytes. A file called `clip.mp4` that is actually a script is refused with `MEDIA_TYPE`, and
+a test proves it.
+
+**No ffmpeg on the server.** The ingest tool cuts posters with a system binary that happens
+to exist on this machine and may not exist in a container; making the owner panel depend on
+it would be a hidden runtime requirement. The owner uploads a clip and a poster.
+
+**Known gap, recorded the same day:** the hero photo screen as shipped cannot show the
+seven plates currently on the page or replace just one of them — see **R-005**. It is a
+defect in this phase's work, not a missing feature.

@@ -57,10 +57,20 @@ import { UserService } from './user.service';
     {
       provide: ALLOWED_ORIGINS,
       inject: [ConfigService],
-      // One origin today (D-032 puts the web app and the api behind one domain). A list
-      // because dev and production differ, not because cross-origin is ever allowed.
+      /**
+       * D-032 puts the web app and the api behind one domain, so this is one origin in
+       * production. In development the same app is reachable at both the tunnel domain
+       * and localhost, and the guard matches exactly — so every additional address has
+       * to be named, or writes from it are refused while reads succeed.
+       *
+       * Deduplicated: naming WEB_ORIGIN again in EXTRA_WEB_ORIGINS is a harmless thing
+       * to do and should not produce a list with it twice.
+       */
       useFactory: (config: ConfigService<Env, true>): string[] => [
-        config.get('WEB_ORIGIN', { infer: true }),
+        ...new Set([
+          config.get('WEB_ORIGIN', { infer: true }),
+          ...config.get('EXTRA_WEB_ORIGINS', { infer: true }),
+        ]),
       ],
     },
   ],

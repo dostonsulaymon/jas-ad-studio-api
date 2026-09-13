@@ -7,6 +7,7 @@ Read this first, then:
 - `docs/PROGRESS.md`: what is done, what is next, what is blocked
 - `docs/OPEN-QUESTIONS.md`: what is still undecided. Nothing that depends on an open question gets built
 - `docs/PLAN.md`: the phase roadmap. Each phase has its own detailed plan in `docs/superpowers/plans/`
+- `docs/REQUESTS.md`: things Doston asked to add, not yet decided. When he asks for a feature, append it there. Before writing any phase plan, go through every `new` request with him
 
 **Related repository:** `../jas-ad-studio-web`, the Next.js frontend. It is a client of this API, so any change to a public API contract changes its world too.
 

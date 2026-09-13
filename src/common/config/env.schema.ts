@@ -53,6 +53,28 @@ export const envSchema = z.object({
   WEB_ORIGIN: z.url('WEB_ORIGIN must be an absolute URL').default('http://localhost:3042'),
 
   /**
+   * Additional origins the CSRF guard accepts, comma-separated. Not redirect targets.
+   *
+   * One app is legitimately reachable at more than one origin during development — the
+   * Cloudflare tunnel domain and `localhost:3042` at the same time — and the guard
+   * compares the browser's Origin against an exact list. With only WEB_ORIGIN in it,
+   * whichever address you are NOT using refuses every write with 403 while reads keep
+   * working, so the panel looks healthy and silently saves nothing. That is D-086's
+   * failure mode a second time, and this is the variable that ends it.
+   *
+   * Empty by default: an origin is only trusted because somebody named it.
+   */
+  EXTRA_WEB_ORIGINS: z
+    .string()
+    .default('')
+    .transform((raw) =>
+      raw
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0),
+    ),
+
+  /**
    * D-037. Role `owner` comes only from here, never from a request. Empty means nobody is
    * an owner, which is the safe direction to fail in.
    */
