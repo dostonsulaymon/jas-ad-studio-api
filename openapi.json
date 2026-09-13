@@ -1192,6 +1192,38 @@
         "tags": [
           "Generation"
         ]
+      },
+      "get": {
+        "operationId": "GenerationController_list",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GenerationDetailDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "A project's generations, newest first, with packages where ready. 404 if not yours.",
+        "tags": [
+          "Generation"
+        ]
       }
     },
     "/api/generations/{id}": {

@@ -50,4 +50,17 @@ export class GenerationController {
   read(@User() user: CurrentUser, @Param('id') id: string): Promise<GenerationDetail> {
     return this.generations.read(user.id, id);
   }
+
+  /**
+   * Every generation of one project, newest first, with its package where ready. This is
+   * how a reopened project finds the prompts the seller already paid for (R-002).
+   */
+  @Get('projects/:id/generations')
+  @ApiOperation({
+    summary: "A project's generations, newest first, with packages where ready. 404 if not yours.",
+  })
+  @ApiOkResponse({ type: GenerationDetailDto, isArray: true })
+  list(@User() user: CurrentUser, @Param('id') projectId: string): Promise<GenerationDetail[]> {
+    return this.generations.listForProject(user.id, projectId);
+  }
 }

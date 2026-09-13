@@ -504,6 +504,46 @@ describe('the gates before any money moves', () => {
 });
 
 /**
+ * R-002. A seller who reopens a project must be able to get back every prompt they paid
+ * for — they are all in Postgres, but until this route nothing could find them without an
+ * id the client had already lost.
+ */
+describe("a project's generations", () => {
+  async function readyGeneration(): Promise<string> {
+    const { response } = await request(aliceCookie, aliceProject);
+    const { generationId } = await json<{ generationId: string }>(response);
+    await worker.runOne(generationId);
+    return generationId;
+  }
+
+  it('lists every package made for the project, newest first', async () => {
+    await grant(aliceId, 2);
+    const first = await readyGeneration();
+    const second = await readyGeneration();
+
+    const response = await send(`/api/projects/${aliceProject}/generations`, {
+      cookie: aliceCookie,
+    });
+
+    expect(response.status).toBe(200);
+    const list = await json<{ id: string; status: string; package: { promptEn: string } | null }[]>(
+      response,
+    );
+    expect(list.map((generation) => generation.id)).toEqual([second, first]);
+    expect(list.every((generation) => generation.status === 'ready')).toBe(true);
+    expect(list.every((generation) => Boolean(generation.package?.promptEn))).toBe(true);
+  });
+
+  it("is a 404, never a 403, for another seller's project", async () => {
+    const peek = await send(`/api/projects/${aliceProject}/generations`, { cookie: bobCookie });
+
+    // A 403 would confirm the project exists, which is the leak P2's isolation test refuses.
+    expect(peek.status).toBe(404);
+    await expect(json(peek)).resolves.toMatchObject({ code: 'PROJECT_NOT_FOUND' });
+  });
+});
+
+/**
  * D-077, extended to P4. The route list comes from the generated contract, so a
  * generation route added without a test that drives it to a 2xx fails the build.
  */

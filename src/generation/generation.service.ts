@@ -169,4 +169,14 @@ export class GenerationService {
     if (!found) throw new GenerationNotFoundError('No generation with that id for this user');
     return found;
   }
+
+  /**
+   * A reopened project's prompts (R-002). The ownership check comes first, so another
+   * seller's project — or a deleted one — is PROJECT_NOT_FOUND rather than an empty list
+   * that would confirm the id exists.
+   */
+  async listForProject(userId: string, projectId: string): Promise<GenerationDetail[]> {
+    await this.projects.getOwned(userId, projectId);
+    return this.repo.listForProject(userId, projectId);
+  }
 }
