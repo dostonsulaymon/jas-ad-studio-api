@@ -10,13 +10,45 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0-P5 closed and merged. P6 Part A (api) is done; Part B (web) is blocked.** |
-| Branch | `p6-gallery`, cut from `main` on 2026-09-13 (D-070). Nothing committed (D-071). |
-| Active plan | `docs/superpowers/plans/2026-09-13-phase-6-gallery.md`. **Part A Tasks 1-8 done**, except Task 6 Step 3 (see below). Part B Tasks 9-15 unstarted. |
-| Doing now | Nothing in flight. All of Part A is in the working tree, uncommitted, awaiting Doston's diff review. |
-| Next | **Two things, both Doston's.** (1) Review and commit Part A, then merge `p6-gallery` to `main`. (2) Merge `p5-studio-ui` in `../jas-ad-studio-web` — until there is a `main` there, Part B has no branch to cut and no contract to pin to. |
-| Blocked | **The gallery ships empty, by design.** Four of the eight seeded clips are cars, and source 01 §11 has no car category — inventing one to fit test footage is exactly what §11 forbids. The other four need a creative preset written by someone who watched them, and `flowModel`/`flowMode` from Doston. Q-04 is narrowed to a concrete list. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8, not P6. |
-| Last verified state | **2026-09-13 on `p6-gallery`, full gate re-run:** `lint` and `typecheck` silent, **625 tests in 46 files** (from 531 in 41 — P6 added 94), `build` clean, `openapi:check` up to date at **31 paths** (from 28). Both new guards proved to have teeth by breaking them. Walked by hand against a real 1.8 MB clip over HTTP. Web repo unchanged since 2026-09-12. |
+| Phase | **P0-P6 all closed and merged.** P7 (hardening) is next and has no plan yet. |
+| Branch | `main` in both repos. P6 merged 2026-09-13: api `cb57ce9`, web `c0a4697`. A new phase gets a new branch cut from `main` (D-070). |
+| Active plan | None. `docs/superpowers/plans/2026-09-13-phase-6-gallery.md` is finished except Task 6 Step 4, which is Doston's and Jakhongir's, not code. |
+| Doing now | Nothing in flight. |
+| Next | **P7: hardening** — security review, backups with a rehearsed restore, abuse limits, analytics events (including the gallery events §37 deferred from P6), privacy and terms text, project deletion. Write its plan first. |
+| Blocked | **Nothing is published in the gallery.** Three curated examples sit in `content/gallery.json` with `isPublished: false`; each needs `flowModel` and `flowMode` from Doston, then the boolean flipped. Until then `GET /api/gallery` returns `[]` and the page renders its honest empty state. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. |
+| Last verified state | **2026-09-13, both repos.** api on `main`: lint and typecheck silent, **625 tests in 46 files**, build clean, `openapi:check` up to date at **31 paths**. web on `main`: lint and typecheck silent, **61 unit tests**, **57 Playwright assertions** at 1440, 390 and 360, `api:check` matching `main`, build clean. Both halves walked by hand against a running stack with real clip bytes. |
+
+## 2026-09-13 — P6 Part B: the gallery on the web (D-088)
+
+`p5-studio-ui` merged to the web repo's `main` first, then Part A merged here, which is
+what unpinned the client. Part B built on `p6-gallery` there and merged as `c0a4697`.
+
+**The web gate:** lint and typecheck silent, **61 unit tests**, **57 Playwright
+assertions** at 1440, 390 and 360 (from 33), `api:check` matching `main` at 31 paths,
+build clean. Driven against a **real API and real clip bytes**, not stubs — the gallery is
+the one flow with no session to forge, so `flow.spec.ts`'s stubbing was neither needed nor
+honest here.
+
+**Their guard caught me within minutes of the Part A merge.** `errors.test.ts` reads this
+repo's `main` and fails when a seller-facing code has no Uzbek copy, so
+`GALLERY_EXAMPLE_NOT_FOUND` broke the web build the moment the contract moved. That is the
+guard working exactly as designed.
+
+### Two defects a screenshot found that the tests had not
+
+1. **An aborted fetch was reported as a failure.** React's development StrictMode runs
+   every effect twice, so the first request is always cancelled by its own cleanup; the
+   rejection reached `setError` and put *"Kutilmagan xatolik"* directly above a prompt
+   that had loaded perfectly well. It would also have fired in production whenever a
+   seller closed the sheet mid-load. The assertion that catches it was **verified to fail
+   against the old code** before being trusted.
+2. **`conceptUz` read like a system log.** The ingest took it from each report's *Xabar*
+   section, which is the generator's handoff message — *"8 soniyalik 9:16 … prompt
+   tayyor."* For the rotary phone that was the entire field. The tool now strips that
+   sentence and leaves `TODO` when nothing is left, and the three curated concepts were
+   rewritten from the clips themselves.
+
+Neither was visible in 57 green assertions. Looking at the page is not optional.
 
 ## 2026-09-13 — P6 Part A: the gallery, built and empty on purpose
 

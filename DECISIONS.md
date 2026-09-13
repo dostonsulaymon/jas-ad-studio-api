@@ -1191,3 +1191,55 @@ visitor sees a name the wizard also offers. Nobody should read it as a record of
 
 **Not in P6:** gallery analytics (§37) is P7's `feedback` module; moving clips to R2 is
 P8's call (D-027); gallery content in the owner panel stays the later option R-5 named.
+
+---
+
+### D-088 · 2026-09-13 · P6 Part B: the gallery on the web, and two defects a screenshot found
+
+Part B of P6, in `../jas-ad-studio-web`. Recorded here because that repo has no
+`DECISIONS.md` and its `CLAUDE.md` says shared decisions live in this file (R-8, D-085).
+
+**Server-rendered, degrading to nothing.** The card list is fetched on the server so a
+visitor sees it in the first paint, reusing the `API_ORIGIN` variable `next.config.ts`
+already has rather than inventing a second name for "where the API is". `readGalleryCards`
+**never throws**: an unreachable API costs the visitor the examples, never the page they
+came to use — the gallery is secondary to the generator (source 01 §10). Three tests hold
+that: a rejected fetch, a 503, and a body with no `examples` array all give `[]`.
+
+**The prompt is fetched, not carried.** `GET /api/gallery/{slug}` runs when the seller
+opens the sheet, so the page stays light (§15). Every clip is `preload="none"` behind its
+poster: opening the gallery downloads a few small JPEGs and no video at all, and a
+Playwright assertion walks every `<video>` to prove it, along with `autoplay === false`
+and `paused === true`.
+
+**Choosing a style carries direction, never content (§13).** The action sets
+`galleryInspirationId` and moves the seller to step 2, where the choice is named and
+removable in one press. It does not paste the gallery's prompt anywhere. A unit test
+asserts the request body carries the id and that the example's title — which the chip
+shows locally — never appears in the JSON.
+
+**Two defects the automated tests did not find, and a screenshot did:**
+
+1. **An aborted fetch was reported as a failure.** React's development StrictMode runs
+   every effect twice, so the first request is always cancelled by its own cleanup; the
+   rejection went to `setError` and put *"Kutilmagan xatolik"* directly above a prompt
+   that had loaded perfectly well. The same would happen in production whenever a seller
+   closed the sheet mid-load. Now `signal.aborted` is checked first, and the test that
+   catches it was **verified to fail against the old code** before being trusted.
+2. **`conceptUz` read like a system log.** The ingest derived it from each report's
+   *Xabar* section, which is the generator's handoff message to the seller and opens
+   *"8 soniyalik 9:16 … prompt tayyor."* On a public card that is not a concept, and for
+   one clip it was the entire field. The tool now strips that sentence and leaves `TODO`
+   when nothing remains, rather than a sentence somebody has to un-write; the three
+   curated concepts were rewritten from the clips themselves.
+
+**Their own guard caught a real gap first.** `errors.test.ts` reads this repo's `main` and
+fails when a seller-facing code has no Uzbek copy — merging Part A made
+`GALLERY_EXAMPLE_NOT_FOUND` fail the web build within minutes. The copy says the seller's
+other fields are safe, because an owner can unpublish an example between the click and
+the save.
+
+**Verified:** lint and typecheck silent, **61 unit tests**, **57 Playwright assertions**
+at 1440, 390 and 360, `api:check` matching `main` at 31 paths, build clean. Driven against
+a real API and real clip bytes, not stubs — the gallery is the one flow with no session to
+forge, so `flow.spec.ts`'s stubbing approach was neither needed nor honest here.

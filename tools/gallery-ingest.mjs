@@ -62,8 +62,24 @@ function readReport(dir) {
 
   return {
     titleUz: title?.[1]?.trim() ?? TODO,
-    conceptUz: xabar?.[1]?.trim().replace(/\s+/g, ' ') ?? TODO,
+    conceptUz: conceptFromXabar(xabar?.[1]),
   };
+}
+
+/**
+ * "Xabar" is the generator's handoff message to the seller, and it opens with a status
+ * sentence — "8 soniyalik 9:16 lifestyle reklama uchun prompt tayyor." On a public
+ * gallery card that reads like a system log, so it is dropped. What follows it is a real
+ * description of the ad; when nothing follows, there is no concept here to take and the
+ * field becomes a TODO rather than a sentence somebody has to un-write later.
+ */
+function conceptFromXabar(raw) {
+  if (!raw) return TODO;
+
+  const text = raw.trim().replace(/\s+/g, ' ');
+  const rest = text.replace(/^[^.]*\bprompt(?:i)?\s+tayyor(?:landi)?\.\s*/i, '').trim();
+
+  return rest.length > 0 ? rest : TODO;
 }
 
 mkdirSync(mediaRoot, { recursive: true });

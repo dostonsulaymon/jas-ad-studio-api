@@ -282,7 +282,7 @@ The shape comes from source 01 §14, minus the fields that only make sense in a 
 - [x] **Step 2.** `docs/PROGRESS.md`: **Resume here** updated to Part B, with the real verified numbers.
 - [x] **Step 3.** `docs/PLAN.md`: mark the P6 row, and **fix the stale "Branches" paragraph**, which still reads *"P5 is ◐, not ✅"* and contradicts both its own table and D-086.
 - [x] **Step 4.** `docs/OPEN-QUESTIONS.md`: Q-04's open half — how many clips and which categories — restated with what the seeded set now covers, so Jakhongir is asked a narrower question than he was in September.
-- [ ] **Step 5.** Stop. Doston reviews the diff and says when to commit (D-071). Then the phase exit check, then his review, then the merge to `main` (D-070).
+- [x] **Step 5.** Doston authorised the commit and both merges mid-phase, so the phase closed in one pass rather than pausing here. api `cb57ce9`, web `c0a4697`.
 
 ---
 
@@ -293,38 +293,38 @@ The shape comes from source 01 §14, minus the fields that only make sense in a 
 Every file below is in `../jas-ad-studio-web`. Session B owns the visual treatment; this plan owns the behaviour, the copy rules and the tests.
 
 ### Task 9: The client and the data layer
-- [ ] Regenerate the typed client; `pnpm api:check` must report it matches `main`.
-- [ ] The gallery list is fetched **server-side** — the landing page and gallery are server-rendered (spec §8). The prompt sheet fetches `GET /api/gallery/{slug}` on demand, client-side.
+- [x] Regenerate the typed client; `pnpm api:check` must report it matches `main`.
+- [x] The gallery list is fetched **server-side** — the landing page and gallery are server-rendered (spec §8). The prompt sheet fetches `GET /api/gallery/{slug}` on demand, client-side.
 
 ### Task 10: The section and the cards (§10, §11)
-- [ ] Section title **"Reklama misollari"** with the §10 supporting line.
-- [ ] Each card: video preview, category, concept title, aspect ratio, optional duration, small style label, and the honest `sourceNote` (§42).
-- [ ] A top-right **"Prompt"** control with an accessible label (§39).
-- [ ] The gallery is **secondary** to the generator (§10). It does not open the page and does not outweigh the studio.
+- [x] Section title **"Reklama misollari"** with the §10 supporting line.
+- [x] Each card: video preview, category, concept title, aspect ratio, optional duration, small style label, and the honest `sourceNote` (§42).
+- [x] A top-right **"Prompt"** control with an accessible label (§39).
+- [x] The gallery is **secondary** to the generator (§10). It does not open the page and does not outweigh the studio.
 
 ### Task 11: The prompt sheet (§12)
-- [ ] Opens in place, never a navigation. Bottom sheet or full-height dialog on mobile; side sheet, anchored panel or modal on desktop.
-- [ ] Shows title, concept, the English prompt, Copy, close, and the inspiration action.
-- [ ] **Copy puts only the clean prompt on the clipboard** (§48) — no title, no JSON, no attribution line. Reuse P5's copy-with-fallback from `src/lib/generation.ts`; do not write a second one.
-- [ ] A small copy confirmation that respects `prefers-reduced-motion`.
+- [x] Opens in place, never a navigation. Bottom sheet or full-height dialog on mobile; side sheet, anchored panel or modal on desktop.
+- [x] Shows title, concept, the English prompt, Copy, close, and the inspiration action.
+- [x] **Copy puts only the clean prompt on the clipboard** (§48) — no title, no JSON, no attribution line. Reuse P5's copy-with-fallback from `src/lib/generation.ts`; do not write a second one.
+- [x] A small copy confirmation that respects `prefers-reduced-motion`.
 
 ### Task 12: "Shu uslubdan foydalanish" (§13)
-- [ ] The action sets `galleryInspirationId` on the brief. **It never pastes the gallery prompt into the seller's generator** — that is the explicit "do NOT" of §13 and the reason the whole resolution path exists.
-- [ ] Step 2 shows the selected state, **"Ilhom: <titleUz>"**, with **"Olib tashlash"** to clear it.
-- [ ] A `GALLERY_EXAMPLE_NOT_FOUND` from save renders its Uzbek string and clears the selection — an owner can unpublish an example between the click and the save.
+- [x] The action sets `galleryInspirationId` on the brief. **It never pastes the gallery prompt into the seller's generator** — that is the explicit "do NOT" of §13 and the reason the whole resolution path exists.
+- [x] Step 2 shows the selected state, **"Ilhom: <titleUz>"**, with **"Olib tashlash"** to clear it.
+- [x] A `GALLERY_EXAMPLE_NOT_FOUND` from save renders its Uzbek string and clears the selection — an owner can unpublish an example between the click and the save.
 
 ### Task 13: Performance and reach (§15)
-- [ ] Posters, lazy loading, explicit play/pause, **no autoplay audio**, no ten heavy videos above the fold.
-- [ ] Works at **360, 390 and 1440**, no horizontal page overflow.
-- [ ] Playwright assertions at all three widths, **signed out**, covering: cards render, the prompt sheet opens and closes, copy fires, the inspiration chip appears and clears.
+- [x] Posters, lazy loading, explicit play/pause, **no autoplay audio**, no ten heavy videos above the fold.
+- [x] Works at **360, 390 and 1440**, no horizontal page overflow.
+- [x] Playwright assertions at all three widths, **signed out**, covering: cards render, the prompt sheet opens and closes, copy fires, the inspiration chip appears and clears.
 
 ### Task 14: The empty state
-- [ ] Nothing published → an honest Uzbek line saying examples are coming, no placeholder cards, no skeleton pretending to load. The section may hide itself entirely; it may not fake content.
+- [x] Nothing published → an honest Uzbek line saying examples are coming, no placeholder cards, no skeleton pretending to load. The section may hide itself entirely; it may not fake content.
 
 ### Task 15: Exit
-- [ ] Web gate: lint, typecheck, unit tests, Playwright, `api:check`, build — all pasted.
-- [ ] Web `DECISIONS.md` gets its W-series entries for the visual choices (R-8).
-- [ ] `docs/PROGRESS.md` **in this repo** updated. Then Doston reviews, commits, and merges both branches.
+- [x] Web gate: lint, typecheck, unit tests, Playwright, `api:check`, build — all pasted.
+- [x] ~~Web `DECISIONS.md` gets its W-series entries~~ — that repo still has no `DECISIONS.md`, and establishing the W-series is not this session's call (D-085). Part B's decisions are **D-088** in this file.
+- [x] `docs/PROGRESS.md` **in this repo** updated. Then Doston reviews, commits, and merges both branches.
 
 ---
 
