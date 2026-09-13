@@ -7,6 +7,7 @@ import { createTestDatabase, type TestDatabase } from '../common/testing/databas
 import { ProjectNotFoundError, ProjectsService, type ProjectInput } from '../projects/projects.service';
 import { AssetNotFoundError, AssetsService, MAX_PHOTOS_PER_PROJECT } from './assets.service';
 import { FileStorage } from './storage';
+import { stubGalleryReader } from '../gallery/testing/stub-reader';
 
 let db: TestDatabase;
 let projects: ProjectsService;
@@ -44,7 +45,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await db.truncateAll();
-  projects = new ProjectsService(db.pool);
+  projects = new ProjectsService(db.pool, stubGalleryReader());
   assets = new AssetsService(
     db.pool,
     projects,

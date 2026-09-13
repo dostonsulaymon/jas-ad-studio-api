@@ -3,15 +3,7 @@ import type { CreativeFormat } from '../formats/format.schema';
 import { formatForBrief } from '../formats/formats';
 import type { VideoTarget } from '../targets/target.schema';
 import { AD_DIRECTOR_SYSTEM_PROMPT_V2 } from './ad-director.v2';
-
-export interface GalleryInspiration {
-  id: string;
-  environment: string;
-  lighting: string;
-  cameraLanguage: string;
-  pacing: string;
-  mood: string;
-}
+import type { GalleryInspiration } from '../public/generator.port';
 
 export interface AssembleInput {
   brief: Brief;

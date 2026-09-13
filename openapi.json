@@ -723,6 +723,101 @@
         ]
       }
     },
+    "/api/gallery": {
+      "get": {
+        "description": "Cards only — the English prompt is not included, because §15 requires this page to stay fast on mobile. Fetch one example for its prompt.",
+        "operationId": "GalleryController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GalleryListDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Published example ads. Works signed out.",
+        "tags": [
+          "Gallery"
+        ]
+      }
+    },
+    "/api/gallery/media/{path}": {
+      "get": {
+        "operationId": "GalleryController_serveMedia",
+        "parameters": [
+          {
+            "name": "path",
+            "required": true,
+            "in": "path",
+            "description": "Media path, e.g. 9f1c….mp4",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "video/mp4": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "image/jpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "206": {
+            "description": "A byte range, for seeking in a clip."
+          }
+        },
+        "summary": "An example clip or poster. Public, immutable, supports Range.",
+        "tags": [
+          "Gallery"
+        ]
+      }
+    },
+    "/api/gallery/{slug}": {
+      "get": {
+        "description": "An unpublished slug is a 404, never a 403 — a 403 confirms it exists.",
+        "operationId": "GalleryController_get",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GalleryExampleDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "One published example, with its English prompt. Works signed out.",
+        "tags": [
+          "Gallery"
+        ]
+      }
+    },
     "/api/projects/{projectId}/assets": {
       "post": {
         "description": "The format is decided by decoding, never by filename or content-type. Two copies are stored — a 2048px reference and a 1024px model input — with all metadata stripped. width and height describe the reference copy (D-066).",
@@ -1969,6 +2064,174 @@
           "createdAt",
           "brief"
         ]
+      },
+      "GalleryListDto": {
+        "type": "object",
+        "properties": {
+          "examples": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "slug": {
+                  "type": "string"
+                },
+                "titleUz": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string",
+                  "enum": [
+                    "kiyim",
+                    "poyabzal",
+                    "parfyum",
+                    "kosmetika",
+                    "uy-rozgor",
+                    "elektronika",
+                    "oziq-ovqat",
+                    "aksessuar"
+                  ]
+                },
+                "style": {
+                  "type": "string"
+                },
+                "videoUrl": {
+                  "type": "string"
+                },
+                "posterUrl": {
+                  "type": "string"
+                },
+                "aspectRatio": {
+                  "type": "string",
+                  "enum": [
+                    "9:16",
+                    "16:9",
+                    "1:1"
+                  ]
+                },
+                "durationSeconds": {
+                  "type": "number"
+                },
+                "conceptUz": {
+                  "type": "string"
+                },
+                "sourceType": {
+                  "type": "string",
+                  "enum": [
+                    "app-prompt",
+                    "studio-made",
+                    "external"
+                  ]
+                },
+                "sourceNote": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "slug",
+                "titleUz",
+                "category",
+                "style",
+                "videoUrl",
+                "posterUrl",
+                "aspectRatio",
+                "durationSeconds",
+                "conceptUz",
+                "sourceType",
+                "sourceNote"
+              ],
+              "additionalProperties": false
+            }
+          }
+        },
+        "required": [
+          "examples"
+        ],
+        "additionalProperties": false
+      },
+      "GalleryExampleDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "titleUz": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string",
+            "enum": [
+              "kiyim",
+              "poyabzal",
+              "parfyum",
+              "kosmetika",
+              "uy-rozgor",
+              "elektronika",
+              "oziq-ovqat",
+              "aksessuar"
+            ]
+          },
+          "style": {
+            "type": "string"
+          },
+          "videoUrl": {
+            "type": "string"
+          },
+          "posterUrl": {
+            "type": "string"
+          },
+          "aspectRatio": {
+            "type": "string",
+            "enum": [
+              "9:16",
+              "16:9",
+              "1:1"
+            ]
+          },
+          "durationSeconds": {
+            "type": "number"
+          },
+          "conceptUz": {
+            "type": "string"
+          },
+          "sourceType": {
+            "type": "string",
+            "enum": [
+              "app-prompt",
+              "studio-made",
+              "external"
+            ]
+          },
+          "sourceNote": {
+            "type": "string"
+          },
+          "promptEn": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "titleUz",
+          "category",
+          "style",
+          "videoUrl",
+          "posterUrl",
+          "aspectRatio",
+          "durationSeconds",
+          "conceptUz",
+          "sourceType",
+          "sourceNote",
+          "promptEn"
+        ],
+        "additionalProperties": false
       },
       "StoredAssetDto": {
         "type": "object",

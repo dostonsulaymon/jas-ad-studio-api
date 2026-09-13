@@ -5,6 +5,7 @@ import type Redis from 'ioredis';
 import { PinoLogger } from 'nestjs-pino';
 import { Pool } from 'pg';
 import { AD_GENERATOR, type AdGenerator } from '../ai/public/generator.port';
+import { GALLERY_READER, type GalleryReader } from '../gallery/public/gallery.port';
 import { MODEL_INPUT_READER, type ModelInputReader } from '../assets/public/assets.port';
 import type { Env } from '../common/config/env.schema';
 import { PG_POOL } from '../common/db/tokens';
@@ -45,6 +46,7 @@ export class GenerationWorker implements GenerationRunner, OnApplicationShutdown
     private readonly settleService: SettleService,
     private readonly queue: GenerationQueue,
     @Inject(AD_GENERATOR) private readonly generator: AdGenerator,
+    @Inject(GALLERY_READER) private readonly gallery: GalleryReader,
     @Inject(MODEL_INPUT_READER) private readonly assets: ModelInputReader,
     @Inject(PROJECT_BRIEF_READER) private readonly projects: ProjectBriefReader,
     @Inject(CREDIT_LEDGER) private readonly credits: CreditLedgerPort,
@@ -110,12 +112,26 @@ export class GenerationWorker implements GenerationRunner, OnApplicationShutdown
       return;
     }
 
+    /**
+     * Source 01 §13, §25: the seller sends an id, the server resolves it. A client-
+     * supplied example body would be a way to put arbitrary text in the prompt.
+     *
+     * An id that no longer resolves generates anyway, with no inspiration. The owner can
+     * unpublish an example between the seller saving the brief and the worker picking the
+     * job up, and a credit that is already reserved must not be lost over a missing style
+     * hint — the seller's own product is unaffected.
+     */
+    const inspiration = brief.galleryInspirationId
+      ? this.gallery.resolveInspiration(brief.galleryInspirationId)
+      : null;
+
     // OUTSIDE any transaction — see the class comment.
     const outcome = await this.generator.generate({
       brief,
       targetId: claimed.targetId,
       images,
       model,
+      inspiration,
     });
 
     const settled = await this.settleService.settle({

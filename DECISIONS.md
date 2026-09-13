@@ -1100,3 +1100,94 @@ The decisions that are not obvious from the diff:
 ## Inputs recorded but not yet decided
 
 - **Supabase Free:** Jakhongir wanted to start on Supabase's free plan "if it covers what we want." **Settled by D-028: no Supabase.** His goal, zero extra cost, is met by our own Postgres in Docker.
+
+---
+
+### D-087 · 2026-09-13 · P6's gallery: what it publishes, what it refuses, and the defect it closed
+
+Part A of P6 (`p6-gallery`, api side). Six decisions, one of which is a bug this phase was
+the first to be in a position to see.
+
+**1. `galleryInspirationId` was accepted and validated by nobody.** It had been in
+`briefSchema`, in the `projects` table and in the system prompt's `GALLERY INSPIRATION`
+block since P1 — but `ad-generator.ts` hard-coded `inspiration: null`, so a seller could
+`PATCH` any string at all and have it stored, nothing resolved it, and no one checked it
+named a real or published example. All three are closed: `projects.service.ts` refuses a
+non-selectable id on create and on patch with `GALLERY_EXAMPLE_NOT_FOUND` (404, never a
+403 — an unpublished example must be indistinguishable from one that does not exist), and
+the worker resolves the id through `GALLERY_READER` before the model is called.
+
+**2. Resolution is six keys, built one at a time.** `resolveInspiration()` returns `id`,
+`environment`, `lighting`, `cameraLanguage`, `pacing`, `mood` — assembled field by field,
+never by spreading the example. A spread is how `promptEn` reaches a seller's prompt the
+day somebody adds a field to the content schema, with nothing failing until a customer
+notices their ad describing another product. Proved in `gallery.e2e.spec.ts` against the
+bytes actually handed to the provider, not against the resolver's return value: mis-wiring
+one field to `promptEn` fails 8 assertions, including the planted injection line.
+
+**3. A published example must carry its provenance, enforced by the schema.**
+`isPublished: true` requires `flowModel`, `flowMode` and a non-empty `sourceNote`
+(D-011, source 01 §42). A clip cannot go live without the record of what made it; the
+content file either has it or the process refuses to boot.
+
+**4. The prompt is not in the list payload.** `GET /api/gallery` returns cards;
+`GET /api/gallery/{slug}` returns one example with its 1,500–2,300-word prompt, fetched
+when the seller opens the sheet (§12). Source 01 §15 is explicit that this page has to
+stay fast on an Uzbek phone.
+
+**5. Invalid content stops the boot.** A malformed `content/gallery.json` throws at
+startup, naming the field and the reason, the way a malformed environment does. The
+alternative is an empty gallery that looks exactly like a gallery nobody has made content
+for yet. Verified: exit 1, with `examples.0.slug: Invalid input: expected string, received
+undefined`.
+
+**6. The creative-preset filter is a tripwire, not the defence.** The plan called for
+refusing any digit or any §13 banned noun in a preset field. Built, and it was wrong: it
+refuses `"hard key at 45 degrees"` and `"light that flatters matte materials"`, both
+legitimate cinematography. A filter that fights the person writing content is a filter
+that gets worked around. It is now a 120-character cap plus seven words that are never
+creative attributes (`brand, logo, label, trademark, price, som, uzs`). The real boundary
+is decision 2 and the isolation test.
+
+**Seeded, and deliberately not published.** `tools/gallery-ingest.mjs` ingested the 8 real
+Flow clips from `out/pack` — content-addressed onto the media volume, posters cut at 1.0 s,
+metadata derived from each clip's own report. Every entry is `isPublished: false`.
+
+**What that surfaced, and it is for Jakhongir: the test pack does not fit the shop.**
+Four of the eight clips are cars, and there is no car category in source 01 §11 — nor
+should one be invented to fit test footage. The other four map onto real categories but
+still need a creative preset from somebody who watched them, and `flowModel`/`flowMode`
+from Doston. So nothing was merged into `content/gallery.json`: it stays `{ "examples": [] }`,
+`GET /api/gallery` returns an empty list, and the gallery renders its honest empty state.
+This is D-072's pattern for packs, applied to content.
+
+**Curated 2026-09-13, after watching six sampled frames of each clip** rather than
+paraphrasing the prompt that generated it — a preset must describe the film that exists,
+not the film that was asked for. Three entries are now in `content/gallery.json`, all
+`isPublished: false`:
+
+| entry | category | format | why it is fine |
+|---|---|---|---|
+| `02-02-rotary-phone` | `uy-rozgor` | `product-film` | unbranded vintage object, low-key studio |
+| `03-03-notebook` | `aksessuar` | `product-film` | navy hardcover, **no visible logo** |
+| `10-10-wipes` | `uy-rozgor` | `lifestyle-story` | unbranded white pack, nursery setting |
+
+**`01-01-phones` is excluded, and not for a category reason: they are Google Pixel phones
+with the Google "G" logo legible in every frame.** Publishing it would put an
+advertisement for another company's trademarked product, carrying their mark, in our
+public gallery — implying a relationship that does not exist. Source 01 §42 requires
+usage rights and forbids fake customer brands. This was invisible until somebody looked
+at the frames; the prompt and the metadata say nothing about it. **A gallery clip must
+show a product we may lawfully advertise, which in practice means unbranded goods or
+Jakhongir's own.** The four car clips remain excluded for the category reason above.
+
+So of eight ingested clips, **three are publishable candidates, not four** — and each
+still needs `flowModel` and `flowMode` from Doston before the schema will let it go live.
+
+**`style` is an inferred mapping, not recorded provenance.** These clips predate D-058's
+creative formats; they were generated with the old `style` field (`premium-cinematic`,
+`clean-studio`, `lifestyle`). The card label uses the current format id that matches, so a
+visitor sees a name the wizard also offers. Nobody should read it as a record of what ran.
+
+**Not in P6:** gallery analytics (§37) is P7's `feedback` module; moving clips to R2 is
+P8's call (D-027); gallery content in the owner panel stays the later option R-5 named.

@@ -14,11 +14,35 @@ import type { GenerationResult } from './result.schema';
 import type { ReferenceImage } from './provider.port';
 import type { ValidationIssue } from './validation.types';
 
+/**
+ * The only part of a gallery example that may ever reach the model (source 01 §13).
+ *
+ * It lives here, in the ai module's port, rather than in the gallery's: `ai` is the
+ * lower layer and owns the shape of its own input, so the dependency points
+ * gallery -> ai and `ai` stays free of any product surface. The gallery imports this
+ * type to build its return value, which is legal under R-7 and the right direction.
+ *
+ * Six fields, and no room for a seventh that happens to carry prose.
+ */
+export interface GalleryInspiration {
+  id: string;
+  environment: string;
+  lighting: string;
+  cameraLanguage: string;
+  pacing: string;
+  mood: string;
+}
+
 export interface AdGeneratorInput {
   brief: Brief;
   targetId: string;
   images: ReferenceImage[];
   model: string;
+  /**
+   * Resolved server-side from `brief.galleryInspirationId`, never sent by a client —
+   * otherwise a seller smuggles arbitrary instructions into the prompt (§25).
+   */
+  inspiration: GalleryInspiration | null;
 }
 
 export interface AdGeneratorUsage {

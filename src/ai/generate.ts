@@ -9,7 +9,8 @@ import {
   type ReferenceImage,
 } from './public/provider.port';
 import { AD_DIRECTOR_PROMPT_VERSION } from './prompt/ad-director.v2';
-import { buildDataBlock, buildSystemPrompt, type GalleryInspiration } from './prompt/assemble';
+import { buildDataBlock, buildSystemPrompt } from './prompt/assemble';
+import type { GalleryInspiration } from './public/generator.port';
 import type { VideoTarget } from './targets/target.schema';
 import { normalizeResult, validateGeneration, type ValidationIssue } from './validation/validators';
 

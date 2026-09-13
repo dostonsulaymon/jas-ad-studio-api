@@ -93,6 +93,16 @@ export const envSchema = z.object({
   /** R-6. Private photo volume root, mounted at /app/storage/photos in the container. */
   STORAGE_ROOT: z.string().min(1).default('./storage/photos'),
 
+  /**
+   * R-5. The gallery's clips and posters. Public and long-cached, which is the opposite
+   * of STORAGE_ROOT above — keep the two volumes apart so a mistake in one cannot serve
+   * the other (spec §7.4: a seller's photo is never publicly addressable).
+   */
+  GALLERY_MEDIA_ROOT: z.string().min(1).default('./storage/gallery'),
+
+  /** R-5. Gallery metadata is a committed file, not a table. Validated at boot. */
+  GALLERY_CONTENT_FILE: z.string().min(1).default('./content/gallery.json'),
+
   /** Serves the docs page in production too. Off by default: it lists every route. */
   SWAGGER_ENABLED: z
     .enum(['true', 'false'])

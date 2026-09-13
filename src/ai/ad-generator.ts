@@ -38,7 +38,13 @@ export class AdGeneratorService implements AdGenerator {
     let outcome;
     try {
       outcome = await generateAdPackage(
-        { brief: input.brief, target, images: input.images, inspiration: null, model: input.model },
+        {
+          brief: input.brief,
+          target,
+          images: input.images,
+          inspiration: input.inspiration,
+          model: input.model,
+        },
         { provider: this.provider, spend: createSpendTracker(cap) },
       );
     } catch (error) {

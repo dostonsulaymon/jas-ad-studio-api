@@ -1,6 +1,10 @@
-import { afterAll, beforeAll, beforeEach, expect, it } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { createTestDatabase, type TestDatabase } from '../common/testing/database';
 import { ProjectNotFoundError, ProjectsService, type ProjectInput } from './projects.service';
+import { stubGalleryReader } from '../gallery/testing/stub-reader';
+import { GalleryExampleNotFoundError } from '../gallery/public/gallery.errors';
+
+const PUBLISHED_EXAMPLE = 'wipes-lifestyle';
 
 let db: TestDatabase;
 let service: ProjectsService;
@@ -31,7 +35,7 @@ afterAll(async () => {
 
 beforeEach(async () => {
   await db.truncateAll();
-  service = new ProjectsService(db.pool);
+  service = new ProjectsService(db.pool, stubGalleryReader([PUBLISHED_EXAMPLE]));
 
   const made = await db.pool.query<{ id: string }>(
     `INSERT INTO users (google_sub, email) VALUES ('a','a@x.uz'),('b','b@x.uz') RETURNING id`,
@@ -125,4 +129,58 @@ it('treats a malformed id as not found rather than leaking a database error', as
   // Postgres raises 22P02 on a bad uuid. A seller must see the same 404 as any other
   // miss, and the caller must never see a driver message.
   await expect(service.getOwned(alice, 'not-a-uuid')).rejects.toBeInstanceOf(ProjectNotFoundError);
+});
+
+/**
+ * P6. Before this phase `galleryInspirationId` was accepted and validated by nobody: any
+ * string at all was stored, and nothing ever checked it named a real — let alone a
+ * published — example. The stub publishes exactly one id.
+ */
+describe('the gallery inspiration a seller may select', () => {
+  it('accepts a published example', async () => {
+    const project = await service.create(alice, {
+      ...input,
+      galleryInspirationId: PUBLISHED_EXAMPLE,
+    });
+
+    await expect(service.readBrief(alice, project.id)).resolves.toMatchObject({
+      galleryInspirationId: PUBLISHED_EXAMPLE,
+    });
+  });
+
+  it('accepts null, which is what most briefs carry', async () => {
+    const project = await service.create(alice, { ...input, galleryInspirationId: null });
+
+    expect(project.id).toBeTruthy();
+  });
+
+  it('refuses an id that names nothing', async () => {
+    await expect(
+      service.create(alice, { ...input, galleryInspirationId: 'no-such-example' }),
+    ).rejects.toBeInstanceOf(GalleryExampleNotFoundError);
+  });
+
+  // Unpublished is indistinguishable from unknown on purpose: telling a caller that an
+  // example exists but is not public is still telling them it exists.
+  it('refuses an unpublished id exactly as it refuses an unknown one', async () => {
+    await expect(
+      service.create(alice, { ...input, galleryInspirationId: 'draft-example' }),
+    ).rejects.toBeInstanceOf(GalleryExampleNotFoundError);
+  });
+
+  it('refuses it on update too, not only on create', async () => {
+    const project = await service.create(alice, input);
+
+    await expect(
+      service.update(alice, project.id, { ...input, galleryInspirationId: 'no-such-example' }),
+    ).rejects.toBeInstanceOf(GalleryExampleNotFoundError);
+  });
+
+  it('refuses before writing anything', async () => {
+    await expect(
+      service.create(alice, { ...input, galleryInspirationId: 'no-such-example' }),
+    ).rejects.toThrow();
+
+    await expect(service.listFor(alice)).resolves.toEqual([]);
+  });
 });

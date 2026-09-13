@@ -17,6 +17,7 @@ import {
 } from './public/generation.errors';
 import { NoCreditsError } from '../credits/public/credits.errors';
 import { NeedsInputCache } from './needs-input.cache';
+import { stubGalleryReader } from '../gallery/testing/stub-reader';
 
 /**
  * The gates in front of TX 1 (spec §6 steps 1–6). Every one of these must refuse BEFORE a
@@ -63,7 +64,7 @@ afterAll(async () => {
 beforeEach(async () => {
   await db.truncateAll();
   accounts = new AccountsService(db.pool);
-  projects = new ProjectsService(db.pool);
+  projects = new ProjectsService(db.pool, stubGalleryReader());
 
   const made = await db.pool.query<{ id: string }>(
     `INSERT INTO users (google_sub, email) VALUES ('a','a@x.uz') RETURNING id`,

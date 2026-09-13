@@ -3,6 +3,8 @@ import { Pool } from 'pg';
 import { DomainError } from '../common/errors/app.error';
 import { PG_POOL } from '../common/db/tokens';
 import { briefSchema, type Brief } from '../ai/public/brief.schema';
+import { GalleryExampleNotFoundError } from '../gallery/public/gallery.errors';
+import { GALLERY_READER, type GalleryReader } from '../gallery/public/gallery.port';
 import type {
   ProjectBriefReader,
   ProjectOwnership,
@@ -60,9 +62,26 @@ const RETURNED_COLUMNS = 'id, name, format_id, duration_seconds, aspect_ratio, c
 
 @Injectable()
 export class ProjectsService implements ProjectOwnership, ProjectBriefReader {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(
+    @Inject(PG_POOL) private readonly pool: Pool,
+    @Inject(GALLERY_READER) private readonly gallery: GalleryReader,
+  ) {}
+
+  /**
+   * P6: the id was accepted and validated by nobody before this. A seller could store any
+   * string at all, and nothing ever checked it named a real example — let alone a
+   * published one. Checked on the way in, so a brief never holds an id the worker cannot
+   * resolve.
+   */
+  private assertSelectable(id: string | null): void {
+    if (id !== null && !this.gallery.isSelectable(id)) {
+      throw new GalleryExampleNotFoundError(`No published gallery example: ${id}`);
+    }
+  }
 
   async create(userId: string, input: ProjectInput): Promise<ProjectSummary> {
+    this.assertSelectable(input.galleryInspirationId);
+
     const { rows } = await this.pool.query<ProjectDbRow>(
       `INSERT INTO projects
          (user_id, name, description, goal, format_id, platform, aspect_ratio,
@@ -125,6 +144,8 @@ export class ProjectsService implements ProjectOwnership, ProjectBriefReader {
   }
 
   async update(userId: string, projectId: string, input: ProjectInput): Promise<ProjectSummary> {
+    this.assertSelectable(input.galleryInspirationId);
+
     const rows = await this.runOwned<ProjectDbRow>(
       `UPDATE projects
           SET name = $3, description = $4, goal = $5, format_id = $6, platform = $7,
