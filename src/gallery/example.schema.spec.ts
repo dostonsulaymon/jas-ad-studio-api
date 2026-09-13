@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { galleryExampleSchema } from './example.schema';
+import { galleryExampleSchema, PROVENANCE_NOT_RECORDED } from './example.schema';
 
 const valid = {
   id: 'wipes-lifestyle',
@@ -51,6 +51,22 @@ describe('a published example must carry its provenance (D-011)', () => {
   // go live. This is what lets Task 6 seed the file from out/pack before Doston answers.
   it('allows an UNpublished example to have neither', () => {
     expect(parse({ isPublished: false, flowModel: null, flowMode: null }).success).toBe(true);
+  });
+
+  /**
+   * D-089. Sometimes the record genuinely does not exist — the P1 clips were made with a
+   * mix of Omni and Veo 3.1 and nobody wrote down which. Saying so is honest; picking one
+   * at random would be a claim that is wrong half the time, in the one file whose job is
+   * to say where the content came from.
+   */
+  it('accepts an explicit "not recorded" on a published example', () => {
+    expect(
+      parse({ flowModel: PROVENANCE_NOT_RECORDED, flowMode: PROVENANCE_NOT_RECORDED }).success,
+    ).toBe(true);
+  });
+
+  it('still refuses null, which means a draft rather than an answer', () => {
+    expect(parse({ flowMode: null }).success).toBe(false);
   });
 });
 

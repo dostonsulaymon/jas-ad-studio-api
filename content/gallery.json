@@ -21,9 +21,9 @@
       },
       "sourceType": "app-prompt",
       "sourceNote": "JAS Ad Studio prompti asosida Google Flow'da tayyorlangan namuna.",
-      "flowModel": null,
-      "flowMode": null,
-      "isPublished": false,
+      "flowModel": "Omni yoki Veo 3.1",
+      "flowMode": "not-recorded",
+      "isPublished": true,
       "sortOrder": 1
     },
     {
@@ -47,9 +47,9 @@
       },
       "sourceType": "app-prompt",
       "sourceNote": "JAS Ad Studio prompti asosida Google Flow'da tayyorlangan namuna.",
-      "flowModel": null,
-      "flowMode": null,
-      "isPublished": false,
+      "flowModel": "Omni yoki Veo 3.1",
+      "flowMode": "not-recorded",
+      "isPublished": true,
       "sortOrder": 2
     },
     {
@@ -73,9 +73,9 @@
       },
       "sourceType": "app-prompt",
       "sourceNote": "JAS Ad Studio prompti asosida Google Flow'da tayyorlangan namuna.",
-      "flowModel": null,
-      "flowMode": null,
-      "isPublished": false,
+      "flowModel": "Omni yoki Veo 3.1",
+      "flowMode": "not-recorded",
+      "isPublished": true,
       "sortOrder": 3
     }
   ]

@@ -15,8 +15,27 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 | Active plan | None. `docs/superpowers/plans/2026-09-13-phase-6-gallery.md` is finished except Task 6 Step 4, which is Doston's and Jakhongir's, not code. |
 | Doing now | Nothing in flight. |
 | Next | **P7: hardening** — security review, backups with a rehearsed restore, abuse limits, analytics events (including the gallery events §37 deferred from P6), privacy and terms text, project deletion. Write its plan first. |
-| Blocked | **Nothing is published in the gallery.** Three curated examples sit in `content/gallery.json` with `isPublished: false`; each needs `flowModel` and `flowMode` from Doston, then the boolean flipped. Until then `GET /api/gallery` returns `[]` and the page renders its honest empty state. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. |
-| Last verified state | **2026-09-13, both repos.** api on `main`: lint and typecheck silent, **625 tests in 46 files**, build clean, `openapi:check` up to date at **31 paths**. web on `main`: lint and typecheck silent, **61 unit tests**, **57 Playwright assertions** at 1440, 390 and 360, `api:check` matching `main`, build clean. Both halves walked by hand against a running stack with real clip bytes. |
+| Blocked | **Nothing.** The three curated examples went live 2026-09-13 (D-089) and render on the running stack. Their `flowMode` is `not-recorded` and `flowModel` is `Omni yoki Veo 3.1`, because the P1 clips were made with a mix and which made which was never written down — recoverable from Flow's history whenever Doston checks. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8, not the gallery. |
+| Last verified state | **2026-09-13, both repos, gallery live.** api on `main`: lint and typecheck silent, **627 tests in 46 files**, build clean, `openapi:check` up to date at **31 paths**. web on `main`: lint and typecheck silent, **61 unit tests**, **57 Playwright assertions** at 1440, 390 and 360, `api:check` matching `main`, build clean. Both halves walked by hand against a running stack with real clip bytes. |
+
+## 2026-09-13 — the gallery is live, with an honest gap in its provenance (D-089)
+
+Three examples published and rendering on the running stack: the rotary phone, the
+notebook and the wet wipes. `pm2 restart jas-api` was needed — **the content file is read
+once at boot**, by design — and the page took one revalidation cycle (≤60s) to pick them
+up, which is the `revalidate: 60` on the server fetch working as intended.
+
+**D-089, and why the instruction was not followed literally.** Asked which Flow model made
+these, Doston answered *"Omni, Veo 3.1 choose randomly"* — a mix of both, and no record of
+which made which. Picking at random would have written a claim that is wrong for about
+half of them into the one file whose job is to say where the content came from, under a
+card that reads *"JAS Ad Studio prompti asosida Google Flowʻda tayyorlangan namuna."*
+
+So `flowModel` says `Omni yoki Veo 3.1` — what is actually known — and `flowMode` says
+`not-recorded`, now a named constant rather than someone's prose. `null` still means
+"draft"; `not-recorded` means somebody looked and the record does not exist. A guess
+remains the one thing the schema will not take. Flow keeps a generation history, so this
+is recoverable whenever he wants to.
 
 ## 2026-09-13 — P6 Part B: the gallery on the web (D-088)
 
