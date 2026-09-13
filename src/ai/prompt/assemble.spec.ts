@@ -110,6 +110,34 @@ describe('the system prompt itself (D-012)', () => {
     expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('erasing real packaging labels');
   });
 
+  it('states the label rule absolutely: the reference overrides the category (D-095)', () => {
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('The reference image overrides what the product');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('what is absent from the reference stays absent');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('add no second label');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).not.toContain('rather than a long generic list of prohibitions');
+  });
+
+  it('chooses talent and wardrobe from the product, with named anti-defaults (D-095)', () => {
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('Treat every product as a new styling brief');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('no automatic beige sweatshirt and grey joggers');
+  });
+
+  it('asks for timed shots and a final shot that holds (D-095)', () => {
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('Write the sequence as timed shots');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('no fade out, no cut to black');
+  });
+
+  it('bans the grades that shift product colour (D-095)', () => {
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('no teal-orange grade');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('no crushed blacks');
+  });
+
+  it('bans assembly and separation in every format, and gates floating on the format (D-096)', () => {
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('separating the product into components');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('in any format');
+    expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('only where the FORMAT block lists them');
+  });
+
   it('never claims a video was made or will be reproduced perfectly', () => {
     expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('never imply that a video has been made');
     expect(AD_DIRECTOR_SYSTEM_PROMPT_V2).toContain('Never claim pixel-identical');
@@ -253,6 +281,17 @@ describe('the format block (D-056)', () => {
 
     expect(block).toContain(`aim for ${String(fast.beats.default)}`);
     expect(block).toContain('Typical shot length');
+  });
+
+  it('lists the product motion and atmosphere a format allows, and says none when empty', () => {
+    expect(buildFormatBlock(fast)).toContain('Product motion allowed: rotate, spin, float');
+    expect(buildFormatBlock(fast)).toContain('Atmosphere allowed: particles');
+    expect(buildFormatBlock(film)).toContain('Atmosphere allowed: none.');
+    expect(buildFormatBlock(film)).not.toContain('float');
+  });
+
+  it('states the Uzbek beat limit from the format', () => {
+    expect(buildFormatBlock(fast)).toContain(`at most ${String(fast.beats.max)} beats`);
   });
 
   it('offers an energetic vocabulary only to the energetic format', () => {

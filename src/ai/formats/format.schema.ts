@@ -38,6 +38,14 @@ export const creativeFormatSchema = z
     /** The moves this format may draw on. The model still picks, never stacks blindly. */
     cameraVocabulary: z.array(z.string().min(3)).min(3),
     transitions: z.array(z.string().min(3)).min(2),
+
+    /**
+     * What the product itself may do on screen (D-096). Assembly and separation are never
+     * listed: the system prompt bans them in every format.
+     */
+    productMotion: z.array(z.string().min(3)).min(1),
+    /** Particles, haze and similar. Empty means none. */
+    atmosphere: z.array(z.string().min(3)),
   })
   .strict()
   .refine((f) => f.beats.default <= f.beats.max, {

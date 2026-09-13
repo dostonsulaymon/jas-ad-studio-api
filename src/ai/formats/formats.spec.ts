@@ -53,6 +53,29 @@ describe('the shipped formats', () => {
     }
   });
 
+  it('lets only high-energy float, spin or launch the product, or add atmosphere (D-096)', () => {
+    for (const format of listFormats()) {
+      const lifted = format.productMotion.some((m) => /float|spin|launch|glide/.test(m));
+
+      expect(lifted).toBe(format.energy === 'high');
+      expect(format.atmosphere.length > 0).toBe(format.energy === 'high');
+    }
+  });
+
+  it('never lists assembly, separation or unfolding as motion in any format (D-096)', () => {
+    for (const format of listFormats()) {
+      for (const entry of [...format.productMotion, ...format.atmosphere]) {
+        expect(entry).not.toMatch(/assembl|separat|component|unfold|exploded/i);
+      }
+    }
+  });
+
+  it('keeps every format’s beat limit inside the contract’s eight Uzbek shots', () => {
+    for (const format of listFormats()) {
+      expect(format.beats.max).toBeLessThanOrEqual(8);
+    }
+  });
+
   it('gives every format a unique id, so the picker cannot show two of the same', () => {
     const ids = listFormats().map((f) => f.id);
 
@@ -94,7 +117,13 @@ describe('creativeFormatSchema', () => {
     energy: 'restrained',
     cameraVocabulary: ['push-in', 'tracking', 'static'],
     transitions: ['direct cut', 'match cut'],
+    productMotion: ['resting still'],
+    atmosphere: [],
   };
+
+  it('rejects a format with no product motion listed', () => {
+    expect(creativeFormatSchema.safeParse({ ...valid, productMotion: [] }).success).toBe(false);
+  });
 
   it('accepts a well-formed format', () => {
     expect(creativeFormatSchema.safeParse(valid).success).toBe(true);
