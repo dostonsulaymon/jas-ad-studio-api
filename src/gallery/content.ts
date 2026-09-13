@@ -1,50 +1,14 @@
 import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import type { Env } from '../common/config/env.schema';
 import { galleryContentSchema, type GalleryExample } from './example.schema';
 
 /**
- * The gallery's content, loaded and validated once at boot (R-5, D-038).
+ * Reads and validates `content/gallery.json`.
  *
- * It throws. A malformed content file stops the process the way a malformed environment
- * does, and for the same reason: the alternative is an empty gallery that looks exactly
- * like a gallery nobody has made content for yet. Loud beats plausible.
- *
- * Reading a file in a constructor is fine; D-080 is about sockets. Nothing here is
- * async, which is what makes "fail at boot" true rather than "fail at first request".
+ * Since D-090 the gallery lives in a table and **nothing reads this file at runtime** —
+ * it is the record of what migration 0009 seeded, and the format `tools/gallery-ingest.mjs`
+ * produces. It is kept validated by a test so that record cannot rot into something the
+ * schema would reject if anyone ever seeds from it again.
  */
-@Injectable()
-export class GalleryContentStore {
-  private readonly byId: ReadonlyMap<string, GalleryExample>;
-  private readonly bySlug: ReadonlyMap<string, GalleryExample>;
-  private readonly ordered: readonly GalleryExample[];
-
-  constructor(config: ConfigService<Env, true>) {
-    const file = resolve(config.get('GALLERY_CONTENT_FILE', { infer: true }));
-    this.ordered = loadExamples(file);
-    this.byId = new Map(this.ordered.map((example) => [example.id, example]));
-    this.bySlug = new Map(this.ordered.map((example) => [example.slug, example]));
-  }
-
-  /** Published only, in display order. The list the public page renders. */
-  listPublished(): GalleryExample[] {
-    return this.ordered.filter((example) => example.isPublished);
-  }
-
-  /** Unpublished returns undefined: a caller must not be able to tell it exists. */
-  findPublishedBySlug(slug: string): GalleryExample | undefined {
-    const example = this.bySlug.get(slug);
-    return example?.isPublished === true ? example : undefined;
-  }
-
-  findPublishedById(id: string): GalleryExample | undefined {
-    const example = this.byId.get(id);
-    return example?.isPublished === true ? example : undefined;
-  }
-}
-
 export function loadExamples(file: string): readonly GalleryExample[] {
   let raw: unknown;
 

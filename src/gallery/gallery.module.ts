@@ -1,24 +1,30 @@
 import { Global, Module } from '@nestjs/common';
-import { GalleryContentStore } from './content';
 import { GalleryController } from './gallery.controller';
+import { GalleryMediaStore } from './gallery.media-store';
+import { GalleryRepo } from './gallery.repo';
 import { GalleryService } from './gallery.service';
 import { GalleryMedia } from './media';
-import { GALLERY_READER } from './public/gallery.port';
+import { GALLERY_ADMIN, GALLERY_READER } from './public/gallery.port';
 
 /**
- * Global for the reason SettingsModule is: R-7 forbids projects/ and generation/ from
- * importing this file, so the port reaches them through the global scope instead. Only
- * GALLERY_READER is exported — a caller gets the resolver and nothing around it.
+ * Global for the reason SettingsModule is: R-7 forbids projects/, generation/ and owner/
+ * from importing this file, so the ports reach them through the global scope instead.
+ *
+ * Two ports, deliberately separate: GALLERY_READER is what the worker and projects get —
+ * resolution and nothing else — while GALLERY_ADMIN is the owner module's write surface.
+ * One port with every method on it would hand the generation worker a delete().
  */
 @Global()
 @Module({
   controllers: [GalleryController],
   providers: [
-    GalleryContentStore,
+    GalleryRepo,
+    GalleryMediaStore,
     GalleryMedia,
     GalleryService,
     { provide: GALLERY_READER, useExisting: GalleryService },
+    { provide: GALLERY_ADMIN, useExisting: GalleryService },
   ],
-  exports: [GALLERY_READER],
+  exports: [GALLERY_READER, GALLERY_ADMIN],
 })
 export class GalleryModule {}

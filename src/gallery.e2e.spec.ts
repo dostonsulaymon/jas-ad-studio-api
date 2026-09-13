@@ -19,8 +19,8 @@ import type { Env } from './common/config/env.schema';
 import { PG_POOL } from './common/db/tokens';
 import { createTestDatabase, type TestDatabase } from './common/testing/database';
 import { AccountsService } from './credits/accounts.service';
-import { GalleryContentStore } from './gallery/content';
 import { GalleryMedia } from './gallery/media';
+import { GalleryRepo, type GalleryExampleInput } from './gallery/gallery.repo';
 import { GenerationWorker } from './generation/generation.worker';
 import { createFakeProvider, type FakeProvider } from './generation/testing/fake-provider';
 
@@ -74,7 +74,6 @@ const PRESET = {
 };
 
 const PUBLISHED = {
-  id: 'macro-reveal',
   slug: 'macro-reveal',
   titleUz: 'Tungi shabada — sekin makro ochilish',
   category: 'parfyum',
@@ -95,11 +94,10 @@ const PUBLISHED = {
   flowMode: 'Frames to video',
   isPublished: true,
   sortOrder: 1,
-};
+} satisfies GalleryExampleInput;
 
 const DRAFT = {
   ...PUBLISHED,
-  id: 'draft-example',
   slug: 'draft-example',
   titleUz: 'Hali chiqmagan',
   isPublished: false,
@@ -107,7 +105,7 @@ const DRAFT = {
   flowMode: null,
   sourceNote: '',
   sortOrder: 2,
-};
+} satisfies GalleryExampleInput;
 
 const brief = {
   productName: 'Krossovka',
@@ -178,9 +176,6 @@ beforeAll(async () => {
   writeFileSync(join(mediaRoot, 'poster.jpg'), Buffer.from('poster-bytes'));
   writeFileSync(join(mediaRoot, 'secret.mp4'), 'never serve me');
 
-  const contentFile = join(mkdtempSync(join(tmpdir(), 'jas-p6-content-')), 'gallery.json');
-  writeFileSync(contentFile, JSON.stringify({ examples: [PUBLISHED, DRAFT] }));
-
   const configFor = (value: string) => ({ get: () => value }) as unknown as ConfigService<Env, true>;
 
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
@@ -190,8 +185,6 @@ beforeAll(async () => {
     .useValue(new FileStorage(mkdtempSync(join(tmpdir(), 'jas-p6-'))))
     .overrideProvider(AI_PROVIDER)
     .useValue(provider)
-    .overrideProvider(GalleryContentStore)
-    .useValue(new GalleryContentStore(configFor(contentFile)))
     .overrideProvider(GalleryMedia)
     .useValue(new GalleryMedia(configFor(mediaRoot)))
     .compile();
@@ -211,6 +204,20 @@ beforeAll(async () => {
   );
   aliceId = made.rows[0]?.id ?? '';
 
+  // The gallery lives in a table since D-090, so the fixtures are rows rather than a file.
+  //
+  // Migration 0009 seeds the three real examples into every database it builds, this one
+  // included. They are cleared first so the assertions below describe this suite's own
+  // fixtures rather than whatever content happens to be shipping.
+  await db.pool.query('DELETE FROM gallery_examples');
+
+  const repo = moduleRef.get(GalleryRepo);
+  // `id` is the public slug on a card; the table generates its own uuid, so it is not an
+  // input. `toInput` drops it in one place rather than at every call site.
+  for (const fixture of [PUBLISHED, DRAFT]) {
+    await repo.insert(fixture, aliceId);
+  }
+
   const sessions = moduleRef.get(SessionService);
   aliceCookie = `${SESSION_COOKIE}=${(await sessions.issue(aliceId)).token}`;
 
@@ -219,7 +226,7 @@ beforeAll(async () => {
   const project = await send('/api/projects', {
     cookie: aliceCookie,
     method: 'POST',
-    body: { ...brief, galleryInspirationId: PUBLISHED.id },
+    body: { ...brief, galleryInspirationId: PUBLISHED.slug },
   });
   aliceProject = (await json<{ id: string }>(project)).id;
 
@@ -249,13 +256,13 @@ describe('the gallery is the free product (D-007, source 01 §23)', () => {
 
     expect(response.status).toBe(200);
     const body = await json<{ examples: { id: string }[] }>(response);
-    expect(body.examples.map((example) => example.id)).toEqual([PUBLISHED.id]);
+    expect(body.examples.map((example) => example.id)).toEqual([PUBLISHED.slug]);
   });
 
   it('never lists an unpublished example', async () => {
     const body = await json<{ examples: { id: string }[] }>(await anonymous('/api/gallery'));
 
-    expect(body.examples.some((example) => example.id === DRAFT.id)).toBe(false);
+    expect(body.examples.some((example) => example.id === DRAFT.slug)).toBe(false);
   });
 
   // §15: this page must stay fast on an Uzbek phone, and a prompt is 1,500-2,300 words.
@@ -339,7 +346,7 @@ describe('an inspiration id a seller may not select', () => {
     const response = await send(`/api/projects/${aliceProject}`, {
       cookie: aliceCookie,
       method: 'PATCH',
-      body: { ...brief, galleryInspirationId: DRAFT.id },
+      body: { ...brief, galleryInspirationId: DRAFT.slug },
     });
 
     expect(response.status).toBe(404);

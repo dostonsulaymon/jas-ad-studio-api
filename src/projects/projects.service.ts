@@ -73,14 +73,14 @@ export class ProjectsService implements ProjectOwnership, ProjectBriefReader {
    * published one. Checked on the way in, so a brief never holds an id the worker cannot
    * resolve.
    */
-  private assertSelectable(id: string | null): void {
-    if (id !== null && !this.gallery.isSelectable(id)) {
+  private async assertSelectable(id: string | null): Promise<void> {
+    if (id !== null && !(await this.gallery.isSelectable(id))) {
       throw new GalleryExampleNotFoundError(`No published gallery example: ${id}`);
     }
   }
 
   async create(userId: string, input: ProjectInput): Promise<ProjectSummary> {
-    this.assertSelectable(input.galleryInspirationId);
+    await this.assertSelectable(input.galleryInspirationId);
 
     const { rows } = await this.pool.query<ProjectDbRow>(
       `INSERT INTO projects
@@ -144,7 +144,7 @@ export class ProjectsService implements ProjectOwnership, ProjectBriefReader {
   }
 
   async update(userId: string, projectId: string, input: ProjectInput): Promise<ProjectSummary> {
-    this.assertSelectable(input.galleryInspirationId);
+    await this.assertSelectable(input.galleryInspirationId);
 
     const rows = await this.runOwned<ProjectDbRow>(
       `UPDATE projects

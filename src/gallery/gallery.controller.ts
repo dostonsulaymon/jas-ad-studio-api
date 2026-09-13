@@ -37,8 +37,8 @@ export class GalleryController {
       'to stay fast on mobile. Fetch one example for its prompt.',
   })
   @ApiOkResponse({ type: GalleryListDto })
-  list(): GalleryList {
-    return { examples: this.gallery.list() };
+  async list(): Promise<GalleryList> {
+    return { examples: await this.gallery.list() };
   }
 
   /**
@@ -103,7 +103,7 @@ export class GalleryController {
   })
   @ApiOkResponse({ type: GalleryExampleDto })
   @Header('Cache-Control', 'no-cache')
-  get(@Param('slug') slug: string): GalleryExampleView {
+  get(@Param('slug') slug: string): Promise<GalleryExampleView> {
     return this.gallery.get(slug);
   }
 }

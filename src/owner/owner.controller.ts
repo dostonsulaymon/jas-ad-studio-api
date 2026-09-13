@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   Inject,
@@ -8,9 +9,19 @@ import {
   Patch,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import { FileInterceptor } from '@nestjs/platform-express';
+import {
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
 import { Pool } from 'pg';
 import type { CurrentUser } from '../auth/public/auth.port';
 import { User } from '../auth/public/current-user.decorator';
@@ -33,11 +44,21 @@ import {
 } from '../credits/public/credits.port';
 import {
   SETTINGS_ADMIN,
+  type HeroPhotos,
   type PaymentInstructions,
   type SettingsAdmin,
   type SupportContacts,
 } from '../settings/public/settings.port';
 import { AUDIT_WRITER, type AuditWriter } from './public/audit.port';
+import {
+  GALLERY_ADMIN,
+  galleryExampleInputSchema,
+  type GalleryAdmin,
+  type GalleryMediaUpload,
+  type OwnerGalleryExample,
+  type OwnerGalleryList,
+} from '../gallery/public/gallery.port';
+import { MAX_VIDEO_BYTES, MediaRejected } from '../gallery/public/gallery.errors';
 import { OwnerReportsService } from './owner-reports.service';
 import type { OwnerGeneration, OwnerSpendDay } from './public/owner-reports.port';
 import { OwnerGuard } from './owner.guard';
@@ -45,11 +66,16 @@ import {
   AdminPackDto,
   CreditBalanceDto,
   CreditOrderSummaryDto,
+  GalleryExampleInputDtoClass,
+  GalleryMediaDto,
   GrantDto,
-  OwnerOrderDto,
-  OwnerUserDto,
+  HeroPhotosDto,
+  OwnerGalleryExampleDto,
+  OwnerGalleryListDto,
   OwnerGenerationDto,
+  OwnerOrderDto,
   OwnerSpendDayDto,
+  OwnerUserDto,
   PackEditDto,
   PaymentInstructionsDto,
   RejectOrderDto,
@@ -78,6 +104,7 @@ export class OwnerController {
     @Inject(CREDIT_ADMIN) private readonly credits: CreditAdminPort,
     @Inject(SETTINGS_ADMIN) private readonly settings: SettingsAdmin,
     @Inject(AUDIT_WRITER) private readonly audit: AuditWriter,
+    @Inject(GALLERY_ADMIN) private readonly gallery: GalleryAdmin,
     private readonly reports: OwnerReportsService,
   ) {}
 
@@ -204,11 +231,108 @@ export class OwnerController {
     return this.writeSetting(owner.id, 'support_contacts', body) as Promise<SupportContacts>;
   }
 
+  /**
+   * The gallery, editable without a deploy (D-090). Every write is audited, like every
+   * other owner action — the panel is the only way content changes, so the log is the
+   * only record of who changed it.
+   */
+  @Get('gallery')
+  @ApiOperation({ summary: 'Every gallery example, published or not.' })
+  @ApiOkResponse({ type: OwnerGalleryListDto })
+  async listGallery(): Promise<OwnerGalleryList> {
+    return { examples: await this.gallery.listForOwner() };
+  }
+
+  @Post('gallery')
+  @ApiOperation({ summary: 'Create a gallery example. Never published unless asked.' })
+  @ApiBody({ type: GalleryExampleInputDtoClass })
+  @ApiCreatedResponse({ type: OwnerGalleryExampleDto })
+  async createGalleryExample(
+    @User() owner: CurrentUser,
+    @Body() body: unknown,
+  ): Promise<OwnerGalleryExample> {
+    const input = galleryExampleInputSchema.parse(body);
+    const created = await this.gallery.create(input, owner.id);
+    await this.audit.record(owner.id, 'gallery.create', 'gallery_example', created.id, {
+      slug: created.slug,
+      isPublished: created.isPublished,
+    });
+    return created;
+  }
+
+  @Patch('gallery/:id')
+  @ApiOperation({ summary: 'Edit a gallery example, including whether it is published.' })
+  @ApiBody({ type: GalleryExampleInputDtoClass })
+  @ApiOkResponse({ type: OwnerGalleryExampleDto })
+  async editGalleryExample(
+    @User() owner: CurrentUser,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ): Promise<OwnerGalleryExample> {
+    const input = galleryExampleInputSchema.parse(body);
+    const updated = await this.gallery.edit(id, input, owner.id);
+    await this.audit.record(owner.id, 'gallery.update', 'gallery_example', id, {
+      slug: updated.slug,
+      isPublished: updated.isPublished,
+    });
+    return updated;
+  }
+
+  @Delete('gallery/:id')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Delete a gallery example. The media file is left in place.' })
+  @ApiNoContentResponse()
+  async deleteGalleryExample(
+    @User() owner: CurrentUser,
+    @Param('id') id: string,
+  ): Promise<void> {
+    await this.gallery.remove(id);
+    await this.audit.record(owner.id, 'gallery.delete', 'gallery_example', id, {});
+  }
+
+  /**
+   * Upload a clip or a poster. Returns the path an example's videoPath/posterPath points
+   * at — content-addressed, so uploading the same file twice is free and changes nothing.
+   */
+  @Post('gallery/media')
+  @UseInterceptors(FileInterceptor('file', { limits: { fileSize: MAX_VIDEO_BYTES, files: 1 } }))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({ summary: 'Upload a gallery clip or poster.' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: { file: { type: 'string', format: 'binary' } },
+      required: ['file'],
+    },
+  })
+  @ApiCreatedResponse({ type: GalleryMediaDto })
+  async uploadGalleryMedia(
+    @User() owner: CurrentUser,
+    @UploadedFile() file: Express.Multer.File | undefined,
+  ): Promise<GalleryMediaUpload> {
+    if (!file) throw new MediaRejected('MEDIA_EMPTY', 'No file was sent');
+
+    const stored = await this.gallery.storeMedia(file.buffer, file.originalname);
+    await this.audit.record(owner.id, 'gallery.media', 'gallery_example', stored.path, {
+      contentType: stored.contentType,
+    });
+    return stored;
+  }
+
+  /** D-091: the hero tray's photos, so the landing page's examples are his too. */
+  @Patch('settings/hero-photos')
+  @ApiOperation({ summary: 'Set the hero tray photos, in display order.' })
+  @ApiBody({ type: HeroPhotosDto })
+  @ApiOkResponse({ type: HeroPhotosDto })
+  setHeroPhotos(@User() owner: CurrentUser, @Body() body: unknown): Promise<HeroPhotos> {
+    return this.writeSetting(owner.id, 'hero_photos', body) as Promise<HeroPhotos>;
+  }
+
   private writeSetting(
     ownerId: string,
     key: string,
     body: unknown,
-  ): Promise<PaymentInstructions | SupportContacts> {
+  ): Promise<PaymentInstructions | SupportContacts | HeroPhotos> {
     return withTransaction(this.pool, async (tx) => {
       const stored = await this.settings.setKey(key, body, ownerId, tx);
       await this.audit.record(ownerId, 'setting.update', 'site_setting', key, {}, tx);

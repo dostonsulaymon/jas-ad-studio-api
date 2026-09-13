@@ -14,9 +14,9 @@ import type { GalleryReader } from '../public/gallery.port';
  */
 export function stubGalleryReader(published: readonly string[] = []): GalleryReader {
   return {
-    isSelectable: (id) => published.includes(id),
-    resolveInspiration: (id): GalleryInspiration | null =>
-      published.includes(id)
+    isSelectable: (id) => Promise.resolve(published.includes(id)),
+    resolveInspiration: (id): Promise<GalleryInspiration | null> =>
+      Promise.resolve(published.includes(id)
         ? {
             id,
             environment: 'stub environment',
@@ -25,6 +25,6 @@ export function stubGalleryReader(published: readonly string[] = []): GalleryRea
             pacing: 'stub pacing',
             mood: 'stub mood',
           }
-        : null,
+        : null),
   };
 }

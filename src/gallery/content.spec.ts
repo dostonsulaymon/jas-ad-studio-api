@@ -38,7 +38,12 @@ function write(content: unknown): string {
   return file;
 }
 
-it('loads the shipped content file, which must always be valid', () => {
+/**
+ * Nothing reads this file at runtime since D-090 — it is the record of what migration
+ * 0009 seeded. Keeping it valid means that record cannot rot into something the schema
+ * would reject if anyone seeds from it again.
+ */
+it('keeps the committed seed record valid', () => {
   expect(() => loadExamples('content/gallery.json')).not.toThrow();
 });
 

@@ -578,6 +578,145 @@ describe('the support contacts (D-023)', () => {
 });
 
 /**
+ * The owner's gallery, editable without a deploy (D-090).
+ *
+ * Here rather than in `gallery.e2e.spec.ts` because these are `/api/owner/*` routes and
+ * this is the suite that owns that prefix's coverage — splitting them would leave each
+ * file's guard blind to half the surface.
+ */
+describe('the owner edits the gallery', () => {
+  const example = (patch: Record<string, unknown> = {}) => ({
+    slug: 'owner-made',
+    titleUz: 'Egasi qoʻshgan namuna',
+    category: 'kiyim',
+    style: 'product-film',
+    videoPath: 'aa11.mp4',
+    posterPath: 'aa11.jpg',
+    aspectRatio: '9:16',
+    durationSeconds: 10,
+    promptEn: 'A prompt.',
+    conceptUz: 'Konsepsiya.',
+    creativePreset: {
+      environment: 'clean seamless backdrop',
+      lighting: 'soft key',
+      cameraLanguage: 'slow orbit',
+      pacing: 'restrained',
+      mood: 'composed',
+    },
+    sourceType: 'app-prompt',
+    sourceNote: 'Namuna.',
+    flowModel: 'Veo 3.1',
+    flowMode: 'Frames to video',
+    isPublished: false,
+    sortOrder: 9,
+    ...patch,
+  });
+
+  it('creates, edits, publishes and deletes an example', async () => {
+    const created = await send('/api/owner/gallery', {
+      cookie: ownerCookie,
+      method: 'POST',
+      body: example(),
+    });
+    expect(created.status).toBe(201);
+    const { id } = await json<{ id: string; isPublished: boolean }>(created);
+
+    // A new example is never live until somebody says so.
+    const listed = await send('/api/owner/gallery', { cookie: ownerCookie });
+    expect(listed.status).toBe(200);
+    const all = await json<{ examples: { id: string; isPublished: boolean }[] }>(listed);
+    expect(all.examples.find((e) => e.id === id)?.isPublished).toBe(false);
+
+    // …and the public list does not show it meanwhile.
+    const beforePublish = await fetch(`${origin}/api/gallery`);
+    expect(
+      (await json<{ examples: { slug: string }[] }>(beforePublish)).examples.some(
+        (e) => e.slug === 'owner-made',
+      ),
+    ).toBe(false);
+
+    const published = await send(`/api/owner/gallery/${id}`, {
+      cookie: ownerCookie,
+      method: 'PATCH',
+      body: example({ isPublished: true, titleUz: 'Chiqarildi' }),
+    });
+    expect(published.status).toBe(200);
+
+    const afterPublish = await fetch(`${origin}/api/gallery`);
+    expect(
+      (await json<{ examples: { slug: string }[] }>(afterPublish)).examples.some(
+        (e) => e.slug === 'owner-made',
+      ),
+    ).toBe(true);
+
+    const removed = await send(`/api/owner/gallery/${id}`, {
+      cookie: ownerCookie,
+      method: 'DELETE',
+    });
+    expect(removed.status).toBe(204);
+
+    // Asserted here rather than in its own test: truncateAll runs between tests, so a
+    // separate test would be reading an empty table and passing for the wrong reason.
+    const { rows } = await db.pool.query<{ action: string }>(
+      `SELECT action FROM owner_audit_log WHERE target_type = 'gallery_example'
+        ORDER BY created_at`,
+    );
+    expect(rows.map((r) => r.action)).toEqual([
+      'gallery.create',
+      'gallery.update',
+      'gallery.delete',
+    ]);
+  });
+
+  it('stores an uploaded clip under a content hash, and refuses a fake one', async () => {
+    // A minimal but real ISO base-media header: 'ftyp' at offset 4 is what the store checks.
+    const mp4 = Buffer.concat([
+      Buffer.from([0, 0, 0, 0x18]),
+      Buffer.from('ftypisom', 'latin1'),
+      Buffer.alloc(16),
+    ]);
+
+    const form = new FormData();
+    form.append('file', new Blob([mp4], { type: 'video/mp4' }), 'clip.mp4');
+    const uploaded = await fetch(`${origin}/api/owner/gallery/media`, {
+      method: 'POST',
+      headers: { Origin: WEB_ORIGIN, 'X-Requested-With': 'XMLHttpRequest', Cookie: ownerCookie },
+      body: form,
+    });
+    expect(uploaded.status).toBe(201);
+    exercised.add('POST /api/owner/gallery/media');
+
+    const stored = await json<{ path: string; contentType: string }>(uploaded);
+    expect(stored.contentType).toBe('video/mp4');
+    expect(stored.path).toMatch(/^[0-9a-f]{16}\.mp4$/);
+
+    // The type comes from the bytes, never the name: a script called .mp4 is refused.
+    const liar = new FormData();
+    liar.append('file', new Blob([Buffer.from('#!/bin/sh\nrm -rf /')]), 'clip.mp4');
+    const refused = await fetch(`${origin}/api/owner/gallery/media`, {
+      method: 'POST',
+      headers: { Origin: WEB_ORIGIN, 'X-Requested-With': 'XMLHttpRequest', Cookie: ownerCookie },
+      body: liar,
+    });
+    expect(refused.status).toBe(400);
+    expect((await json<{ code: string }>(refused)).code).toBe('MEDIA_TYPE');
+  });
+
+  it('lets the owner set the hero photos the landing page shows', async () => {
+    const saved = await send('/api/owner/settings/hero-photos', {
+      cookie: ownerCookie,
+      method: 'PATCH',
+      body: { photos: [{ path: 'aa11.jpg', altUz: 'Mahsulot rasmi' }] },
+    });
+    expect(saved.status).toBe(200);
+
+    const publicSettings = await fetch(`${origin}/api/settings/public`);
+    const body = await json<{ heroPhotos: { photos: { altUz: string }[] } }>(publicSettings);
+    expect(body.heroPhotos.photos[0]?.altUz).toBe('Mahsulot rasmi');
+  });
+});
+
+/**
  * The question this suite must be able to answer: was every P3 endpoint actually
  * exercised, or only most of them?
  *
