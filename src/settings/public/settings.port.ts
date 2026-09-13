@@ -40,9 +40,18 @@ export type SupportContacts = z.infer<typeof supportContactsSchema>;
  * than rendering a gap — an empty hero is worse than a slightly stale one.
  */
 export const heroPhotosSchema = z.object({
+  /**
+   * Overrides, keyed by the plate they replace — not a dense list (R-005).
+   *
+   * A flat array could only ever be all-or-nothing: replacing the third photo would mean
+   * supplying the first two as well. The owner's actual question is "I do not like the
+   * third one, how do I change it", and `slot` is what makes that one action instead of
+   * seven. A slot with no entry keeps the committed image.
+   */
   photos: z
     .array(
       z.object({
+        slot: z.number().int().min(0).max(11),
         /** A path into the gallery media volume, from an owner upload. */
         path: z.string().trim().min(1).max(200),
         /** Required: a decorative-looking product photo still needs a name (§39). */
@@ -50,7 +59,12 @@ export const heroPhotosSchema = z.object({
       }),
     )
     .max(12)
-    .default([]),
+    .default([])
+    // Two overrides for one plate is a contradiction, and the later one silently winning
+    // is how an owner ends up staring at the photo they just replaced.
+    .refine((photos) => new Set(photos.map((p) => p.slot)).size === photos.length, {
+      message: 'each slot may be overridden once',
+    }),
 });
 export type HeroPhotos = z.infer<typeof heroPhotosSchema>;
 
