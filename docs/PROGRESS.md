@@ -10,13 +10,13 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0-P6 closed and merged, plus 6b (owner-editable content) and 6c (hero photo editor, R-005).** Now: a request and design pass (R-007) before P7. |
-| Branch | `p6d-requests` in **both** repos, cut from `main` on 2026-09-13. |
-| Active plan | None yet. R-007 is Doston-led, part by part; each `new` request in `docs/REQUESTS.md` is discussed before it is built. |
-| Doing now | Starting the pass. Open: **R-001, R-002, R-003, R-006, R-007, R-008**. |
-| Next | Agree the order with Doston, then one request or site part at a time, stopping for review after each. P7 (hardening) follows. |
-| Blocked | Nothing for this pass. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. |
-| Last verified state | **2026-09-13, re-run before the 6c merge.** api: lint and typecheck silent, **636 tests in 46 files**, build clean, `openapi:check` up to date. web: lint and typecheck silent, **70 unit tests**. Not re-run for 6c: web `build` (it would clobber the live dev server's `.next`) and Playwright. |
+| Phase | **P0-P6 closed and merged, plus 6b (owner-editable content), 6c (hero photo editor), 6d (request pass: R-001, R-002, R-006, R-008) and 6e — the dark redesign (D-092).** P7 (hardening) is next. |
+| Branch | web: `p6e-dark-redesign`, merged to `main` and served at jas.kitobnarxi.uz. api: `p6d-requests`, merged to `main`. |
+| Active plan | None. The redesign's spec is `docs/superpowers/specs/2026-09-13-dark-redesign-design.md`; the request pass is `docs/superpowers/plans/2026-09-13-p6d-request-pass.md`. |
+| Doing now | Nothing in flight. |
+| Next | Doston reviews the redesigned site. Then the R-007 audit continues on the new design (admin tabs part by part), and P7. Open requests: **R-003** (projects experience — Doston and his friends first), **R-007**. |
+| Blocked | **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. Jakhongir's PRO subscription was deliberately not adopted (D-092). |
+| Last verified state | **2026-09-13, on the redesign before its merge.** web: lint and typecheck silent, **75 unit tests**, **72 Playwright** at 1440, 390 and 360 against a dev server on the redesign worktree, including a signed-in overflow test shown failing on the old header. api: last full run **638 tests in 46 files**, build clean, `openapi:check` up to date at 35 paths (the api was not changed by the redesign). Not run: web `build` (it would clobber the live dev server's `.next`). |
 
 ## 2026-09-13 — phase 6b: the owner edits what the site shows (D-090, D-091)
 
