@@ -1340,6 +1340,11 @@
                 "items": {
                   "type": "object",
                   "properties": {
+                    "slot": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 11
+                    },
                     "path": {
                       "type": "string",
                       "minLength": 1,
@@ -1352,6 +1357,7 @@
                     }
                   },
                   "required": [
+                    "slot",
                     "path",
                     "altUz"
                   ]
@@ -2349,6 +2355,11 @@
             "items": {
               "type": "object",
               "properties": {
+                "slot": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 11
+                },
                 "path": {
                   "type": "string",
                   "minLength": 1,
@@ -2361,6 +2372,7 @@
                 }
               },
               "required": [
+                "slot",
                 "path",
                 "altUz"
               ]

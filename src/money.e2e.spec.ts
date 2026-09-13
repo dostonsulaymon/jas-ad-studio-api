@@ -706,13 +706,35 @@ describe('the owner edits the gallery', () => {
     const saved = await send('/api/owner/settings/hero-photos', {
       cookie: ownerCookie,
       method: 'PATCH',
-      body: { photos: [{ path: 'aa11.jpg', altUz: 'Mahsulot rasmi' }] },
+      body: { photos: [{ slot: 2, path: 'aa11.jpg', altUz: 'Mahsulot rasmi' }] },
     });
     expect(saved.status).toBe(200);
 
     const publicSettings = await fetch(`${origin}/api/settings/public`);
-    const body = await json<{ heroPhotos: { photos: { altUz: string }[] } }>(publicSettings);
-    expect(body.heroPhotos.photos[0]?.altUz).toBe('Mahsulot rasmi');
+    const body = await json<{ heroPhotos: { photos: { slot: number; altUz: string }[] } }>(
+      publicSettings,
+    );
+    // Keyed by slot (R-005): replacing the third plate says so, and leaves the rest alone.
+    expect(body.heroPhotos.photos).toEqual([
+      { slot: 2, path: 'aa11.jpg', altUz: 'Mahsulot rasmi' },
+    ]);
+  });
+
+  it('refuses two overrides for the same plate', async () => {
+    const refused = await send('/api/owner/settings/hero-photos', {
+      cookie: ownerCookie,
+      method: 'PATCH',
+      body: {
+        photos: [
+          { slot: 1, path: 'a.jpg', altUz: 'A' },
+          { slot: 1, path: 'b.jpg', altUz: 'B' },
+        ],
+      },
+    });
+
+    // Otherwise the later one silently wins and the owner stares at the photo they
+    // thought they had just replaced.
+    expect(refused.status).toBe(400);
   });
 });
 

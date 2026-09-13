@@ -10,13 +10,13 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0-P6 closed and merged, plus phase 6b (owner-editable content).** P7 (hardening) is next. |
-| Branch | `p6b-owner-content` in this repo, `p6-gallery` in the web repo. |
-| Active plan | `docs/superpowers/plans/2026-09-13-phase-6b-owner-content.md`. Parts A, B and C done. |
-| Doing now | Nothing in flight. |
-| Next | **P7: hardening.** Before its plan is written, go through every `new` request in `docs/REQUESTS.md` with Doston — **R-001, R-002, R-003, R-005, R-006** are open, and R-005 is a defect in 6b's own hero-photo screen. |
-| Blocked | Nothing. The gallery is live with three examples; the support contacts render in the footer signed out; the card number appears in the credits drawer once set. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. |
-| Last verified state | **2026-09-13, both repos.** api: lint and typecheck silent, **635 tests in 46 files**, build clean, `openapi:check` up to date at **35 paths**. web: lint and typecheck silent, **68 unit tests**, **63 Playwright assertions** at 1440, 390 and 360, build clean. Every part driven by hand in Chrome against the running stack with a real owner session. |
+| Phase | **P0-P6 closed and merged, plus 6b (owner-editable content) and 6c (hero photo editor, R-005).** Now: a request and design pass (R-007) before P7. |
+| Branch | `p6d-requests` in **both** repos, cut from `main` on 2026-09-13. |
+| Active plan | None yet. R-007 is Doston-led, part by part; each `new` request in `docs/REQUESTS.md` is discussed before it is built. |
+| Doing now | Starting the pass. Open: **R-001, R-002, R-003, R-006, R-007, R-008**. |
+| Next | Agree the order with Doston, then one request or site part at a time, stopping for review after each. P7 (hardening) follows. |
+| Blocked | Nothing for this pass. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. |
+| Last verified state | **2026-09-13, re-run before the 6c merge.** api: lint and typecheck silent, **636 tests in 46 files**, build clean, `openapi:check` up to date. web: lint and typecheck silent, **70 unit tests**. Not re-run for 6c: web `build` (it would clobber the live dev server's `.next`) and Playwright. |
 
 ## 2026-09-13 — phase 6b: the owner edits what the site shows (D-090, D-091)
 
