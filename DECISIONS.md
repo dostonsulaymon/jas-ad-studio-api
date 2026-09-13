@@ -1243,3 +1243,33 @@ the save.
 at 1440, 390 and 360, `api:check` matching `main` at 31 paths, build clean. Driven against
 a real API and real clip bytes, not stubs — the gallery is the one flow with no session to
 forge, so `flow.spec.ts`'s stubbing approach was neither needed nor honest here.
+
+---
+
+### D-089 · 2026-09-13 · "Not recorded" is an honest provenance value; a guess never is
+
+**Supersedes the provenance clause of D-087**, which said a published gallery example must
+record the Flow model and mode that made it, full stop.
+
+Publishing the first three examples hit the case that clause did not anticipate. Asked
+which model made them, Doston answered: *"Omni, Veo 3.1 choose randomly"* — the P1 test
+clips were made with a mix of both, and which one made which was never written down.
+
+**The instruction was to pick at random. I did not**, and this entry is why. These three
+clips are the first thing a visitor sees, and they carry the label *"JAS Ad Studio prompti
+asosida Google Flowʻda tayyorlangan namuna."* A coin-flip between Omni and Veo 3.1 would
+be wrong for roughly half of them, written into the one file whose job is to say where the
+content came from. That is the failure mode source 01 §42 and the product rules exist to
+prevent, and it would be indistinguishable from a true record later.
+
+**So the rule is now:** a published example must *state* its provenance, and
+`PROVENANCE_NOT_RECORDED` (`'not-recorded'`) is a permitted, explicit value. It is not the
+same as `null`: null means the entry is still a draft, `'not-recorded'` means somebody
+looked and the record does not exist. What stays forbidden is a blank, and a guess.
+
+The three examples therefore ship as `flowModel: 'Omni yoki Veo 3.1'` — which is what is
+actually known — and `flowMode: 'not-recorded'`. Neither field is shown to visitors; they
+are the internal record D-011 asked for.
+
+**Recoverable:** Flow keeps a generation history. If Doston checks it, the real values
+replace these and this entry becomes a footnote. Until then the file says what is true.

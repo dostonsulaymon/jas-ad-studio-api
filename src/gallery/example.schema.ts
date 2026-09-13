@@ -80,6 +80,16 @@ export const creativePresetSchema = z
   })
   .strict();
 
+/**
+ * An honest "we did not write it down" for `flowModel` / `flowMode` (D-089).
+ *
+ * A named value rather than free prose, so it is greppable and so nobody has to decide
+ * how to phrase not knowing. It is deliberately NOT the same as `null`: null means the
+ * example is still a draft, this means somebody looked and the record does not exist.
+ * A guess is never an acceptable third option — the field exists to be true.
+ */
+export const PROVENANCE_NOT_RECORDED = 'not-recorded';
+
 export const galleryExampleSchema = z
   .object({
     id: slug,
@@ -119,7 +129,9 @@ export const galleryExampleSchema = z
    * provenance — the record either exists or the gallery refuses to boot.
    */
   .refine((e) => !e.isPublished || (e.flowModel !== null && e.flowMode !== null), {
-    message: 'a published example must record flowModel and flowMode (D-011)',
+    message:
+      'a published example must record flowModel and flowMode (D-011) — ' +
+      `use "${PROVENANCE_NOT_RECORDED}" if it genuinely was not written down, never a guess`,
     path: ['flowModel'],
   })
   /** §42: "If an example is produced internally by JAS Studio, label it as an example." */
