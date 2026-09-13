@@ -341,7 +341,18 @@ For each part:
 
 | Part | Finding | Kind | Fixed in |
 |---|---|---|---|
-| | | | |
+| Whole site, public | Next.js dev indicator ("N" badge) visible bottom-left to every visitor, because the public site is `next dev` | defect | web `fix(dev): hide the Next.js indicator…` |
+| Studio, phone 390/360 | Fixed "Davom etish" bar floated over the entire page: covered a gallery card's text, hid the footer privacy link, offered to continue an off-screen form | defect | web `fix(studio): the phone action bar shows only while…` |
+| Hero, desktop | Hand-drawn loop around "Google Flow" crosses the space into "Videoni" and touches the line above. A scaled-down loop was tried and cut through the letters instead, so it was **reverted**: the gap is ~5px, no loop clears both. Options: drop the loop and keep the underline + note, or redraw it as an underline swoosh | taste, Doston | not fixed |
+| Admin, hero photos | Each card's "1-rasm / Standart rasm" label looked squeezed beside a 289px photo. **Not a code defect:** the `<img>` has `size-20`, but the browser held a CSS chunk from before that class existed. After bypassing the cache it measures 80×80 and the label sits correctly | stale CSS, see next row | — |
+| **Public site, every page** | **Cloudflare rewrites the dev server's `Cache-Control: no-cache, must-revalidate` on CSS to `max-age=14400`.** After any front-end change, visitors keep the old stylesheet for up to 4 hours while running the new markup, so layouts look broken. Almost certainly also the cause of Doston's earlier "Prompt collided with the category" screenshot. Fix is a Cloudflare setting, not code | defect | **Fixed 2026-09-13:** Cloudflare Cache Rule "jas.kitobnarxi.uz: no cache (dev server)", `Hostname wildcard "jas.kitobnarxi.uz"` → Bypass cache, deployed by Doston. Verified: jas CSS now `no-cache, must-revalidate`, `cf-cache-status: DYNAMIC`; kitobnarxi.uz unchanged (`s-maxage=300`) |
+| Home, console | "N" in the corner of Doston's Chrome is Next's **Open Next.js Dev Tools** button. A fresh browser (Playwright) shows none with `devIndicators: false`; Doston's Chrome keeps it, likely from remembered dev-tools state. A `suppressHydrationWarning` on `<body>` was tried on the theory that an extension's hydration mismatch caused it, refuted, and reverted | not a visitor defect | — |
+| Footer | R-006 marks are hand-drawn inline SVG. The design skill prefers an icon library (Phosphor/Tabler); the plan allowed no new dependency | taste, Doston | not changed |
+| Home, "Qanday ishlaydi" | Three equal columns numbered "1. / 2. / 3." — the generic step-row pattern | taste, Doston | not changed |
+| Home, console | `401 /api/me` logged on every signed-out load — expected, not an error a visitor sees | not a defect | — |
+| Home, console | Hydration mismatch on `<body>`: `data-gr-ext-installed` attributes, injected by the Grammarly extension in the tester's Chrome | not a defect | — |
+| Home 1440 | One 404 in the console on the first capture; did not reproduce on a fresh load with every failed request logged | not reproducible | — |
+| Home, all widths | No horizontal overflow at 1440, 390, 360; the only controls under 44px are the 1×1 hidden file inputs behind visible upload buttons | pass | — |
 
 ---
 
