@@ -1348,3 +1348,52 @@ it would be a hidden runtime requirement. The owner uploads a clip and a poster.
 **Known gap, recorded the same day:** the hero photo screen as shipped cannot show the
 seven plates currently on the page or replace just one of them — see **R-005**. It is a
 defect in this phase's work, not a missing feature.
+
+### D-092 · 2026-09-13 · The site goes dark and gallery-first, and the studio gets its own route
+
+Doston pointed at https://motionsites.ai/ as the target look and at Jakhongir's own build
+(https://bold-prompt-vibe-studio.base44.app/) as the pattern, said the current site read as
+dated next to them, and handed the design calls over: *"learn its style and apply where
+needed… you can remove some things for now and make it ready, don't ask me, be creative."*
+Before handing over he chose the scope, the theme, the studio's route, the tray's place,
+the accent and the build approach himself. Full design:
+`docs/superpowers/specs/2026-09-13-dark-redesign-design.md`.
+
+**What changed.**
+
+| | Before | After |
+|---|---|---|
+| Theme | Light `#F6F5F1`, evergreen `#163D32` buttons, citron accent (source 01 §5) | Dark `#0F0F0F`, near-white primary buttons, one peach→orange accent `#FFD3B0`→`#FF8A4C` |
+| Landing | Hero with photo tray → studio inline → how it works → gallery → FAQ | Hero (Jakhongir's copy, one gradient word) → gallery with category chips → step cards → "Moslashtirish" with the tray → FAQ |
+| Studio | The middle of `/` | Its own route, **`/studiya`**. **Supersedes W-004's "`/` is the only seller-facing route".** The history drawer stays a drawer |
+| Shape | Corners 12–18px, "not everything is a pill" | Buttons and chips are pills; cards and panels 20px; inputs 12px |
+| Icons | None; two hand-drawn SVG marks (R-006) | `@phosphor-icons/react` 2.1.10, one family |
+| Hero note | Hand-drawn loop around "Google Flow" | Removed — it collided with the copy (R-007 audit) |
+
+This supersedes source 01 §5's palette and its "avoid purple AI gradients" line for this
+product. The gradient is rationed to one word per page, and there is still no purple, no
+glow and no glassmorphism.
+
+**What did not change.** The product: credits, real examples only (§42), no prices while
+D-082 is open. Jakhongir's PRO subscription, PRO/BEPUL badges and search box were
+**not** adopted — pricing is still Q-17. Inter stays (W-001): the references' fonts were
+measured, and the Sora headline on Jakhongir's build renders `gʻ` with a quotation mark.
+Tap targets 44px, form controls 16px, and no horizontal overflow at 360 all still hold.
+
+**Cross-page handoffs.** With the gallery and the studio on different pages, "Shu uslubdan
+foydalanish" writes the choice into the studio's saved draft and navigates; the drawer
+opens a project from the landing through `/studiya?loyiha=<id>`; the tray's upload slot
+became a link, because a dropped `File` cannot survive a navigation.
+
+**A defect the redesign exposed.** The studio wrote its empty initial draft over the stored
+one on mount, and React's development StrictMode ran the mount twice, so the second read
+found only the empty draft. On the public dev server that lost a chosen style and a brief
+carried through Google sign-in. The write now waits for the read.
+
+**A defect the audit found and the redesign fixes.** A signed-in header overflowed the page
+by 109px at 390 and 139px at 360; the account controls are icon-only below `sm`. The
+existing layout tests all ran signed out, so a signed-in overflow test now exists and was
+shown failing against the old header.
+
+Why: Doston's and Jakhongir's call about how the product should look. Built in a separate
+worktree on its own dev server, so the public site never showed a half-migrated page.
