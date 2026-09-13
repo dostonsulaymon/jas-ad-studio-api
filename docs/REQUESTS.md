@@ -78,9 +78,16 @@ Template:
 **Area:** web, admin · **Status:** later — starts only when Doston says so, after P6 closes
 **Ask:** Once P6 is finished, go through the site one part at a time, acting as UX designer, UI designer, QA and senior front-end developer: layout shifts, icons, colours, spacing, interaction, and anything that feels broken. Use the design and front-end skills available in Claude Code. Doston: "there are many problems with the front end" — he will point them out as the review goes.
 **Note:** Doston started it on 2026-09-13, after P6/6b. Go part by part. Fold R-003 (projects experience), R-005 (hero photo editor) and R-006 (contact icons) into it when their parts come up. Doston reviews the rendered site, not code — show screenshots at 360, 390 and 1440.
+**Note, 2026-09-13:** v1 was replaced by v2 (D-093), so this review now runs on `jas-ad-studio-web-v2`.
 **Outcome:**
 
 ### R-008 · 2026-09-13 · Refreshing `/admin` throws the owner back to its first screen
 **Area:** web · **Status:** done on `p6d-requests` (web `fix(admin)… (R-008)`), not yet merged. Only the tab survives a refresh; an open edit form inside a tab does not (Q-4 in the p6d plan)
 **Ask:** In the admin panel, refreshing the page goes back to the main screen instead of staying where the owner was. Doston: the admin panel "has lots of problems" — this is one; look at each part.
 **Outcome:**
+
+### R-009 · 2026-09-13 · Rebuild the frontend from scratch, looking like motionsites.ai and Jakhongir's build
+**Area:** web, admin · **Status:** done — phase 6f, D-093
+**Ask:** "We will build the front from scratch later… so it will build it differently while not touching the existing one, should look like the one I gave you and Jahongir's own one. The one you built is more like shit because of the colors mismatch and old design."
+**Note:** the dark redesign (D-092) recoloured v1's components and added an orange accent that neither reference has; the result read as reskinned, not designed. The rebuild is a new app in `jas-ad-studio-web-v2`, monochrome, designed from the references outward, with the API unchanged and v1 left running until Doston approves a switch. The ready-to-paste prompt is `docs/prompts/2026-09-13-frontend-rebuild.md`. R-003 (the projects experience) should be decided inside that rebuild.
+**Outcome:** Built 2026-09-13 as `jas-ad-studio-web-v2` and switched live the same day: pm2 `jas-web` serves it on 3042, and v1 is stopped (D-093). R-003 was not decided inside the rebuild; projects stay a drawer and R-003 stays open.

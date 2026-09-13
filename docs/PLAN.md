@@ -32,6 +32,8 @@ How phases work:
 
 **P6 is ✅, closed 2026-09-13.** Both halves merged: api `cb57ce9`, web `c0a4697`. `p5-studio-ui` merged to the web repo's `main` first, which is what let Part B pin its client to a closed contract.
 
+**6f (2026-09-13): the web phases now live in a new repo.** The frontend was rebuilt as `../jas-ad-studio-web-v2` and switched live (D-093). Web work for P7 and P8 happens there, not in `../jas-ad-studio-web`.
+
 Each phase is built on its own branch, `p<n>-<short-slug>` taken from the phase title above, cut from `main` before the first task — never on the previous phase's branch. It merges to `main` once the phase's exit check passes and Doston has reviewed it (D-070). P3 was `p3-credits-orders`; P4 gets `p4-generation-pipeline`.
 
 ## Recommended order

@@ -10,13 +10,30 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0-P6 closed and merged, plus 6b (owner-editable content), 6c (hero photo editor), 6d (request pass: R-001, R-002, R-006, R-008) and 6e — the dark redesign (D-092).** P7 (hardening) is next. |
-| Branch | web: `p6e-dark-redesign`, merged to `main` and served at jas.kitobnarxi.uz. api: `p6d-requests`, merged to `main`. |
-| Active plan | None. The redesign's spec is `docs/superpowers/specs/2026-09-13-dark-redesign-design.md`; the request pass is `docs/superpowers/plans/2026-09-13-p6d-request-pass.md`. |
+| Phase | **P0–P6 closed and merged, plus 6b–6e and 6f: the frontend rebuilt from scratch as `jas-ad-studio-web-v2`, now the live site (D-093, R-009).** The next phase is not decided yet: PLAN's P7 is hardening, and Doston wants to work on prompt quality next. |
+| Branch | api: `p6f-web-v2`, merged to `main`. web v2: `main` (from `v2-build`), served at jas.kitobnarxi.uz by pm2 `jas-web` on 3042. v1 (`jas-ad-studio-web`): stopped, removed from pm2, repo left as-is. |
+| Active plan | None. v2's spec: `docs/superpowers/specs/2026-09-13-web-v2-design.md`. The rebuild prompt: `docs/prompts/2026-09-13-frontend-rebuild.md`. |
 | Doing now | Nothing in flight. |
-| Next | Doston reviews the redesigned site. Then the R-007 audit continues on the new design (admin tabs part by part), and P7. Open requests: **R-003** (projects experience — Doston and his friends first), **R-007**. |
+| Next | Agree what P7 is (prompt quality or hardening), then write its plan. Before the plan: go through open request **R-003** with Doston (the REQUESTS rule). R-007's review now applies to v2. |
 | Blocked | **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. Jakhongir's PRO subscription was deliberately not adopted (D-092). |
-| Last verified state | **2026-09-13, on the redesign before its merge.** web: lint and typecheck silent, **75 unit tests**, **72 Playwright** at 1440, 390 and 360 against a dev server on the redesign worktree, including a signed-in overflow test shown failing on the old header. api: last full run **638 tests in 46 files**, build clean, `openapi:check` up to date at 35 paths (the api was not changed by the redesign). Not run: web `build` (it would clobber the live dev server's `.next`). |
+| Last verified state | **2026-09-13, web v2 live on 3042.** web v2: lint and typecheck silent, **34 unit tests**, **78 Playwright** (26 tests × 1440/390/360) against the live dev server, signed out on the real API and signed in on stubs; every route returned 200 locally and through jas.kitobnarxi.uz. api: unchanged since its last full run, **638 tests in 46 files**, `openapi:check` at 35 paths. **Not yet done:** a real signed-in walk on v2 (nobody has signed in on it), and web `build` (it would clobber the live dev server's `.next`). |
+
+## 2026-09-13 — phase 6f: the frontend rebuilt from scratch and switched live (D-093, R-009)
+
+Doston judged D-092's dark redesign reskinned rather than designed, so the frontend was
+rebuilt as a new app beside v1, from motionsites.ai (feel) and Jakhongir's build (structure),
+against the unchanged API.
+
+**Built:** every v1 route and state (landing with search and gallery, `/studiya`, `/admin`
+with 7 tabs, `/maxfiylik`, both drawers) in a new monochrome system with Onest. The font was
+chosen by rendering Uzbek glyphs: **Sora, Jakhongir's display face, has no U+02BB.** API types
+are generated from `openapi.json`, and one client module does all fetch and XHR.
+
+**Found:** three API error codes with no Uzbek copy (now written), and an API gap: the owner
+cannot set a first pack price from `/admin`, because nothing lists unpriced packs.
+
+**Switched:** at Doston's instruction, pm2 `jas-web` now serves v2 on 3042 and v1 is stopped.
+Doston then compared a softer-contrast variant against it and kept the live look.
 
 ## 2026-09-13 — phase 6b: the owner edits what the site shows (D-090, D-091)
 

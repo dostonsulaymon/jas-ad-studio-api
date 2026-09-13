@@ -1397,3 +1397,26 @@ shown failing against the old header.
 
 Why: Doston's and Jakhongir's call about how the product should look. Built in a separate
 worktree on its own dev server, so the public site never showed a half-migrated page.
+
+### D-093 · 2026-09-13 · The frontend is rebuilt from scratch as web v2, and v2 is the live site
+
+**Supersedes D-092's look and W-001's font.** D-092 kept v1's components and recoloured them,
+adding a peach→orange accent that neither reference has. Doston's verdict: *"the colors
+mismatch and old design"* (R-009). The frontend was rebuilt from the references outward as a
+new app, `../jas-ad-studio-web-v2`, following `docs/prompts/2026-09-13-frontend-rebuild.md`.
+The API contract is unchanged. Full design: `docs/superpowers/specs/2026-09-13-web-v2-design.md`.
+
+| | D-092 (v1, dark redesign) | D-093 (v2) |
+|---|---|---|
+| Palette | Dark, peach→orange accent | Monochrome: `#0F0F0F`, `#171717`, `#292929`, `#FAFAFA`, `#A1A1A1`. **No hue accent.** The white→pale-blue gradient sits only on the one main action of a screen; red and green appear only in error and success states |
+| Font | Inter (W-001) | **Onest** for everything. Measured: Sora, Manrope, Geist, Golos, Figtree and Archivo have no U+02BB; Onest, Inter and Inter Tight do. Headlines 900, sentence case |
+| Landing | Gallery-first | Jakhongir's structure: hero with search (filters the gallery client-side) → gallery with category and format chips → 3 steps → Moslashtirish with the owner's 7 photos → FAQ → CTA band |
+| Components | Ported from v1 | New: one `Sheet` dialog, one button system, one error notice, toasts |
+
+**Decided inside the rebuild, without stopping** (Doston: "don't ask me questions"): projects stay a drawer (R-003 stays open), no animation library, and the hero photo slots keep v1's 0–6 indices, so saved `heroPhotos` overrides still land on the same pictures.
+
+**Switched live the same day, at Doston's instruction** (*"3042 port should be this, stop the old front"*). pm2 `jas-web` now runs `pnpm dev` in `jas-ad-studio-web-v2` on 3042 with `DEV_ALLOWED_ORIGINS=jas.kitobnarxi.uz`, and the tunnel, the api `.env` and OAuth are unchanged. v1 is stopped and removed from pm2; its repository is left as it was, and its `CLAUDE.md` no longer describes the live site. Doston then compared a softer-contrast variant (dimmer photos, fewer white buttons) against the live look and **kept the live look**.
+
+**Found by the rebuild's tests and fixed in v2's copy:** the API emits `AI_VALIDATION_FAILED`, `AI_REPAIR_CHANGED_STATUS` and `TARGET_MISMATCH` with no Uzbek message. **An API gap, not fixed:** `GET /api/packs` lists only priced packs and there is no owner route listing packs, so `/admin` cannot set a first price.
+
+Why: Doston's call about how the product should look, after seeing D-092 live. The rebuild was built beside v1 on its own port, so the public site switched in one step.
