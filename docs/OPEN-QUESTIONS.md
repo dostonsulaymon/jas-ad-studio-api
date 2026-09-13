@@ -43,6 +43,23 @@ The spec bans fake examples, so the gallery stays empty until real clips exist. 
 **Recommendation:** 8–12 clips across 4 categories (clothing, shoes, cosmetics or perfume, household), made with the app's own prompts once P1 works. That way every example is honestly "made with JAS Ad Studio".
 **Answer (who / how many / categories / date):** Jakhongir starts now with his own prompts, and records the prompt, model/mode, ratio, duration and category for each clip. How many and which categories are still open (2026-09-11).
 
+**Narrowed 2026-09-13 by P6 (D-087).** The gallery is built and empty. What it needs is now
+a short, concrete list rather than an open question:
+
+- **Which of the §11 categories get a clip**, from `kiyim, poyabzal, parfyum, kosmetika,
+  uy-rozgor, elektronika, oziq-ovqat, aksessuar`. Nothing outside that list can be
+  published — §11 forbids inventing a category, and the schema refuses one.
+- **How many clips per category.** One is enough to open the gallery honestly; the page is
+  designed to look right with few.
+- **For each clip: the Flow model and mode.** The schema refuses to publish an example
+  without them (D-011).
+
+**What already exists and does not need Jakhongir:** 8 real clips from P1, ingested and
+sitting unpublished. Four of them are cars, which no §11 category covers. The other four
+(phones, a rotary phone, a notebook, wet wipes) can be published once someone writes their
+creative preset and Doston supplies the Flow model and mode. They are Doston's test
+products, not a curated shop window — good enough to open with, not good enough to stop at.
+
 ### Q-05 · Prompt length and structure (resolves conflicts C-1 to C-4) → D-012
 - **A.** Default about 500–700 words: detailed, and still under Veo's 1,024-token limit. The default is 4 beats, with fewer allowed when the product is hard to show. The high-energy camera style is used only when the seller picks a high-energy style.
 - **B.** Short prompts of 180–350 words, as in build prompt v1 (deleted, D-049; the figure survives in source 01 §25).

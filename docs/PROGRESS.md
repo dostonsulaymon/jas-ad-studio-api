@@ -2,7 +2,7 @@
 
 Where the project stands, what is next, and what is blocked. Updated at the end of every step. Decisions live in `/DECISIONS.md`. The roadmap lives in `docs/PLAN.md`.
 
-**Last updated:** 2026-09-12
+**Last updated:** 2026-09-13
 
 ## Resume here
 
@@ -10,12 +10,103 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0-P5 all closed and merged.** P6 (gallery) is next and has no plan yet. |
-| Branch | `main`. A new phase gets a new branch cut from `main` (D-070); `p6-gallery` does not exist yet. |
-| Active plan | None. `docs/superpowers/plans/2026-09-12-phase-5-studio-ui.md` is Session B's and is finished. |
-| Doing now | Nothing in flight. Both repos clean. |
-| Next | **P6: the gallery.** Write its plan first. It is the one phase that spans both repos. **D-082 still needs Jakhongir** and blocks selling: nothing is priced, and a real generation costs about 4,414 soʻm against the 1,100 the pricing assumed. |
-| Last verified state | 2026-09-12, after the P5 close merge on `main`: **531 tests in 41 files**, `lint` and `typecheck` silent, `build` clean, `openapi:check` up to date at **28 paths**. Web repo on `p5-studio-ui`: **54 unit tests, 33 Playwright assertions** at 1440, 390 and 360, `api:check` matching `main`, `build` clean. `jas-api` and `jas-worker` both `online` under pm2. |
+| Phase | **P0-P5 closed and merged. P6 Part A (api) is done; Part B (web) is blocked.** |
+| Branch | `p6-gallery`, cut from `main` on 2026-09-13 (D-070). Nothing committed (D-071). |
+| Active plan | `docs/superpowers/plans/2026-09-13-phase-6-gallery.md`. **Part A Tasks 1-8 done**, except Task 6 Step 3 (see below). Part B Tasks 9-15 unstarted. |
+| Doing now | Nothing in flight. All of Part A is in the working tree, uncommitted, awaiting Doston's diff review. |
+| Next | **Two things, both Doston's.** (1) Review and commit Part A, then merge `p6-gallery` to `main`. (2) Merge `p5-studio-ui` in `../jas-ad-studio-web` — until there is a `main` there, Part B has no branch to cut and no contract to pin to. |
+| Blocked | **The gallery ships empty, by design.** Four of the eight seeded clips are cars, and source 01 §11 has no car category — inventing one to fit test footage is exactly what §11 forbids. The other four need a creative preset written by someone who watched them, and `flowModel`/`flowMode` from Doston. Q-04 is narrowed to a concrete list. **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8, not P6. |
+| Last verified state | **2026-09-13 on `p6-gallery`, full gate re-run:** `lint` and `typecheck` silent, **625 tests in 46 files** (from 531 in 41 — P6 added 94), `build` clean, `openapi:check` up to date at **31 paths** (from 28). Both new guards proved to have teeth by breaking them. Walked by hand against a real 1.8 MB clip over HTTP. Web repo unchanged since 2026-09-12. |
+
+## 2026-09-13 — P6 Part A: the gallery, built and empty on purpose
+
+`docs/superpowers/plans/2026-09-13-phase-6-gallery.md` written, approved, and Part A built
+on `p6-gallery`. Recorded as **D-087**.
+
+**The gate, re-run in full:**
+
+```
+$ pnpm lint       → $ eslint .      (silent)
+$ pnpm typecheck  → $ tsc --noEmit  (silent)
+$ pnpm test       → Test Files  46 passed (46)
+                     Tests  625 passed (625)
+$ pnpm build      → $ nest build    (clean)
+$ pnpm openapi:check → openapi.json is up to date.
+```
+
+94 new tests. The contract went from 28 to 31 paths: `GET /api/gallery`,
+`GET /api/gallery/{slug}` and `GET /api/gallery/media/{path}`, all public.
+
+### The defect the phase existed to close
+
+**`galleryInspirationId` had been accepted and validated by nobody since P1.** It was in
+`briefSchema`, in the `projects` table and in the system prompt's `GALLERY INSPIRATION`
+block — but `ad-generator.ts` hard-coded `inspiration: null`. A seller could `PATCH` any
+string at all and have it stored; nothing resolved it; nothing checked it named a real or
+published example. All three are closed, and the field now does what it always claimed to.
+
+### Both new guards were broken on purpose, to prove they work
+
+A test that has never failed is a decoration. The isolation check asserts on the bytes
+handed to the provider, not on the resolver's return value:
+
+- **Mis-wire one field** (`mood: example.promptEn`) and 8 assertions fail, including
+  `carries no trace of IGNORE ALL PREVIOUS INSTRUCTIONS`.
+- **Clear the coverage set** and it reports `never driven to a 2xx: GET /api/gallery,
+  GET /api/gallery/media/{path}, GET /api/gallery/{slug}`.
+
+Worth recording: a first attempt at proving teeth **failed to fail**. Spreading the whole
+example into the resolver still leaked nothing, because `buildDataBlock` reads six named
+fields and ignores anything else. That is real defence in depth — and it is also why the
+assertion had to move to the provider call to mean anything.
+
+### Walked by hand, not only asserted
+
+The P5 lesson. A scratch instance on 3055 against a real 1.8 MB ingested clip:
+
+```
+GET /api/gallery                      200, no cookie, no headers at all
+GET /api/gallery/media/44e9…mp4       200  Content-Length: 1809726
+                                           Cache-Control: public, max-age=31536000, immutable
+Range: bytes=100000-100999            206  Content-Range: bytes 100000-100999/1809726
+Range: bytes=99999999-                416
+media/..%2F..%2Fetc%2Fpasswd.mp4      404   (the traversal target really exists, one level up)
+```
+
+And the claim that invalid content stops the boot is measured, not asserted: exit 1, with
+`examples.0.slug: Invalid input: expected string, received undefined`.
+
+### Why the gallery ships empty
+
+`tools/gallery-ingest.mjs` ingested all 8 real Flow clips from `out/pack` — content-addressed
+onto the media volume, posters cut at 1.0 s, metadata read from each clip's own report.
+Every entry is `isPublished: false`, and **none was merged into `content/gallery.json`**:
+
+- **Four of the eight are cars**, and source 01 §11 has no car category. Inventing one to
+  fit test footage is precisely what §11 forbids.
+- The other four map onto real categories but still need a creative preset from somebody
+  who watched them, and `flowModel`/`flowMode` from Doston. The schema refuses to publish
+  without those (D-011).
+
+So `GET /api/gallery` returns `{"examples":[]}` and the page will render its honest empty
+state — D-072's pattern for packs, applied to content. Q-04 is narrowed from an open
+question to a three-line list in `docs/OPEN-QUESTIONS.md`.
+
+### Two corrections to the plan, made while building it
+
+1. **The preset filter the plan specified was wrong.** It called for refusing any digit or
+   §13 banned noun, which refuses `"hard key at 45 degrees"` and `"light that flatters
+   matte materials"` — both legitimate cinematography. A filter that fights the person
+   writing content gets worked around. Now a 120-character cap plus seven words that are
+   never creative attributes.
+2. **`GalleryModule` is registered in `app.module.ts` only.** The plan said both processes;
+   `worker.module.ts` imports `AppModule` wholesale, so a second registration would have
+   been a duplicate provider, not a safety net.
+
+**One thing found and deliberately not fixed:** `.env.example` still sets
+`WEB_ORIGIN=http://localhost:3040`, the value D-086 corrected in the schema default a day
+earlier. Anyone copying the example file to `.env` hands themselves the original defect
+back. One line, outside P6's scope, flagged rather than quietly widened.
 
 ### What closing P5 changed here
 
