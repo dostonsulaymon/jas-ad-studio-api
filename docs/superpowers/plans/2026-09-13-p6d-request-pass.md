@@ -352,6 +352,9 @@ For each part:
 | Home, console | `401 /api/me` logged on every signed-out load — expected, not an error a visitor sees | not a defect | — |
 | Home, console | Hydration mismatch on `<body>`: `data-gr-ext-installed` attributes, injected by the Grammarly extension in the tester's Chrome | not a defect | — |
 | Home 1440 | One 404 in the console on the first capture; did not reproduce on a fresh load with every failed request logged | not reproducible | — |
+| **Header, signed in, phone** | Page scrolls sideways **109px at 390, 139px at 360**. The three account controls ("3 Prompt limiti" ~103px, "Loyihalarim" ~120px, "Chiqish" ~81px) do not fit beside the wordmark; "Chiqish" ends at x=499. `tests/layout.spec.ts` runs signed out, so it never saw this. Breaks the 360 floor | defect | pending (needs a layout choice) |
+| Hero headline, 360 | "Reklama gʻoyasi-chi?" breaks at its hyphen: "Reklama gʻoyasi-" / "chi?". A non-breaking hyphen (U+2011) in the catalogue string would keep "gʻoyasi‑chi?" whole | defect (minor) | pending |
+| Seller drawer, credits drawer, step 2, result + Versiya, phone and desktop | Render correctly; no page errors | pass | — |
 | Home, all widths | No horizontal overflow at 1440, 390, 360; the only controls under 44px are the 1×1 hidden file inputs behind visible upload buttons | pass | — |
 
 ---
