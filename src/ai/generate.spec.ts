@@ -109,7 +109,7 @@ describe('a clean first answer', () => {
     const outcome = await run(fakeProvider([goodResult()]));
 
     if (outcome.status !== 'ok') throw new Error('expected ok');
-    expect(outcome.envelope.promptVersion).toBe('ad-director-v2');
+    expect(outcome.envelope.promptVersion).toBe('ad-director-v3');
     expect(outcome.envelope.provider).toBe('fake');
     expect(outcome.envelope.model).toBe('gpt-4.1-mini');
     expect(outcome.envelope.targetConfigVersion).toBe(target.version);

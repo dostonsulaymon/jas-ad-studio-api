@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { generationResultSchema, type GenerationResult } from '../public/result.schema';
 import { DEFAULT_TARGET_ID, findTarget } from '../targets/targets';
+import { findFormat } from '../formats/formats';
 import { validateGeneration } from '../validation/validators';
 
 /**
@@ -67,8 +68,12 @@ describe('every recorded fixture', () => {
 
   it.each(names)('%s passes every deterministic validator', (name) => {
     const { result } = load(name);
+    const brief = JSON.parse(readFileSync(join(FIXTURES_DIR, name, 'brief.json'), 'utf8')) as { formatId: string };
+    const format = findFormat(brief.formatId);
+    if (!format) throw new Error(`${name}: unknown format ${brief.formatId}`);
     const report = validateGeneration(result, {
       target,
+      format,
       requestedDurationSeconds: 8,
       requestedAspectRatio: '9:16',
     });

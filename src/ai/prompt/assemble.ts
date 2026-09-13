@@ -113,6 +113,9 @@ export function buildFormatBlock(format: CreativeFormat): string {
     `Typical shot length: ${String(low)} to ${String(high)} seconds.`,
     `Camera vocabulary to draw from: ${format.cameraVocabulary.join(', ')}.`,
     `Transitions to draw from: ${format.transitions.join(', ')}.`,
+    `Uzbek shot plan: group the timed shots into at most ${String(format.beats.max)} beats.`,
+    `Product motion allowed: ${format.productMotion.join(', ')}.`,
+    `Atmosphere allowed: ${format.atmosphere.length > 0 ? format.atmosphere.join(', ') : 'none'}.`,
     'Sections to write, in this order:',
     ...format.sections.map((section) => `  - ${section}`),
   ].join('\n');

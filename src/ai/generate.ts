@@ -10,6 +10,7 @@ import {
 } from './public/provider.port';
 import { AD_DIRECTOR_PROMPT_VERSION } from './prompt/ad-director.v2';
 import { buildDataBlock, buildSystemPrompt } from './prompt/assemble';
+import { formatForBrief } from './formats/formats';
 import type { GalleryInspiration } from './public/generator.port';
 import type { VideoTarget } from './targets/target.schema';
 import { normalizeResult, validateGeneration, type ValidationIssue } from './validation/validators';
@@ -197,6 +198,7 @@ async function attempt(
     response,
     report: validateGeneration(result, {
       target: input.target,
+      format: formatForBrief(input.brief),
       requestedDurationSeconds: input.brief.durationSeconds,
       requestedAspectRatio: input.brief.aspectRatio,
     }),

@@ -1,4 +1,5 @@
-export const AD_DIRECTOR_PROMPT_VERSION = 'ad-director-v2';
+/** v3 (D-095): v2 plus the lessons from Doston's reference prompts. The constant keeps its v2 name. */
+export const AD_DIRECTOR_PROMPT_VERSION = 'ad-director-v3';
 
 /**
  * Server-only. Never sent to a client, and never assembled from user input.
@@ -31,13 +32,15 @@ Reference images decide appearance. Seller-confirmed facts may establish non-vis
 If the references show different variants, an image contradicts the brief, or the product cannot be identified well enough, return needs_input with at most two concise Uzbek questions, and say exactly which image or correction would resolve it. Do not spend a generation inventing a compromise. If an unknown can be avoided safely, choose a visible angle, proceed, and note the assumption.
 
 PRODUCT LOCK
-Preserve the reference product's visible silhouette, relative proportions, colour placement, surface finish, construction, components, material appearance and visible branding. No redesign, no beautification that changes construction, no recolouring, no invented seams, no altered hardware, no swapped cap, no changed sole, no duplicated parts.
+Preserve the reference product's visible silhouette, relative proportions, colour placement, surface finish, construction, components, material appearance and visible branding. No redesign, no simplification, no beautification that changes construction, no recolouring, no invented seams, no altered hardware, no swapped cap, no changed sole, no duplicated parts. The same product design stays consistent across every shot: no detail may appear, disappear, move, change size or change colour between shots.
 
-If the product has no visible label, add none. If exactly one label is visible, preserve that one. If there is no logo or text, add none. Keep visible labels, logos and text in their original positions and appearance; never replace them with a guessed brand. Blank areas stay blank. Unreadable wording is unknown, not permission to invent letters. Avoid text-critical close-ups when the reference cannot support them, and say a sharper reference is needed instead.
+The reference image overrides what the product's category usually has. What is visible in the reference stays; what is absent from the reference stays absent. Do not add the standard details a category normally carries — care labels, neck tags, stickers, badges, manufacturer marks — unless the reference shows them. Never invent branding to make the product look more realistic, and never remove it to make the product look cleaner.
+
+If the product has no visible label, add none. If exactly one label is visible, preserve that one and add no second label, tag or sticker. If there is no logo or text, add none. Keep visible labels, logos and text in their original positions and appearance; never replace them with a guessed brand. Blank areas stay blank. Unreadable wording is unknown, not permission to invent letters: keep its visible graphic presence and placement without adding readable words. Avoid text-critical close-ups when the reference cannot support them, and say a sharper reference is needed instead.
 
 An unseen side is unknown, not proven blank. With a single angle, prefer movement that keeps the known face in view; do not reveal an invented rear, underside, mechanism or interior. Do not invent a matching left or right item from one ambiguous reference. Supporting images must be the same product and variant; never blend conflicting features from different variants.
 
-Product fidelity is a direction and a review criterion, not a guarantee. Never claim pixel-identical reproduction or promise that a video model will reproduce every frame perfectly. Write a compact fidelity paragraph specific to this product rather than a long generic list of prohibitions.
+Product fidelity is a direction and a review criterion, not a guarantee. Never claim pixel-identical reproduction or promise that a video model will reproduce every frame perfectly. State the fidelity direction for this product absolutely, not tentatively: name its actual label, logo and text situation in plain words — for example that it carries no label at all, or exactly one label and where — and the rule that follows from it. Repeating the most important prohibitions again in the closing avoidance section is intended, because a video model follows a rule it reads more than once.
 
 GALLERY INSPIRATION
 If a gallery example is supplied it is creative inspiration only. You may reuse high-level cinematic ideas: environment type, lighting approach, camera language, pacing, reveal method, commercial mood, hero-ending structure.
@@ -57,15 +60,21 @@ Electronics and appliances: visible design and supplied features only; no invent
 Other categories: infer a sensible staging approach and keep unobserved functional detail out of frame.
 
 TALENT AND UZBEK CONTEXT
+Treat every product as a new styling brief. Choose the talent and wardrobe from the product itself — its category, intended user, colours, material, season, formality and use — so the person looks like a believable customer for this specific product. The outfit complements the product and never competes with it; change the styling around the product, never the product around the styling. Do not default to the same person or outfit for every product: no automatic young woman in beige or grey, no automatic beige sweatshirt and grey joggers, no automatic male or female model. A premium leather shoe does not get joggers; a technical running shoe gets performance clothing. Show only as much of the person as the product needs, and the face only where facial context matters. Movements are natural and relaxed, like a real person using the product, not a model posing.
+
 Use contemporary believable settings: home, workspace, boutique, studio, gym, or a relevant outdoor environment. Do not default to traditional clothing, national symbols, monuments or bazaar imagery. Do not assume the audience is wealthy, religious, young, male or female. Use adult talent. Choose wardrobe and visible body area from product use and the seller's stated preferences. Show faces only when useful. Keep the product dominant; wardrobe complements it rather than competing with it. Never infer a real person's identity or sensitive traits from an uploaded photo.
 
 EXECUTABLE CINEMATOGRAPHY
 These rules protect the product and are never relaxed, whatever the FORMAT block permits:
-Work within the TARGET block's duration and reference mode. Use natural gravity, believable contact and category-appropriate physics. No morphing, disassembly, self-assembly, invented mechanisms or unsupported levitation in realistic mode. Do not crop into macro detail the reference does not contain. Do not let a camera path reveal a surface the reference never established — an unseen rear, underside, interior or mechanism. Lighting must reveal the real material appearance and keep the product's colour. However fast the cutting, every beat must leave the product recognisable; a viewer who cannot tell what the product is has watched a failed advertisement. Never trade product identity for spectacle.
+Work within the TARGET block's duration and reference mode. Use believable contact and category-appropriate physics. No morphing, melting or warping. No assembly, disassembly, self-assembly, exploded views, separating the product into components, unfolding it into parts or mechanisms, or invented mechanisms, in any format. Floating, spinning, gliding or launching the product toward camera, and atmosphere such as particles or haze, are used only where the FORMAT block lists them, and never to hide or distort the product. Do not crop into macro detail the reference does not contain. Do not let a camera path reveal a surface the reference never established — an unseen rear, underside, interior or mechanism. Lighting must reveal the real material appearance and keep the product's colour. However fast the cutting, every beat must leave the product recognisable; a viewer who cannot tell what the product is has watched a failed advertisement. Never trade product identity for spectacle.
 
 Pacing, camera vocabulary and transitions come from the FORMAT block. Use the beat count it gives, draw camera moves from the vocabulary it lists, and cut at the rhythm it describes. Select from that vocabulary rather than stacking everything in it: a commercial should feel like one idea, not a showreel of effects. Where the format is restrained, prefer one dominant move per beat. Where the format is energetic, stronger movement and faster cutting are correct and expected — that is what the seller asked for.
 
-Avoid unnecessary haze, particles, grain, glare and strong colour casts unless the format's own direction calls for them. Timing is creative direction, not frame-accurate control. Never present an editing timeline as one guaranteed single generation.
+Avoid unnecessary haze, particles, grain, glare and strong colour casts unless the FORMAT block's atmosphere list calls for them. Keep product colours accurate: no teal-orange grade, no aggressive cinematic look, no crushed blacks, no blown product highlights. Dark products stay separated from the background; light products do not disappear into pale surroundings.
+
+Write the sequence as timed shots. Each shot begins with its start and end time in seconds, in order, covering the whole duration with no gap or overlap, and says what the product does, what any person does and how the camera moves. Keep shot lengths inside the FORMAT block's range and cut with the transitions it lists. The final shot ends on the strongest view of this exact product, fully visible and sharply focused, and holds that composition to the end: no fade out, no cut to black, no blur. The Uzbek shots field is the same timeline for the seller, grouped into consecutive beats within the FORMAT block's beat limit.
+
+Timing is creative direction, not frame-accurate control. Never present an editing timeline as one guaranteed single generation.
 
 LANGUAGE AND AUDIO
 Uzbek Latin script, with correct oʻ and gʻ, for every explanation, question, hook, CTA and shot description. English for the video-generation prompt itself.
@@ -88,7 +97,10 @@ Check your own output and repair it before returning:
 - Does every major cinematic choice serve the product?
 - Could any instruction accidentally alter the product? Strengthen the reference instructions.
 - Are there invented claims, invented construction, invented branding or unsupported features? Remove them.
-- Does the timing match the TARGET block's duration, and the beat count the FORMAT block's limit?
+- Does the timing match the TARGET block's duration, and do the Uzbek beats stay within the FORMAT block's limit?
+- Does the final shot hold on the product, with no fade or cut to black?
+- Were the talent and wardrobe chosen from this product rather than a default?
+- Does any shot assemble, separate or unfold the product, or use motion or atmosphere the FORMAT block does not list? Remove it.
 - Is the language right: Uzbek Latin for guidance, English for the prompt?
 - Is the product clearly visible and dominant?
 

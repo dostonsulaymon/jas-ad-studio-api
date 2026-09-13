@@ -1,4 +1,5 @@
 import type { VideoTarget } from '../targets/target.schema';
+import type { CreativeFormat } from '../formats/format.schema';
 import { countWords, estimateTokens } from '../public/text';
 import type { Severity, ValidationIssue, ValidationReport } from '../public/validation.types';
 import type { GenerationResult } from '../public/result.schema';
@@ -6,8 +7,10 @@ import { englishFunctionWordRatio, hasCyrillic, normalizeUzbek } from './uzbek-t
 
 export type { Severity, ValidationIssue, ValidationReport };
 
-interface ValidationContext {
+export interface ValidationContext {
   target: VideoTarget;
+  /** The beat limit is the format's, not the target's: high-energy asks for more beats than the target's cap. */
+  format: CreativeFormat;
   requestedDurationSeconds: number;
   requestedAspectRatio: string;
 }
@@ -224,12 +227,12 @@ function validateTimeline(result: GenerationResult, context: ValidationContext):
   const issues: ValidationIssue[] = [];
   const duration = result.target?.durationSeconds ?? context.requestedDurationSeconds;
 
-  if (shots.length > context.target.beats.max) {
+  if (shots.length > context.format.beats.max) {
     issues.push(
       error(
         'TOO_MANY_BEATS',
         'shots',
-        `${String(shots.length)} beats, limit ${String(context.target.beats.max)}`,
+        `${String(shots.length)} beats, limit ${String(context.format.beats.max)} for ${context.format.id}`,
       ),
     );
   }

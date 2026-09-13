@@ -14,7 +14,7 @@ const FIDELITY_SECTIONS = ['Product reference and source of truth', 'Product loc
 
 const PRODUCT_FILM = {
   id: 'product-film',
-  version: 1,
+  version: 2,
   labelUz: 'Studiya reklamasi',
   descriptionUz:
     "Toza fonda, sokin kamera bilan mahsulotni diqqat bilan ko'rsatadigan reklama.",
@@ -51,11 +51,13 @@ const PRODUCT_FILM = {
     'focus pull',
   ],
   transitions: ['direct cut', 'match cut', 'focus transition', 'light transition'],
+  productMotion: ['resting still', 'slow rotation on its surface', 'lifted or placed by hand'],
+  atmosphere: [],
 } as const satisfies Record<string, unknown>;
 
 const HIGH_ENERGY = {
   id: 'high-energy',
-  version: 1,
+  version: 2,
   labelUz: 'Tezkor reklama',
   descriptionUz:
     "Tez kadrlar va keskin o'tishlar bilan, ijtimoiy tarmoqlar uchun shiddatli reklama.",
@@ -99,11 +101,13 @@ const HIGH_ENERGY = {
     'flash cut',
     'push-through transition',
   ],
+  productMotion: ['rotate', 'spin', 'float', 'glide', 'launch toward camera', 'react to light'],
+  atmosphere: ['particles', 'atmospheric haze', 'volumetric light', 'moving reflections'],
 } as const satisfies Record<string, unknown>;
 
 const LIFESTYLE_STORY = {
   id: 'lifestyle-story',
-  version: 1,
+  version: 2,
   labelUz: 'Hayotiy lavha',
   descriptionUz:
     "Mahsulot kundalik hayotda ishlatilayotgan qisqa va tabiiy lavha.",
@@ -137,11 +141,13 @@ const LIFESTYLE_STORY = {
     'focus pull',
   ],
   transitions: ['direct cut', 'match cut on movement', 'soft foreground wipe'],
+  productMotion: ['natural handling by the person'],
+  atmosphere: [],
 } as const satisfies Record<string, unknown>;
 
 const UGC_AUTHENTIC = {
   id: 'ugc-authentic',
-  version: 1,
+  version: 2,
   labelUz: 'Tabiiy UGC',
   descriptionUz:
     "Xaridorning o'zi telefonda suratga olgandek ko'rinadigan, sun'iy bo'lmagan video.",
@@ -171,6 +177,8 @@ const UGC_AUTHENTIC = {
     'close handheld detail',
   ],
   transitions: ['direct cut', 'quick handheld reframe'],
+  productMotion: ['natural handling by the person'],
+  atmosphere: [],
 } as const satisfies Record<string, unknown>;
 
 const REGISTRY: ReadonlyMap<string, CreativeFormat> = new Map(

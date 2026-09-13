@@ -23,8 +23,9 @@ How phases work:
 | **P4** ✅ | Generation pipeline | api | Job states (queued, running, ready, needs_input, refused, failed). Reserve → AI call → validate (≤1 repair) → persist → debit. Lease and recovery, polling endpoint, rate limits, daily spend cap. | Tests: one credit with two concurrent jobs gives one success; success survives a disconnect; a late success can't race a refund |
 | **P5** ✅ | Studio UI | web | Hero, 3-step wizard, inline result, copy with a fallback, TXT export, Flow handoff, history drawer, credits and order screens, every Uzbek error state. The owner `/admin` panel: orders, grants, settings, read-only users, generations and spend (D-037). | **Closed 2026-09-12 (D-086).** Full flow driven in Playwright at 1440, 390 and 360: 33 assertions, plus 54 unit tests. The whole path also walked by hand against the running stack, which found the WEB_ORIGIN defect and four UI defects. |
 | **P6** ✅ | Gallery | both | Example content config, video hosting that uses no database egress (R2 or static), posters and lazy loading, prompt sheet, copy, inspiration presets. | **Closed 2026-09-13 (D-087, D-088).** Signed out over real HTTP and in Playwright at 1440, 390 and 360. Isolation asserted on the bytes handed to the provider: mis-wiring one field fails 8 assertions. Content is curated but **unpublished** — each example needs its Flow model and mode from Doston. |
-| **P7** | Hardening | both | Security review, backups with a rehearsed restore, abuse limits, analytics events, privacy and terms text, project deletion. | `/security-review` findings fixed; restore from backup rehearsed once |
-| **P8** | Launch & pilot | both | Cloudflare Tunnel (or a VPS with Caddy, if we switch; D-032), domain on Cloudflare DNS, deploy, and a 10–15 seller pilot run from the checklist in source 01 §53. | Pilot results recorded in `docs/PROGRESS.md` |
+| **P7** ✅ | Prompt quality | api | `ad-director-v3`: the lessons from Doston's two reference prompts (`docs/source/04-reference-prompts.md`), applied to the existing formats rather than replacing them (D-095, D-096). | **Closed 2026-09-13 at Doston's decision (D-097).** 650 tests; deployed; three real v3 generations all carry timed shots, a held final shot and the grade bans. Flow videos are judged by Doston himself; no scored pack was run |
+| **P8** | Hardening | both | Security review, backups with a rehearsed restore, abuse limits, analytics events, privacy and terms text, project deletion. | `/security-review` findings fixed; restore from backup rehearsed once |
+| **P9** | Launch & pilot | both | Cloudflare Tunnel (or a VPS with Caddy, if we switch; D-032), domain on Cloudflare DNS, deploy, and a 10–15 seller pilot run from the checklist in source 01 §53. | Pilot results recorded in `docs/PROGRESS.md` |
 
 ## Branches
 
@@ -38,7 +39,7 @@ Each phase is built on its own branch, `p<n>-<short-slug>` taken from the phase 
 
 ## Recommended order
 
-`P0 → P1 → go/no-go on video quality → P2 → P3 → P4 → P5 → P6 → P7 → P8`
+`P0 → P1 → go/no-go on video quality → P2 → P3 → P4 → P5 → P6 → P7 (prompt quality) → P8 (hardening) → P9 (launch)` (renumbered by D-094)
 
 - P1 comes before any product UI so that we learn early whether the videos are good enough. This depends on Q-11.
 - No web work starts before the P1 go/no-go (D-026). After the go, the frontend session (D-025) builds P5 and P6 in parallel with the backend's P2–P4, feature by feature, as each API contract is fixed (see T-04).

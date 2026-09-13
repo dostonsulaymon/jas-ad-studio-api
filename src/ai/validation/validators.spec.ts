@@ -1,14 +1,19 @@
 import { describe, expect, it } from 'vitest';
 import type { GenerationResult } from '../public/result.schema';
 import { findTarget, DEFAULT_TARGET_ID } from '../targets/targets';
+import { findFormat } from '../formats/formats';
 import { normalizeResult, validateGeneration } from './validators';
 import { UZBEK_APOSTROPHE, englishFunctionWordRatio, normalizeUzbek } from './uzbek-text';
 
 const target = findTarget(DEFAULT_TARGET_ID);
 if (!target) throw new Error('launch target missing');
+const format = findFormat('product-film');
+const fast = findFormat('high-energy');
+if (!format || !fast) throw new Error('formats missing');
 
 const context = {
   target,
+  format,
   requestedDurationSeconds: 8,
   requestedAspectRatio: '9:16',
 };
@@ -222,8 +227,8 @@ describe('timeline', () => {
     expect(validateGeneration(resultWith({ shots }), context).ok).toBe(true);
   });
 
-  it('rejects more beats than the target allows', () => {
-    const shots = Array.from({ length: target.beats.max + 1 }, (_, i) => ({
+  it('rejects more beats than the format allows', () => {
+    const shots = Array.from({ length: format.beats.max + 1 }, (_, i) => ({
       startSeconds: i,
       endSeconds: i + 1,
       descriptionUz: 'a',
@@ -231,6 +236,22 @@ describe('timeline', () => {
     }));
 
     expect(codes(resultWith({ shots }))).toContain('TOO_MANY_BEATS');
+  });
+
+  it('takes the beat limit from the format, so high-energy is not held to the target cap', () => {
+    // The limit used to be the target's, below high-energy's own default beat count.
+    const count = fast.beats.max;
+    expect(count).toBeGreaterThan(target.beats.max);
+    const shots = Array.from({ length: count }, (_, i) => ({
+      startSeconds: i,
+      endSeconds: i + 1,
+      descriptionUz: 'a',
+      cameraUz: 'b',
+    }));
+    const result = resultWith({ shots, target: { targetId: 'google-flow', durationSeconds: count, aspectRatio: '9:16' } });
+    const report = validateGeneration(result, { ...context, format: fast, requestedDurationSeconds: count });
+
+    expect(report.issues.map((issue) => issue.code)).not.toContain('TOO_MANY_BEATS');
   });
 });
 

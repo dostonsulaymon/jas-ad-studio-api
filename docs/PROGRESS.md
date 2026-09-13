@@ -10,13 +10,27 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P0–P6 closed and merged, plus 6b–6e and 6f: the frontend rebuilt from scratch as `jas-ad-studio-web-v2`, now the live site (D-093, R-009).** The next phase is not decided yet: PLAN's P7 is hardening, and Doston wants to work on prompt quality next. |
-| Branch | api: `p6f-web-v2`, merged to `main`. web v2: `main` (from `v2-build`), served at jas.kitobnarxi.uz by pm2 `jas-web` on 3042. v1 (`jas-ad-studio-web`): stopped, removed from pm2, repo left as-is. |
-| Active plan | None. v2's spec: `docs/superpowers/specs/2026-09-13-web-v2-design.md`. The rebuild prompt: `docs/prompts/2026-09-13-frontend-rebuild.md`. |
+| Phase | **P0–P7 closed and merged.** P7, prompt quality, closed 2026-09-13 at Doston's decision (D-097). **P8, hardening, is next** (D-094 renumbering); P9 is launch and pilot. |
+| Branch | api: `p7-prompt-quality`, merged to `main`. **P8 gets a new branch, `p8-hardening`, cut from `main` before its first task (D-070).** web v2: `main`, served at jas.kitobnarxi.uz by pm2 `jas-web` on 3042. v1 (`jas-ad-studio-web`): stopped, removed from pm2, repo left as-is. |
+| Active plan | None. P8 needs its plan in `docs/superpowers/plans/` before code, and Doston asked for fewer documents: keep it short. |
 | Doing now | Nothing in flight. |
-| Next | Agree what P7 is (prompt quality or hardening), then write its plan. Before the plan: go through open request **R-003** with Doston (the REQUESTS rule). R-007's review now applies to v2. |
-| Blocked | **D-082 / Q-17 is still Jakhongir's** and blocks selling and P8. Jakhongir's PRO subscription was deliberately not adopted (D-092). |
-| Last verified state | **2026-09-13, web v2 live on 3042.** web v2: lint and typecheck silent, **34 unit tests**, **78 Playwright** (26 tests × 1440/390/360) against the live dev server, signed out on the real API and signed in on stubs; every route returned 200 locally and through jas.kitobnarxi.uz. api: unchanged since its last full run, **638 tests in 46 files**, `openapi:check` at 35 paths. **Not yet done:** a real signed-in walk on v2 (nobody has signed in on it), and web `build` (it would clobber the live dev server's `.next`). |
+| Next | Agree P8's scope with Doston. Candidates already found: D-097's five gaps (empty `prompt_version`, `format_id` history, `gpt-5.5` pricing, D-060's interaction boundary, the "Bugungi" cap copy), plus PLAN's P8 row (security review, backups with a rehearsed restore, abuse limits, privacy text, project deletion). Open requests: **R-003**, **R-007** (now on v2). |
+| Blocked | **D-082 / Q-17 is still Jakhongir's** and blocks selling and P9. Jakhongir's PRO subscription was deliberately not adopted (D-092). |
+| Live config | `ad-director-v3` deployed (`jas-api`, `jas-worker` restarted). `DAILY_AI_SPEND_LIMIT_USD=10` in the api `.env`, a **rolling 24 h** cap measured in inflated fallback prices. |
+| Last verified state | **2026-09-13, P7 close.** api: lint and typecheck clean, **650 tests in 46 files**, `openapi:check` up to date, `/health/ready` 200 after restart. Three real v3 generations (19:57, 20:12, 20:28) read from `packages.prompt_en`: timed shots, a held final shot and grade bans in all three. web v2: **34 unit tests**, **78 Playwright** at 1440/390/360, unchanged by P7. **Not done:** web `build` (it would clobber the live dev server's `.next`). |
+
+## 2026-09-13 — phase 7: prompt quality (D-094 to D-097)
+
+Doston supplied two prompts that give him great Flow videos and said ours were flat and
+changed the product. After an overreach, where they were read as templates to rebuild the
+formats from, he corrected it: *examples, not replacement*. Six lessons were applied to the
+existing system prompt and formats as `ad-director-v3`: absolute label rules, talent from
+the product, timed shots with a held final shot, grade bans, float/spin/particles for
+`high-energy` only (assembly banned everywhere), and the beat limit taken from the format.
+
+Deployed the same evening. The first cap hit was the $2 rolling-24 h spend cap, not a bug;
+raised to $10. Three real v3 prompts follow the new structure. D-097 lists what closing it
+uncovered for P8.
 
 ## 2026-09-13 — phase 6f: the frontend rebuilt from scratch and switched live (D-093, R-009)
 

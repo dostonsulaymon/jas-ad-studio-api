@@ -1420,3 +1420,108 @@ The API contract is unchanged. Full design: `docs/superpowers/specs/2026-09-13-w
 **Found by the rebuild's tests and fixed in v2's copy:** the API emits `AI_VALIDATION_FAILED`, `AI_REPAIR_CHANGED_STATUS` and `TARGET_MISMATCH` with no Uzbek message. **An API gap, not fixed:** `GET /api/packs` lists only priced packs and there is no owner route listing packs, so `/admin` cannot set a first price.
 
 Why: Doston's call about how the product should look, after seeing D-092 live. The rebuild was built beside v1 on its own port, so the public site switched in one step.
+
+### D-094 · 2026-09-13 · P7 is prompt quality; hardening moves to P8, launch to P9
+
+Doston: *"we will work on the quality of prompt now"*. PLAN's P7 was hardening, and prompt
+quality had no phase of its own. Offered A (make prompt quality P7 and move the rest down) or
+B (keep P7 as hardening and slot prompt quality in as a sub-phase, like P1b), he chose **A**.
+
+| # | Was | Now |
+|---|---|---|
+| P7 | Hardening | **Prompt quality** |
+| P8 | Launch & pilot | **Hardening** (unchanged scope and exit check) |
+| P9 | (none) | **Launch & pilot** (unchanged scope and exit check) |
+
+P7's goal and exit check are set by its plan, which Doston approves before any code. Changing
+the AI system prompt stays on the standing gate: each change needs his yes. Earlier references
+to "P7 hardening" or "blocks P8" in DECISIONS and PROGRESS are history; read them as P8 and P9.
+
+Why: quality is what sellers pay credits for, and hardening still comes before the pilot
+under either ordering.
+
+### D-095 · 2026-09-13 · P7's direction: GPT keeps writing the prompt, and learns from two prompts that work
+
+Doston supplied two product-agnostic prompts he pastes into Flow with a product photo, and
+said *"these gave great videos"*. They are kept verbatim in `docs/source/04-reference-prompts.md`:
+
+1. **UGC product film:** 10 s, 9:16, **eight shots with exact hard-cut timestamps**, a held
+   final frame, absolute and deliberately repeated label/logo/text rules ("the reference
+   image overrides real-world expectations"), talent and wardrobe chosen from the product
+   with named anti-defaults, concrete grade negatives, and a long hard-negatives list.
+2. **Premium kinematografik reklama:** short and high-energy, with 0.3–1.5 s shots, an
+   always-moving camera (whip, crash zoom, barrel roll, speed ramp), and product motion that
+   **floats, assembles, separates into components and interacts with particles and haze**.
+
+Asked what P7 should do with them, he chose **"GPT writes like these"**, and then corrected
+the reading of it: *"those two were just examples… not for full replacement"*. **The system,
+the four formats and their sections stay.** GPT still writes a product-specific prompt; the
+references are examples of quality to learn from, not templates.
+
+Asked what is wrong with today's prompts compared with his: **the videos are flat or alike,
+and the product gets changed.** Not selected: length/cost and the Uzbek shot plan.
+
+**The lessons taken, approved by Doston ("Yes") as a standing-gate change to the AI system
+prompt, `ad-director-v3`:**
+1. Label, logo and text rules stated absolutely: the reference overrides what the category
+   usually has; absent stays absent; one visible label means no second one.
+2. Talent and wardrobe chosen from the product, with named anti-defaults.
+3. Timed shots covering the whole duration, and a final shot that holds with no fade.
+4. Concrete grade bans: no teal-orange, no crushed blacks, no blown highlights.
+5. `high-energy` may float, spin and launch the product and use particles and haze; assembly
+   and separation stay banned everywhere (D-096).
+6. The validator's beat limit comes from the format, not the target, which failed
+   high-energy prompts.
+
+Cost (D-082) is unchanged and stays Jakhongir's question.
+
+Why: Doston's call. His two prompts are the only Flow evidence of "great" we have; ours
+have been judged "kinda good" (D-053), alike (D-056, D-063), and product-changing once (D-060).
+
+### D-096 · 2026-09-13 · P7's four scope answers
+
+Asked before the P7 plan was written; each answer is the option recommended at the time.
+
+| Question | Answer |
+|---|---|
+| What may `high-energy` product motion do, given reference 2 allows floating, assembly and haze? | **Rotate, spin, float, glide, launch toward camera, react to light, and interact with particles and haze are allowed. Assembly, disassembly, unfolding and "separate into components" stay banned in every format**, because they show parts the reference never established (D-060). Supersedes D-057 for levitation and atmosphere only; the rest of D-057's unconditional list stands |
+| Fast formats cut 10–15 times, but the seller's Uzbek shot plan allows at most 8 shots | **The English prompt lists every cut; the Uzbek plan groups them into at most 8 beats in time order.** No API contract change |
+| Which formats does P7 change? | **All four get the shared lessons** through the system prompt; none is rebuilt. `high-energy` also gains its motion and atmosphere lists. *(Answered "all four" to a rebuild question, then narrowed by D-095's correction.)* D-060's interaction boundary is not part of this change |
+| What proves P7 worked? | **Superseded by Doston: "no need prompts, I can generate them myself."** He generates prompts in the app and judges the Flow videos. No test pack is built |
+
+Why: Doston's calls, made with the D-054/D-060 fidelity failures and the references' success in front of him.
+
+### D-097 · 2026-09-13 · P7 is closed at Doston's decision
+
+Doston: *"Finish phase 7 please."* Recorded as honestly as D-055 recorded P1's close: this is
+the builder's judgement, not a measured exit check. D-096's scored Flow comparison was
+superseded by Doston generating and judging prompts himself.
+
+**Built and shipped:** `ad-director-v3` (D-095's six lessons), `productMotion` and
+`atmosphere` on every format, and the beat limit taken from the format. **650 tests in 46
+files**, including the seven §49 safety fixtures; deployed with `jas-api` and `jas-worker`
+restarted. `openapi.json` unchanged.
+
+**What the first real v3 generations show** (read from `packages.prompt_en`, 2026-09-13
+19:57–20:28, two products, three formats):
+
+| | high-energy (perfume) | ugc-authentic (perfume) | product-film (brick) |
+|---|---|---|---|
+| Timed shots, whole duration | yes (`0.0 to 0.6 seconds: …`) | yes | yes |
+| Final shot holds, no fade | yes | yes | yes |
+| Grade bans | yes | yes | yes |
+| Talent/wardrobe from the product | n/a | yes | n/a |
+| Fidelity kept while energetic | crash zoom and whip, *"never revealing the back"* | front-facing handling | known faces only |
+
+**Found while closing, not fixed (for P8):**
+- `generations.prompt_version` is **empty on every row**, so no generation records which
+  system prompt wrote it. v3 could only be proven from the prompt text.
+- `projects.format_id` holds only the latest format, so a project generated in several
+  formats cannot say which format produced which prompt. That misled the close check until
+  the section lists were read.
+- Recorded costs use FALLBACK_PRICING for `gpt-5.5` and are inflated (D-045, D-052), and
+  the spend cap (raised to $10, rolling 24 h) is measured in those inflated numbers.
+- D-060's `lifestyle-story` interaction boundary is still not built.
+- The Uzbek "Bugungi chegara tugadi" copy describes a calendar day; the cap is rolling 24 h.
+
+Why: Doston's call, with v3 live and working in his own generations.
