@@ -5,3 +5,6 @@ allowBuilds:
   msgpackr-extract: true
   # Analytics phone-home pulled in by a transitive dependency. Never runs.
   '@scarf/scarf': false
+overrides:
+  # @nestjs/platform-express 11.2.3 pins multer 2.2.0, which has DoS advisories fixed in 2.3.0.
+  multer: 2.3.0

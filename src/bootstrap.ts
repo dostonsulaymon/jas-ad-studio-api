@@ -1,6 +1,8 @@
 import type { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule, type OpenAPIObject } from '@nestjs/swagger';
 import { cleanupOpenApiDoc } from 'nestjs-zod';
+import type { NextFunction, Request, Response } from 'express';
+import { isPublicDeployment } from './common/config/public-origin';
 
 /**
  * D-032: everything public lives under /api on one origin. `/health` is deliberately
@@ -14,6 +16,16 @@ export const SWAGGER_PATH = 'api/docs';
 
 export function applyGlobalSetup(app: INestApplication): void {
   app.setGlobalPrefix(GLOBAL_PREFIX, { exclude: PREFIX_EXCLUDED });
+  app.use(securityHeaders);
+}
+
+/** Every response: no framework banner, no MIME sniffing, never framed. */
+export function securityHeaders(_request: Request, response: Response, next: NextFunction): void {
+  response.removeHeader('X-Powered-By');
+  response.setHeader('X-Content-Type-Options', 'nosniff');
+  response.setHeader('X-Frame-Options', 'DENY');
+  response.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
 }
 
 /**
@@ -101,11 +113,17 @@ export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
 }
 
 /**
- * Off in production unless explicitly switched on: the docs page lists every route and
- * every request shape, and D-032 puts the API on one public origin behind the tunnel.
+ * Off on a public deployment unless explicitly switched on: the docs page lists every route
+ * and every request shape, and D-032 puts the API on one public origin behind the tunnel.
+ * "Public" is judged by WEB_ORIGIN too, because the live stack runs NODE_ENV=development.
  */
-export function mountSwagger(app: INestApplication, env: string, enabled: boolean): boolean {
-  if (env === 'production' && !enabled) return false;
+export function mountSwagger(
+  app: INestApplication,
+  env: string,
+  webOrigin: string,
+  enabled: boolean,
+): boolean {
+  if (isPublicDeployment(env, webOrigin) && !enabled) return false;
 
   SwaggerModule.setup(SWAGGER_PATH, app, buildOpenApiDocument(app), {
     swaggerOptions: {

@@ -207,9 +207,16 @@ export class ProjectsService implements ProjectOwnership, ProjectBriefReader {
     });
   }
 
+  /**
+   * D-021: deleting a project removes the seller's brief, not just hides it. The row stays
+   * (generations and the ledger point at it, and the owner's reports count it), keeping only
+   * its name and settings. Photos and packages are purged by their own modules afterwards.
+   */
   async softDelete(userId: string, projectId: string): Promise<void> {
     const rows = await this.runOwned<{ id: string }>(
-      `UPDATE projects SET deleted_at = now()
+      `UPDATE projects
+          SET deleted_at = now(), description = '', audience = NULL, offer = NULL,
+              confirmed_claims = '[]'::jsonb, gallery_inspiration_id = NULL
         WHERE id = $2 AND user_id = $1 AND deleted_at IS NULL
         RETURNING id`,
       [userId, projectId],

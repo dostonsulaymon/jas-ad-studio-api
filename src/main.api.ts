@@ -15,7 +15,12 @@ async function bootstrap(): Promise<void> {
 
   const config = app.get<ConfigService<Env, true>>(ConfigService);
   const nodeEnv = config.get('NODE_ENV', { infer: true });
-  const docsMounted = mountSwagger(app, nodeEnv, config.get('SWAGGER_ENABLED', { infer: true }));
+  const docsMounted = mountSwagger(
+    app,
+    nodeEnv,
+    config.get('WEB_ORIGIN', { infer: true }),
+    config.get('SWAGGER_ENABLED', { infer: true }),
+  );
 
   const port = config.get('PORT', { infer: true });
   await app.listen(port);

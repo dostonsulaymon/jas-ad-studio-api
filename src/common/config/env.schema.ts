@@ -95,6 +95,12 @@ export const envSchema = z.object({
   ORDERS_PER_DAY_LIMIT: z.coerce.number().int().positive().default(5),
 
   /**
+   * Spec §10: uploads get a per-hour cap, per seller, across all their projects. Every photo
+   * is decoded, re-encoded twice and stored, so an unlimited upload loop costs disk and CPU.
+   */
+  UPLOADS_PER_HOUR_LIMIT: z.coerce.number().int().positive().default(30),
+
+  /**
    * Spec §10. Summed from generations.est_cost_usd, so the cap counts what was really
    * spent rather than what we guessed. Deliberately low: this is the number that stands
    * between a bug and a bill.
@@ -125,7 +131,7 @@ export const envSchema = z.object({
   /** R-5. Gallery metadata is a committed file, not a table. Validated at boot. */
   GALLERY_CONTENT_FILE: z.string().min(1).default('./content/gallery.json'),
 
-  /** Serves the docs page in production too. Off by default: it lists every route. */
+  /** Serves the docs page on a public deployment too. Off by default: it lists every route. */
   SWAGGER_ENABLED: z
     .enum(['true', 'false'])
     .default('false')

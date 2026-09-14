@@ -1,4 +1,5 @@
-import { Controller, Get, Headers, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
+import { Controller, Get, Headers, HttpCode, Inject, Param, Post, UseGuards } from '@nestjs/common';
+import { EVENT_LOG, type EventLog } from '../events/public/events.port';
 import { ApiHeader, ApiOkResponse, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import type { CurrentUser } from '../auth/public/auth.port';
 import { User } from '../auth/public/current-user.decorator';
@@ -10,7 +11,10 @@ import type { AcceptedGeneration, GenerationDetail } from './public/generation.p
 @Controller()
 @UseGuards(SessionGuard)
 export class GenerationController {
-  constructor(private readonly generations: GenerationService) {}
+  constructor(
+    private readonly generations: GenerationService,
+    @Inject(EVENT_LOG) private readonly events: EventLog,
+  ) {}
 
   /**
    * 202, not 201. The work has been accepted, not completed, and nothing exists at the
@@ -30,12 +34,14 @@ export class GenerationController {
     description: 'Per attempt, reused on retry. This is the double-click guard (§32).',
   })
   @ApiResponse({ status: 202, type: AcceptedGenerationDto })
-  request(
+  async request(
     @User() user: CurrentUser,
     @Param('id') projectId: string,
     @Headers('idempotency-key') idempotencyKey?: string,
   ): Promise<AcceptedGeneration> {
-    return this.generations.request(user.id, projectId, idempotencyKey);
+    const accepted = await this.generations.request(user.id, projectId, idempotencyKey);
+    await this.events.record('generation_requested', user.id, { fromCache: accepted.fromCache });
+    return accepted;
   }
 
   /**

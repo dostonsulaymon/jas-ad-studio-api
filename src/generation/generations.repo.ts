@@ -30,6 +30,7 @@ export interface ClaimedJob {
 
 export interface SettleFields {
   status: Exclude<JobStatus, 'queued' | 'running'>;
+  promptVersion: string | null;
   provider: string | null;
   model: string | null;
   inputTokens: number | null;
@@ -74,15 +75,15 @@ export class GenerationsRepo {
    * Handling the first one here leaves a raised 23505 unambiguously the second.
    */
   async insertIfAbsent(
-    input: { userId: string; projectId: string; idempotencyKey: string; targetId: string },
+    input: { userId: string; projectId: string; idempotencyKey: string; targetId: string; formatId: string },
     tx: Executor,
   ): Promise<GenerationView | null> {
     const { rows } = await tx.query<GenerationRow>(
-      `INSERT INTO generations (project_id, user_id, idempotency_key, target_id)
-       VALUES ($1,$2,$3,$4)
+      `INSERT INTO generations (project_id, user_id, idempotency_key, target_id, format_id)
+       VALUES ($1,$2,$3,$4,$5)
        ON CONFLICT (user_id, idempotency_key) DO NOTHING
        RETURNING ${VIEW_COLUMNS}`,
-      [input.projectId, input.userId, input.idempotencyKey, input.targetId],
+      [input.projectId, input.userId, input.idempotencyKey, input.targetId, input.formatId],
     );
     return rows[0] ? toView(rows[0]) : null;
   }
@@ -143,7 +144,8 @@ export class GenerationsRepo {
       `UPDATE generations
           SET status = $3, finished_at = now(), lease_token = NULL, lease_until = NULL,
               provider = $4, model = $5, input_tokens = $6, output_tokens = $7,
-              est_cost_usd = $8, error_code = $9, message_uz = $10, questions_uz = $11
+              est_cost_usd = $8, error_code = $9, message_uz = $10, questions_uz = $11,
+              prompt_version = $12
         WHERE id = $1 AND lease_token = $2
         RETURNING user_id`,
       [
@@ -158,9 +160,20 @@ export class GenerationsRepo {
         fields.errorCode,
         fields.messageUz,
         JSON.stringify(fields.questionsUz),
+        fields.promptVersion,
       ],
     );
     return rows[0]?.user_id ?? null;
+  }
+
+  /** D-021: a deleted project's packages go; its generation rows stay as the cost and ledger record. */
+  async deletePackagesForProject(userId: string, projectId: string, tx: Executor): Promise<number> {
+    const { rowCount } = await tx.query(
+      `DELETE FROM packages
+        WHERE generation_id IN (SELECT id FROM generations WHERE project_id = $2 AND user_id = $1)`,
+      [userId, projectId],
+    );
+    return rowCount ?? 0;
   }
 
   async insertPackage(

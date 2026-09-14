@@ -1,11 +1,13 @@
-import { mkdtempSync } from 'node:fs';
+import { mkdtempSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import sharp from 'sharp';
 import { afterAll, beforeAll, beforeEach, expect, it } from 'vitest';
 import { createTestDatabase, type TestDatabase } from '../common/testing/database';
 import { ProjectNotFoundError, ProjectsService, type ProjectInput } from '../projects/projects.service';
-import { AssetNotFoundError, AssetsService, MAX_PHOTOS_PER_PROJECT } from './assets.service';
+import type { ConfigService } from '@nestjs/config';
+import type { Env } from '../common/config/env.schema';
+import { AssetNotFoundError, AssetsService, MAX_PHOTOS_PER_PROJECT, UploadRateLimitedError } from './assets.service';
 import { FileStorage } from './storage';
 import { stubGalleryReader } from '../gallery/testing/stub-reader';
 
@@ -14,6 +16,15 @@ let projects: ProjectsService;
 let assets: AssetsService;
 let alice: string;
 let bob: string;
+let storageRoot: string;
+
+const configWith = (uploadsPerHour: number): ConfigService<Env, true> =>
+  ({
+    get: (key: string) => (key === 'UPLOADS_PER_HOUR_LIMIT' ? uploadsPerHour : undefined),
+  }) as unknown as ConfigService<Env, true>;
+
+const filesUnder = (root: string): number =>
+  readdirSync(root, { recursive: true, encoding: 'utf8' }).filter((p) => statSync(join(root, p)).isFile()).length;
 
 const input: ProjectInput = {
   productName: 'Krossovka',
@@ -46,11 +57,8 @@ afterAll(async () => {
 beforeEach(async () => {
   await db.truncateAll();
   projects = new ProjectsService(db.pool, stubGalleryReader());
-  assets = new AssetsService(
-    db.pool,
-    projects,
-    new FileStorage(mkdtempSync(join(tmpdir(), 'jas-assets-'))),
-  );
+  storageRoot = mkdtempSync(join(tmpdir(), 'jas-assets-'));
+  assets = new AssetsService(db.pool, projects, new FileStorage(storageRoot), configWith(30));
 
   const made = await db.pool.query<{ id: string }>(
     `INSERT INTO users (google_sub, email) VALUES ('a','a@x.uz'),('b','b@x.uz') RETURNING id`,
@@ -96,6 +104,46 @@ it('stops serving a reference once its project is deleted', async () => {
   await projects.softDelete(alice, project.id);
 
   await expect(assets.readReference(alice, asset.id)).rejects.toBeInstanceOf(AssetNotFoundError);
+});
+
+it('purges a deleted project’s photos: rows and files both gone (D-021)', async () => {
+  const project = await projects.create(alice, input);
+  await assets.upload(alice, project.id, await jpeg());
+  await assets.upload(alice, project.id, await jpeg(640, 480));
+  expect(filesUnder(storageRoot)).toBe(4);
+
+  await projects.softDelete(alice, project.id);
+  const removed = await assets.purgeProject(alice, project.id);
+
+  expect(removed).toBe(4);
+  expect(filesUnder(storageRoot)).toBe(0);
+  const { rows } = await db.pool.query<{ n: string }>(`SELECT count(*) AS n FROM assets WHERE project_id = $1`, [project.id]);
+  expect(Number(rows[0]?.n)).toBe(0);
+});
+
+it('refuses a photo past the per-hour upload limit, counted across projects (spec §10)', async () => {
+  assets = new AssetsService(db.pool, projects, new FileStorage(storageRoot), configWith(2));
+  const one = await projects.create(alice, input);
+  const two = await projects.create(alice, input);
+
+  await assets.upload(alice, one.id, await jpeg());
+  await assets.upload(alice, two.id, await jpeg());
+
+  await expect(assets.upload(alice, two.id, await jpeg())).rejects.toBeInstanceOf(UploadRateLimitedError);
+  // Only the two accepted uploads were stored; the refused one never reached the disk.
+  expect(filesUnder(storageRoot)).toBe(4);
+
+  // Another seller's limit is their own.
+  const bobs = await projects.create(bob, input);
+  await expect(assets.upload(bob, bobs.id, await jpeg())).resolves.toMatchObject({ projectId: bobs.id });
+});
+
+it("never purges another seller's photos, whatever project id is passed", async () => {
+  const bobs = await projects.create(bob, input);
+  await assets.upload(bob, bobs.id, await jpeg());
+
+  await expect(assets.purgeProject(alice, bobs.id)).resolves.toBe(0);
+  expect(filesUnder(storageRoot)).toBe(2);
 });
 
 it('marks the first photo primary and later ones not', async () => {

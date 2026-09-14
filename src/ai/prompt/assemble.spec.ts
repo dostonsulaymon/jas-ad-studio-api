@@ -290,6 +290,14 @@ describe('the format block (D-056)', () => {
     expect(buildFormatBlock(film)).not.toContain('float');
   });
 
+  it('carries the interaction boundary only for a format that has one (D-060)', () => {
+    const lifestyle = findFormat('lifestyle-story');
+    if (!lifestyle) throw new Error('lifestyle-story missing');
+
+    expect(buildFormatBlock(lifestyle)).toContain('Interaction boundary: People may only touch');
+    expect(buildFormatBlock(film)).not.toContain('Interaction boundary');
+  });
+
   it('states the Uzbek beat limit from the format', () => {
     expect(buildFormatBlock(fast)).toContain(`at most ${String(fast.beats.max)} beats`);
   });

@@ -28,6 +28,7 @@ import { User } from '../auth/public/current-user.decorator';
 import { SessionGuard } from '../auth/public/session.guard';
 import { PG_POOL } from '../common/db/tokens';
 import { withTransaction } from '../common/db/transaction';
+import { EVENT_LOG, type EventLog } from '../events/public/events.port';
 import {
   CREDIT_ADMIN,
   grantSchema,
@@ -106,6 +107,7 @@ export class OwnerController {
     @Inject(AUDIT_WRITER) private readonly audit: AuditWriter,
     @Inject(GALLERY_ADMIN) private readonly gallery: GalleryAdmin,
     private readonly reports: OwnerReportsService,
+    @Inject(EVENT_LOG) private readonly events: EventLog,
   ) {}
 
   /** A read. Not audited — see the plan: a GET is not an action, and logging every list
@@ -128,8 +130,8 @@ export class OwnerController {
     summary: 'Confirm a payment. Idempotent: a second confirm credits nothing (A8).',
   })
   @ApiOkResponse({ type: CreditOrderSummaryDto })
-  confirm(@User() owner: CurrentUser, @Param('id') id: string): Promise<ConfirmResult> {
-    return withTransaction(this.pool, async (tx) => {
+  async confirm(@User() owner: CurrentUser, @Param('id') id: string): Promise<ConfirmResult> {
+    const confirmed = await withTransaction(this.pool, async (tx) => {
       const result = await this.credits.confirmOrder(id, owner.id, tx);
       await this.audit.record(
         owner.id,
@@ -141,6 +143,9 @@ export class OwnerController {
       );
       return result;
     });
+    // After the commit, and only for a confirm that actually moved the order.
+    if (!confirmed.alreadyPaid) await this.events.record('order_confirmed', owner.id, { credited: confirmed.credited });
+    return confirmed;
   }
 
   @Post('orders/:id/reject')
@@ -148,18 +153,21 @@ export class OwnerController {
   @ApiOperation({ summary: 'Reject a payment with a reason the seller is shown.' })
   @ApiBody({ type: RejectOrderDto })
   @ApiOkResponse({ type: CreditOrderSummaryDto })
-  reject(
+  async reject(
     @User() owner: CurrentUser,
     @Param('id') id: string,
     @Body() body: unknown,
   ): Promise<CreditOrderSummary> {
     const { reason } = rejectOrderSchema.parse(body);
 
-    return withTransaction(this.pool, async (tx) => {
-      const order = await this.credits.rejectOrder(id, owner.id, reason, tx);
+    const order = await withTransaction(this.pool, async (tx) => {
+      const rejected = await this.credits.rejectOrder(id, owner.id, reason, tx);
       await this.audit.record(owner.id, 'order.reject', 'credit_order', id, { reason }, tx);
-      return order;
+      return rejected;
     });
+    // The reason is free text the seller reads; it stays in the audit log, never in events.
+    await this.events.record('order_rejected', owner.id, { credits: order.credits });
+    return order;
   }
 
   @Post('grants')

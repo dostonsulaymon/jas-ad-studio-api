@@ -10,6 +10,7 @@ import sharp from 'sharp';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { AppModule } from './app.module';
 import { AI_PROVIDER } from './ai/public/provider.port';
+import { AD_DIRECTOR_PROMPT_VERSION } from './ai/prompt/ad-director.v2';
 import { UZBEK_APOSTROPHE } from './ai/validation/uzbek-text';
 import { FileStorage } from './assets/storage';
 import { SESSION_COOKIE } from './auth/public/auth.port';
@@ -360,6 +361,73 @@ describe('the four outcomes', () => {
 
     expect(await ledgerTypes(aliceId)).toEqual(['owner_grant', 'reserve', 'debit']);
     expect(await packageCount()).toBe(1);
+  });
+
+  it('records which prompt version and which format wrote the generation (D-097)', async () => {
+    await grant(aliceId, 1);
+    const { response } = await request(aliceCookie, aliceProject);
+    const { generationId } = await json<{ generationId: string }>(response);
+
+    await worker.runOne(generationId);
+
+    const { rows } = await db.pool.query<{ prompt_version: string | null; format_id: string | null; project_format: string }>(
+      `SELECT g.prompt_version, g.format_id, p.format_id AS project_format
+         FROM generations g JOIN projects p ON p.id = g.project_id
+        WHERE g.id = $1`,
+      [generationId],
+    );
+
+    expect(rows[0]?.prompt_version).toBe(AD_DIRECTOR_PROMPT_VERSION);
+    expect(rows[0]?.format_id).toBe(rows[0]?.project_format);
+    expect(rows[0]?.format_id).not.toBeNull();
+
+    // P8 Part 5: the same run leaves our own events, with no prompt text in them.
+    const recorded = await db.pool.query<{ name: string; props: Record<string, unknown> }>(
+      `SELECT name, props FROM events WHERE user_id = $1 AND name IN ('generation_requested', 'generation_settled')`,
+      [aliceId],
+    );
+    expect(recorded.rows.map((r) => r.name)).toEqual(
+      expect.arrayContaining(['generation_requested', 'generation_settled']),
+    );
+    expect(JSON.stringify(recorded.rows)).not.toMatch(/Product reference|source of truth/i);
+  });
+
+  it('deleting a project removes its photos and packages, and keeps the money record (D-021)', async () => {
+    const created = await json<{ id: string }>(
+      await send('/api/projects', { cookie: aliceCookie, method: 'POST', body: brief }),
+    );
+    const photo = await sharp({ create: { width: 800, height: 600, channels: 3, background: '#c0ffee' } })
+      .jpeg()
+      .toBuffer();
+    const form = new FormData();
+    form.append('photo', new Blob([photo], { type: 'image/jpeg' }), 'shoe.jpg');
+    await fetch(`${origin}/api/projects/${created.id}/assets`, {
+      method: 'POST',
+      headers: { Origin: WEB_ORIGIN, 'X-Requested-With': 'XMLHttpRequest', Cookie: aliceCookie },
+      body: form,
+    });
+    await grant(aliceId, 1);
+    const { response } = await request(aliceCookie, created.id);
+    const { generationId } = await json<{ generationId: string }>(response);
+    await worker.runOne(generationId);
+    expect(await packageCount()).toBe(1);
+
+    const deleted = await send(`/api/projects/${created.id}`, { cookie: aliceCookie, method: 'DELETE' });
+    expect(deleted.status).toBe(204);
+
+    const count = async (sql: string): Promise<number> =>
+      Number((await db.pool.query<{ n: string }>(sql, [created.id])).rows[0]?.n ?? -1);
+    expect(await count(`SELECT count(*) AS n FROM assets WHERE project_id = $1`)).toBe(0);
+    expect(
+      await count(`SELECT count(*) AS n FROM packages p JOIN generations g ON g.id = p.generation_id WHERE g.project_id = $1`),
+    ).toBe(0);
+    expect(await count(`SELECT count(*) AS n FROM generations WHERE project_id = $1`)).toBe(1);
+    expect(await ledgerTypes(aliceId)).toEqual(['owner_grant', 'reserve', 'debit']);
+    const { rows } = await db.pool.query<{ description: string; deleted: boolean }>(
+      `SELECT description, deleted_at IS NOT NULL AS deleted FROM projects WHERE id = $1`,
+      [created.id],
+    );
+    expect(rows[0]).toEqual({ description: '', deleted: true });
   });
 
   it('releases the credit and caches the questions on needs_input', async () => {

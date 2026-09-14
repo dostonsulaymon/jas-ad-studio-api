@@ -177,6 +177,7 @@ it('does not let a settle land once the lease has moved on', async () => {
     claimed?.leaseToken ?? '',
     {
       status: 'ready',
+      promptVersion: 'fake-v1',
       provider: 'fake',
       model: 'fake',
       inputTokens: 1,

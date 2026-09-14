@@ -116,6 +116,7 @@ export function buildFormatBlock(format: CreativeFormat): string {
     `Uzbek shot plan: group the timed shots into at most ${String(format.beats.max)} beats.`,
     `Product motion allowed: ${format.productMotion.join(', ')}.`,
     `Atmosphere allowed: ${format.atmosphere.length > 0 ? format.atmosphere.join(', ') : 'none'}.`,
+    ...(format.interactionBoundary ? [`Interaction boundary: ${format.interactionBoundary}`] : []),
     'Sections to write, in this order:',
     ...format.sections.map((section) => `  - ${section}`),
   ].join('\n');

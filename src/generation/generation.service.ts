@@ -58,6 +58,17 @@ export class GenerationService {
    * - the enqueue happens AFTER the commit: inside it, a rollback would leave a job in
    *   Redis pointing at a generation row that never existed
    */
+  /**
+   * D-021, behind PROJECT_GENERATION_PURGER: removes a deleted project's packages and cached
+   * questions in one transaction. The generation rows and their ledger entries stay.
+   */
+  async purgeProject(userId: string, projectId: string): Promise<void> {
+    await withTransaction(this.pool, async (tx) => {
+      await this.repo.deletePackagesForProject(userId, projectId, tx);
+      await this.cache.forgetProject(userId, projectId, tx);
+    });
+  }
+
   async request(
     userId: string,
     projectId: string,
@@ -68,7 +79,7 @@ export class GenerationService {
     }
     const key = idempotencyKey.trim().slice(0, 200);
 
-    await this.projects.getOwned(userId, projectId);
+    const project = await this.projects.getOwned(userId, projectId);
 
     const images = await this.assets.readModelInputs(userId, projectId);
     if (images.length === 0) {
@@ -111,7 +122,7 @@ export class GenerationService {
         // the database resolve the key first means only the request that actually created
         // the row goes on to spend anything (§32).
         const created = await this.repo.insertIfAbsent(
-          { userId, projectId, idempotencyKey: key, targetId: LAUNCH_TARGET_ID },
+          { userId, projectId, idempotencyKey: key, targetId: LAUNCH_TARGET_ID, formatId: project.formatId },
           tx,
         );
 

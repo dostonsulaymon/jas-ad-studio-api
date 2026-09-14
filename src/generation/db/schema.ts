@@ -37,6 +37,11 @@ export const generations = pgTable(
     leaseToken: uuid('lease_token'),
     leaseUntil: timestamp('lease_until', { withTimezone: true }),
     targetId: text('target_id').notNull(),
+    /**
+     * The creative format at request time (D-097). `projects.format_id` holds only the
+     * latest choice, so a project generated in several formats could not say which wrote which.
+     */
+    formatId: text('format_id'),
     promptVersion: text('prompt_version'),
     provider: text('provider'),
     model: text('model'),

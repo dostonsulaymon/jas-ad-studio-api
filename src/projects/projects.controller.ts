@@ -1,4 +1,7 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Inject, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { PROJECT_ASSET_PURGER, type ProjectAssetPurger } from '../assets/public/assets.port';
+import { PROJECT_GENERATION_PURGER, type ProjectGenerationPurger } from '../generation/public/generation.port';
+import { EVENT_LOG, type EventLog } from '../events/public/events.port';
 import { ApiBody, ApiCreatedResponse, ApiNoContentResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import { BriefDto, ProjectDetailDto, ProjectSummaryDto } from './projects.dto';
 import { briefSchema, type Brief } from '../ai/public/brief.schema';
@@ -16,14 +19,21 @@ import type { ProjectDetail, ProjectSummary } from './public/projects.port';
 @Controller('projects')
 @UseGuards(SessionGuard)
 export class ProjectsController {
-  constructor(private readonly projects: ProjectsService) {}
+  constructor(
+    private readonly projects: ProjectsService,
+    @Inject(PROJECT_ASSET_PURGER) private readonly assets: ProjectAssetPurger,
+    @Inject(PROJECT_GENERATION_PURGER) private readonly generations: ProjectGenerationPurger,
+    @Inject(EVENT_LOG) private readonly events: EventLog,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a project from the seller's brief." })
   @ApiBody({ type: BriefDto })
   @ApiCreatedResponse({ type: ProjectSummaryDto })
-  create(@User() user: CurrentUser, @Body() body: unknown): Promise<ProjectSummary> {
-    return this.projects.create(user.id, toInput(briefSchema.parse(body)));
+  async create(@User() user: CurrentUser, @Body() body: unknown): Promise<ProjectSummary> {
+    const project = await this.projects.create(user.id, toInput(briefSchema.parse(body)));
+    await this.events.record('project_created', user.id, { formatId: project.formatId });
+    return project;
   }
 
   @Get()
@@ -58,10 +68,17 @@ export class ProjectsController {
 
   @Delete(':id')
   @HttpCode(204)
-  @ApiOperation({ summary: 'Soft-delete. Its photos stop being served too (D-068).' })
+  @ApiOperation({
+    summary: 'Delete: the brief, photos and generated packages are removed (D-021). Generation and ledger rows stay.',
+  })
   @ApiNoContentResponse()
-  remove(@User() user: CurrentUser, @Param('id') id: string): Promise<void> {
-    return this.projects.softDelete(user.id, id);
+  async remove(@User() user: CurrentUser, @Param('id') id: string): Promise<void> {
+    // The soft delete checks ownership and throws first, so the purges only ever run on the
+    // caller's own project.
+    await this.projects.softDelete(user.id, id);
+    await this.assets.purgeProject(user.id, id);
+    await this.generations.purgeProject(user.id, id);
+    await this.events.record('project_deleted', user.id);
   }
 }
 

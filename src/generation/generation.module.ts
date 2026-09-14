@@ -6,7 +6,7 @@ import { GenerationWorker } from './generation.worker';
 import { GenerationsRepo } from './generations.repo';
 import { NeedsInputCache } from './needs-input.cache';
 import { SettleService } from './settle.service';
-import { GENERATION_RUNNER } from './public/generation.port';
+import { GENERATION_RUNNER, PROJECT_GENERATION_PURGER } from './public/generation.port';
 
 /**
  * Registered in BOTH entrypoints, and they are different files for a reason: `api` serves
@@ -25,7 +25,8 @@ import { GENERATION_RUNNER } from './public/generation.port';
     GenerationService,
     GenerationWorker,
     { provide: GENERATION_RUNNER, useExisting: GenerationWorker },
+    { provide: PROJECT_GENERATION_PURGER, useExisting: GenerationService },
   ],
-  exports: [GENERATION_RUNNER],
+  exports: [GENERATION_RUNNER, PROJECT_GENERATION_PURGER],
 })
 export class GenerationModule {}

@@ -4,7 +4,7 @@ import type { Env } from '../common/config/env.schema';
 import { AssetsController } from './assets.controller';
 import { AssetsService } from './assets.service';
 import { FileStorage } from './storage';
-import { MODEL_INPUT_READER } from './public/assets.port';
+import { MODEL_INPUT_READER, PROJECT_ASSET_PURGER } from './public/assets.port';
 
 /**
  * Global for the reason AuthModule and ProjectsModule are: R-7 forbids
@@ -18,6 +18,7 @@ import { MODEL_INPUT_READER } from './public/assets.port';
   providers: [
     AssetsService,
     { provide: MODEL_INPUT_READER, useExisting: AssetsService },
+    { provide: PROJECT_ASSET_PURGER, useExisting: AssetsService },
     {
       provide: FileStorage,
       inject: [ConfigService],
@@ -25,6 +26,6 @@ import { MODEL_INPUT_READER } from './public/assets.port';
         new FileStorage(config.get('STORAGE_ROOT', { infer: true })),
     },
   ],
-  exports: [MODEL_INPUT_READER],
+  exports: [MODEL_INPUT_READER, PROJECT_ASSET_PURGER],
 })
 export class AssetsModule {}

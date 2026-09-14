@@ -1,6 +1,8 @@
 import { createHash } from 'node:crypto';
 import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { Pool, type PoolClient } from 'pg';
+import type { Env } from '../common/config/env.schema';
 import { DomainError } from '../common/errors/app.error';
 import { PG_POOL } from '../common/db/tokens';
 import { PROJECT_OWNERSHIP, type ProjectOwnership } from '../projects/public/projects.port';
@@ -22,6 +24,12 @@ export class TooManyPhotosError extends DomainError {
   readonly status = 400;
 }
 
+/** Spec §10: the per-hour upload cap. The same code and status as the other limits. */
+export class UploadRateLimitedError extends DomainError {
+  readonly code = 'RATE_LIMITED';
+  readonly status = 429;
+}
+
 interface AssetDbRow {
   id: string;
   project_id: string;
@@ -39,6 +47,7 @@ export class AssetsService {
     @Inject(PG_POOL) private readonly pool: Pool,
     @Inject(PROJECT_OWNERSHIP) private readonly projects: ProjectOwnership,
     private readonly storage: FileStorage,
+    private readonly config: ConfigService<Env, true>,
   ) {}
 
   /**
@@ -47,6 +56,17 @@ export class AssetsService {
    */
   async upload(userId: string, projectId: string, bytes: Buffer): Promise<StoredAsset> {
     await this.projects.getOwned(userId, projectId);
+
+    // Before any decoding, like the ownership check: a refused upload costs nothing.
+    const perHour = this.config.get('UPLOADS_PER_HOUR_LIMIT', { infer: true });
+    const recent = await this.pool.query<{ count: string }>(
+      `SELECT count(*) FROM assets
+        WHERE user_id = $1 AND kind = 'reference' AND created_at > now() - interval '1 hour'`,
+      [userId],
+    );
+    if (Number(recent.rows[0]?.count ?? 0) >= perHour) {
+      throw new UploadRateLimitedError(`More than ${String(perHour)} photo uploads in an hour`);
+    }
 
     const existing = await this.pool.query<{ count: string }>(
       `SELECT count(*) FROM assets WHERE project_id = $1 AND kind = 'reference'`,
@@ -177,6 +197,23 @@ export class AssetsService {
     for (const row of rows) {
       await this.storage.remove(row.path);
     }
+  }
+
+  /**
+   * D-021: every photo of a project its owner has just deleted, rows and files. Not behind
+   * the ownership check, which only passes for live projects; the user_id filter keeps it to
+   * the caller's own rows. Rows go first, so a file whose removal fails can never be served.
+   */
+  async purgeProject(userId: string, projectId: string): Promise<number> {
+    const rows = await this.query<{ path: string }>(
+      `DELETE FROM assets WHERE user_id = $1 AND project_id = $2 RETURNING path`,
+      [userId, projectId],
+    );
+
+    for (const row of rows) {
+      await this.storage.remove(row.path);
+    }
+    return rows.length;
   }
 
   /** A malformed uuid must look exactly like any other miss, never like a 500. */

@@ -70,6 +70,16 @@ describe('the shipped formats', () => {
     }
   });
 
+  it('bounds what a person may open in lifestyle-story, the format that invented a car interior (D-060)', () => {
+    const lifestyle = findFormat('lifestyle-story');
+
+    expect(lifestyle?.interactionBoundary).toMatch(/Do not open doors, lids/);
+    expect(lifestyle?.interactionBoundary).toMatch(/reference\s+never established/);
+    for (const id of ['product-film', 'high-energy', 'ugc-authentic']) {
+      expect(findFormat(id)?.interactionBoundary).toBeNull();
+    }
+  });
+
   it('keeps every format’s beat limit inside the contract’s eight Uzbek shots', () => {
     for (const format of listFormats()) {
       expect(format.beats.max).toBeLessThanOrEqual(8);
@@ -119,6 +129,7 @@ describe('creativeFormatSchema', () => {
     transitions: ['direct cut', 'match cut'],
     productMotion: ['resting still'],
     atmosphere: [],
+    interactionBoundary: null,
   };
 
   it('rejects a format with no product motion listed', () => {
