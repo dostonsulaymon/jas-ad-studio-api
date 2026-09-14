@@ -53,6 +53,7 @@ const PRODUCT_FILM = {
   transitions: ['direct cut', 'match cut', 'focus transition', 'light transition'],
   productMotion: ['resting still', 'slow rotation on its surface', 'lifted or placed by hand'],
   atmosphere: [],
+  interactionBoundary: null,
 } as const satisfies Record<string, unknown>;
 
 const HIGH_ENERGY = {
@@ -103,6 +104,7 @@ const HIGH_ENERGY = {
   ],
   productMotion: ['rotate', 'spin', 'float', 'glide', 'launch toward camera', 'react to light'],
   atmosphere: ['particles', 'atmospheric haze', 'volumetric light', 'moving reflections'],
+  interactionBoundary: null,
 } as const satisfies Record<string, unknown>;
 
 const LIFESTYLE_STORY = {
@@ -143,6 +145,8 @@ const LIFESTYLE_STORY = {
   transitions: ['direct cut', 'match cut on movement', 'soft foreground wipe'],
   productMotion: ['natural handling by the person'],
   atmosphere: [],
+  interactionBoundary: 
+    'People may only touch and use the surfaces the reference shows. Do not open doors, lids, cases, bags, boxes or packaging, and do not reveal any inside, back or underside the reference never established; if natural use would require that, show the moment just before it instead.',
 } as const satisfies Record<string, unknown>;
 
 const UGC_AUTHENTIC = {
@@ -179,6 +183,7 @@ const UGC_AUTHENTIC = {
   transitions: ['direct cut', 'quick handheld reframe'],
   productMotion: ['natural handling by the person'],
   atmosphere: [],
+  interactionBoundary: null,
 } as const satisfies Record<string, unknown>;
 
 const REGISTRY: ReadonlyMap<string, CreativeFormat> = new Map(

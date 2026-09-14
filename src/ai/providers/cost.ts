@@ -10,6 +10,9 @@ export interface ModelPricing {
  * from a live call, and any model used in the Part 8a sweep must be listed.
  */
 export const MODEL_PRICING: Record<string, ModelPricing> = {
+  // developers.openai.com/api/docs/pricing, read 2026-09-13, standard tier, <272K context.
+  // Cached input ($0.50) is not modelled, so this errs slightly high.
+  'gpt-5.5': { inputPerMillion: 5, outputPerMillion: 30 },
   'gpt-4.1': { inputPerMillion: 2, outputPerMillion: 8 },
   'gpt-4.1-mini': { inputPerMillion: 0.4, outputPerMillion: 1.6 },
   'gpt-4o': { inputPerMillion: 2.5, outputPerMillion: 10 },

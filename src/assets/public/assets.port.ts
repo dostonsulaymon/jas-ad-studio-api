@@ -25,6 +25,17 @@ export type StoredAsset = z.infer<typeof storedAssetSchema>;
  */
 export const MODEL_INPUT_READER = Symbol('MODEL_INPUT_READER');
 
+/**
+ * D-021: a deleted project's photos, rows and files. `projects` calls it after its own
+ * soft delete; it cannot reach assets' tables or files itself (R-7).
+ */
+export const PROJECT_ASSET_PURGER = Symbol('PROJECT_ASSET_PURGER');
+
+export interface ProjectAssetPurger {
+  /** Removes every asset row and file of the caller's project. Returns the rows removed. */
+  purgeProject(userId: string, projectId: string): Promise<number>;
+}
+
 export interface ModelInputReader {
   /**
    * The model-input copies for a project the caller owns, primary first. Resolves only on

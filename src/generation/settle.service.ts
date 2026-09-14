@@ -1,4 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
+import { EVENT_LOG, type EventLog } from '../events/public/events.port';
 import { Pool } from 'pg';
 import type { AdGeneratorOutcome } from '../ai/public/generator.port';
 import type { ReferenceImage } from '../ai/public/provider.port';
@@ -36,12 +37,14 @@ export class SettleService {
     private readonly repo: GenerationsRepo,
     private readonly cache: NeedsInputCache,
     @Inject(CREDIT_LEDGER) private readonly credits: CreditLedgerPort,
+    // Optional so the P4 test harness, which builds this class by hand, needs no event log.
+    @Optional() @Inject(EVENT_LOG) private readonly events?: EventLog,
   ) {}
 
   async settle(input: SettleInput): Promise<SettleResult> {
     const { status, fields, package: pkg } = interpret(input.outcome);
 
-    return withTransaction(this.pool, async (tx) => {
+    const settled = await withTransaction(this.pool, async (tx) => {
       const userId = await this.repo.settle(
         input.generationId,
         input.leaseToken,
@@ -75,6 +78,10 @@ export class SettleService {
 
       return { applied: true, status };
     });
+
+    // After the commit, so a rolled-back settle never shows up as a finished generation.
+    if (settled.applied) await this.events?.record('generation_settled', input.userId || null, { status });
+    return settled;
   }
 
   /**
@@ -121,6 +128,7 @@ function interpret(outcome: AdGeneratorOutcome): Interpreted {
     return {
       status: 'failed',
       fields: {
+        promptVersion: null,
         provider: null,
         model: null,
         inputTokens: null,
@@ -136,6 +144,8 @@ function interpret(outcome: AdGeneratorOutcome): Interpreted {
 
   const result = outcome.result;
   const usage = {
+    // D-097: the version was produced and then dropped, so no row could say which prompt wrote it.
+    promptVersion: outcome.usage.promptVersion,
     provider: outcome.usage.provider,
     model: outcome.usage.model,
     inputTokens: outcome.usage.inputTokens,

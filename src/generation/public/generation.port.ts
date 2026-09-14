@@ -77,6 +77,16 @@ export const acceptedGenerationSchema = z.object({
 export type AcceptedGeneration = z.infer<typeof acceptedGenerationSchema>;
 
 /** What the worker process needs from the module that owns the jobs. */
+/**
+ * D-021: a deleted project's generated packages and cached questions are removed. The
+ * generation rows stay, as the cost record the spend cap sums and the ledger points at.
+ */
+export const PROJECT_GENERATION_PURGER = Symbol('PROJECT_GENERATION_PURGER');
+
+export interface ProjectGenerationPurger {
+  purgeProject(userId: string, projectId: string): Promise<void>;
+}
+
 export const GENERATION_RUNNER = Symbol('GENERATION_RUNNER');
 
 export interface GenerationRunner {

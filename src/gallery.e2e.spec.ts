@@ -259,6 +259,14 @@ describe('the gallery is the free product (D-007, source 01 §23)', () => {
     expect(body.examples.map((example) => example.id)).toEqual([PUBLISHED.slug]);
   });
 
+  it('answers with security headers and no framework banner (P8 security review)', async () => {
+    const response = await anonymous('/api/gallery');
+
+    expect(response.headers.get('x-powered-by')).toBeNull();
+    expect(response.headers.get('x-content-type-options')).toBe('nosniff');
+    expect(response.headers.get('x-frame-options')).toBe('DENY');
+  });
+
   it('never lists an unpublished example', async () => {
     const body = await json<{ examples: { id: string }[] }>(await anonymous('/api/gallery'));
 

@@ -905,7 +905,7 @@
             "description": ""
           }
         },
-        "summary": "Soft-delete. Its photos stop being served too (D-068).",
+        "summary": "Delete: the brief, photos and generated packages are removed (D-021). Generation and ledger rows stay.",
         "tags": [
           "Projects"
         ]

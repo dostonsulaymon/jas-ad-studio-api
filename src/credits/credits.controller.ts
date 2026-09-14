@@ -1,4 +1,5 @@
-import { Body, Controller, Get, HttpCode, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Inject, Param, Post, UseGuards } from '@nestjs/common';
+import { EVENT_LOG, type EventLog } from '../events/public/events.port';
 import { ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
 import type { CurrentUser } from '../auth/public/auth.port';
 import { User } from '../auth/public/current-user.decorator';
@@ -21,6 +22,7 @@ export class CreditsController {
     private readonly packs: PacksService,
     private readonly orders: OrdersService,
     private readonly accounts: AccountsService,
+    @Inject(EVENT_LOG) private readonly events: EventLog,
   ) {}
 
   @Get('packs')
@@ -47,8 +49,10 @@ export class CreditsController {
   })
   @ApiBody({ type: CreateOrderDto })
   @ApiCreatedResponse({ type: CreditOrderDto })
-  create(@User() user: CurrentUser, @Body() body: unknown): Promise<CreditOrderSummary> {
-    return this.orders.create(user.id, createOrderSchema.parse(body));
+  async create(@User() user: CurrentUser, @Body() body: unknown): Promise<CreditOrderSummary> {
+    const order = await this.orders.create(user.id, createOrderSchema.parse(body));
+    await this.events.record('order_created', user.id, { credits: order.credits, paymentMethod: order.paymentMethod });
+    return order;
   }
 
   @Get('orders')

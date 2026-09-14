@@ -16,6 +16,8 @@ import { SESSION_COOKIE, SESSION_TTL_DAYS, type CurrentUser } from './public/aut
 import { readCookie, SessionGuard, type RequestWithUser } from './public/session.guard';
 import { SessionService } from './session.service';
 import { UserService } from './user.service';
+import { EVENT_LOG, type EventLog } from '../events/public/events.port';
+import { isPublicDeployment } from '../common/config/public-origin';
 
 const STATE_COOKIE = 'jas_oauth_state';
 const STATE_TTL_MS = 10 * 60 * 1000;
@@ -28,6 +30,7 @@ export class AuthController {
     @Inject(WEB_ORIGIN) private readonly webOrigin: string,
     private readonly sessions: SessionService,
     private readonly users: UserService,
+    @Inject(EVENT_LOG) private readonly events: EventLog,
   ) {}
 
   @Get('auth/google')
@@ -75,6 +78,7 @@ export class AuthController {
 
     const identity = await exchangeCode(google, code);
     const user = await this.users.upsertFromGoogle(identity);
+    await this.events.record('sign_in', user.id);
     const { token } = await this.sessions.issue(user.id);
 
     response.cookie(SESSION_COOKIE, token, {
@@ -118,7 +122,8 @@ export class AuthController {
       // Lax rather than Strict: the Google callback is a cross-site GET back into our
       // origin, and Strict would drop the cookie exactly then.
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production',
+      // The live stack runs NODE_ENV=development behind HTTPS, so the origin decides too.
+      secure: isPublicDeployment(process.env.NODE_ENV ?? 'development', this.webOrigin),
     };
   }
 }

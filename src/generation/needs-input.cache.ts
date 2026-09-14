@@ -37,6 +37,14 @@ export class NeedsInputCache {
       .digest('hex');
   }
 
+  /** D-021: a deleted project's cached questions go with it; they were derived from its brief. */
+  async forgetProject(userId: string, projectId: string, tx: Executor): Promise<void> {
+    await tx.query(`DELETE FROM needs_input_cache WHERE user_id = $1 AND project_id = $2`, [
+      userId,
+      projectId,
+    ]);
+  }
+
   async lookup(
     userId: string,
     projectId: string,

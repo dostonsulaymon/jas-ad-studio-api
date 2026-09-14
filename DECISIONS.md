@@ -1525,3 +1525,23 @@ restarted. `openapi.json` unchanged.
 - The Uzbek "Bugungi chegara tugadi" copy describes a calendar day; the cap is rolling 24 h.
 
 Why: Doston's call, with v3 live and working in his own generations.
+
+### D-098 · 2026-09-14 · P8 hardening is closed at Doston's decision
+
+Doston: *"commit merge to main both."* Built to `docs/superpowers/plans/2026-09-13-phase-8-hardening.md`, all seven parts deployed and checked on https://jas.kitobnarxi.uz.
+
+| Part | What shipped |
+|---|---|
+| 1 Provenance and pricing | The worker writes `prompt_version`; `generations.format_id` records the format at request time (migration `0010`); `gpt-5.5` priced at its published $5/$30 per million, so a v3 generation costs about $0.17, not the $0.33–0.40 recorded before |
+| 2 Backups | Nightly cron 03:15, `tools/backup.sh` (pg_dump + storage tarball + checksums, 14 days) and `tools/restore-check.sh`; restore rehearsed twice, row for row |
+| 3 Deletion | Deleting a project blanks its brief and removes its photos, packages and cached questions at once; generation rows and the ledger stay |
+| 4 Upload rate limit | `UPLOADS_PER_HOUR_LIMIT` (default 30 per seller), `RATE_LIMITED` 429 |
+| 5 Events | `events` table (migration `0011`), best-effort, no prompt text, strings cut to 64 characters |
+| 6 P7 leftovers | `lifestyle-story` interaction boundary (D-060); spend-cap copy says rolling 24 hours |
+| 7 Security review | Session cookie `Secure`, Swagger off and no framework banner on a public deployment (judged by NODE_ENV **or** an https `WEB_ORIGIN`), security headers on api and web; `next` 16.3.5 (critical advisories) and `multer` 2.3.0 (override) |
+
+**670 api tests, 34 web tests.** `pnpm audit --prod` clean in both repos.
+
+**Left open, not in P8:** the public site is a `next dev` server (P9 deployment); `ugc-authentic` may need an interaction boundary like `lifestyle-story`; privacy and terms text still owed by Jakhongir (D-022).
+
+Why: Doston's call, with every part live and verified.

@@ -46,6 +46,13 @@ export const creativeFormatSchema = z
     productMotion: z.array(z.string().min(3)).min(1),
     /** Particles, haze and similar. Empty means none. */
     atmosphere: z.array(z.string().min(3)),
+
+    /**
+     * D-060: what a person may do with the product, for formats whose premise invites an
+     * action the photo cannot support (opening a car door revealed an invented interior).
+     * Null where the format has no such premise.
+     */
+    interactionBoundary: z.string().min(20).nullable(),
   })
   .strict()
   .refine((f) => f.beats.default <= f.beats.max, {

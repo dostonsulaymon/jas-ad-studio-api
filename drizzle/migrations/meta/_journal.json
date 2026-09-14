@@ -71,6 +71,20 @@
       "when": 1789282300931,
       "tag": "0009_seed_gallery_examples",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789318471809,
+      "tag": "0010_petite_warhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789360353662,
+      "tag": "0011_free_boomer",
+      "breakpoints": true
     }
   ]
 }

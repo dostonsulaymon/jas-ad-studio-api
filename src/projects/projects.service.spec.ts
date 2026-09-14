@@ -112,6 +112,22 @@ it('hides a soft-deleted project from its own owner', async () => {
   await expect(service.listFor(alice)).resolves.toEqual([]);
 });
 
+it('removes the brief text when a project is deleted, keeping only its name (D-021)', async () => {
+  const project = await service.create(alice, {
+    ...input,
+    audience: 'Talabalar',
+    offer: { description: 'Chegirma', priceUzs: 1000, validUntil: null },
+    confirmedClaims: [{ claim: 'Yengil', verified: true }],
+  });
+  await service.softDelete(alice, project.id);
+
+  const { rows } = await db.pool.query(
+    `SELECT name, description, audience, offer, confirmed_claims FROM projects WHERE id = $1`,
+    [project.id],
+  );
+  expect(rows[0]).toEqual({ name: 'Krossovka', description: '', audience: null, offer: null, confirmed_claims: [] });
+});
+
 it('refuses to delete the same project twice', async () => {
   const project = await service.create(alice, input);
   await service.softDelete(alice, project.id);
