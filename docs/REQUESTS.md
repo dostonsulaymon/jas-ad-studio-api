@@ -127,3 +127,16 @@ Template:
 **Ask:** "It became so tough to upload a resource to the gallery. No need for all the sections to be filled." Screenshot shows the save failing with *"Ma'lumotlarda xatolik bor. Belgilangan maydonni to'g'rilang."* and a request id, with no indication of which field.
 **Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
 **Outcome:** Built, in three parts (D-099). The API already returned `details.fields[]`; the panel now names those fields in Uzbek and marks the inputs. A draft needs only slug, title, category, format, ratio and sort order; publishing still requires everything, with one issue per missing field. The sheet derives the slug from the title, reads duration and ratio off the uploaded clip, and groups the publish-only fields under their own heading.
+
+### R-016 · 2026-09-21 · The PRO badge should be gold
+**Area:** web · **Status:** accepted → P8e, built 2026-09-21
+**Ask:** "I just saw that you put PRO there… please change the color of it, like some golden colour, maybe." Reference: a gold `🔒 PRO` pill, with `BEPUL` on the free ones.
+**Note:** the design system is monochrome with **no hue accent** (D-092, web CLAUDE.md). Gold is a deliberate exception to that rule, not an oversight — see D-104.
+**Outcome:** Built on `p8e-pro-badge`. `--color-pro: #e3b341` with dark text and a filled lock, and the locked card's button carries the same gold in its icon.
+
+### R-017 · 2026-09-21 · A raw product photo on the top left of each gallery video
+**Area:** web, api, admin · **Status:** new
+**Ask:** "On the top left-hand side of the video, there has to be a raw photo of a product like in the reference below." The reference shows a small square thumbnail of the original product photo sitting over the top-left corner of each card's video.
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, entry dated 21.09.26.
+**Note:** we do not have this photo. A gallery example stores `videoPath` and `posterPath` and nothing else; the seller's original reference image is not kept with an example. It needs a new nullable column, an upload in `/admin`, and somebody to supply one photo per example.
+**Outcome:**

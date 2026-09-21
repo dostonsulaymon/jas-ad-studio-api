@@ -1648,3 +1648,15 @@ Doston: *"PROMPTLY Our website's name is this. So please update everywhere."* Th
 2. The repository folders and the public hostname, as above.
 
 **`AD_DIRECTOR_PROMPT_VERSION` stays `ad-director-v3`.** One proper noun changed and no direction did, so bumping it would claim a revision that P7 did not make. The change is dated here instead, which is greppable.
+
+### D-104 · 2026-09-21 · Gold is the one hue, and every gallery tile is the same shape
+
+Two changes from Doston looking at the live site.
+
+**1. The PRO badge is gold (R-016).** `--color-pro: #e3b341`, dark text, a filled lock. The palette is monochrome by decision — D-092 says no hue accent, and the web CLAUDE.md repeats it — so this is a **deliberate exception, recorded so it is not read later as drift**. The argument for it: PRO is the only thing on the page a visitor cannot have, and `danger` and `success` already prove the rule bends for states that must be unmistakable. It is rationed the same way the CTA gradient is: the badge, and the lock icon on that card's button. Nothing else.
+
+**2. Every tile is 9:16, whatever the clip is.** Doston: *"why that is small??"* A card took its own video's aspect ratio, so the one 16:9 example rendered a third the height of its neighbours and read as broken.
+
+The tile is now fixed at 9:16 — the product is vertical-ad-first and that is the studio's own default — and a clip that does not match is fitted **whole** inside it (`object-contain`) with a blurred, darkened copy of its own poster filling the rest. Same poster URL as the video element already uses, so it costs no extra request, and it is only rendered for a clip that needs it.
+
+**Why not crop.** Filling the tile with `object-cover` would have been tidier and is what most grids do, but this is a gallery of *product* ads: a centre crop can cut the product out of frame, and nobody would see it happen. Fitting the whole frame cannot lie about what the video shows.
