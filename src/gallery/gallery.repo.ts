@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { Pool } from 'pg';
 import { PG_POOL } from '../common/db/tokens';
 import { galleryExampleSchema, type GalleryExample } from './example.schema';
@@ -81,13 +81,42 @@ function toExample(row: Row): StoredExample {
 
 @Injectable()
 export class GalleryRepo {
+  private readonly log = new Logger(GalleryRepo.name);
+
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+
+  /**
+   * One malformed row must never take the gallery down.
+   *
+   * Found in production: an owner saved a creative preset the row schema refuses, and every
+   * visitor got a 400 for the whole page — `rows.map(toExample)` threw on row three and the
+   * other six went with it. A list is not an all-or-nothing document; a row that cannot be
+   * read is one row missing, loudly logged, and the page still serves.
+   *
+   * The strictness itself stays. This is the blast radius, not the rule.
+   */
+  private parseRows(rows: Row[], where: string): StoredExample[] {
+    const parsed: StoredExample[] = [];
+
+    for (const row of rows) {
+      try {
+        parsed.push(toExample(row));
+      } catch (cause) {
+        this.log.error(
+          `${where}: gallery example "${row.slug}" does not match the schema and was skipped`,
+          cause instanceof Error ? cause.stack : String(cause),
+        );
+      }
+    }
+
+    return parsed;
+  }
 
   async listPublished(): Promise<StoredExample[]> {
     const { rows } = await this.pool.query<Row>(
       `SELECT ${COLUMNS} FROM gallery_examples WHERE is_published ORDER BY sort_order, slug`,
     );
-    return rows.map(toExample);
+    return this.parseRows(rows, 'listPublished');
   }
 
   /** Everything, published or not. The owner's list. */
@@ -95,7 +124,7 @@ export class GalleryRepo {
     const { rows } = await this.pool.query<Row>(
       `SELECT ${COLUMNS} FROM gallery_examples ORDER BY sort_order, slug`,
     );
-    return rows.map(toExample);
+    return this.parseRows(rows, 'listAll');
   }
 
   async findPublishedBySlug(slug: string): Promise<StoredExample | null> {

@@ -1672,3 +1672,17 @@ R-017, from Jakhongir: *"On the top left-hand side of the video, there has to be
 So every example now has one: **rotary phone, notebook and wet wipes carry their real product photo**, and the rest carry an unrelated picture from `public/namunalar` as a placeholder. The `/admin` slot exists precisely so they get replaced; **they must be, before the pilot** (D-024), because a real seller reading a real card would be reading a false claim.
 
 **What stops this becoming permanent.** Nothing automatic — it is a note here and a line in R-017. If the pilot approaches with placeholders still in place, replacing them is a launch blocker, not a nicety.
+
+### D-106 · 2026-09-21 · One bad row took the whole gallery down, and "logo" is not a leaked product fact
+
+**The outage.** Minutes after P8f deployed, `GET /api/gallery` answered **400 for every visitor**. Jakhongir had published a logo-animation example with `pacing: "Logo"`, and `creativeAttribute` refuses the word `logo` under §13. `listPublished` did `rows.map(toExample)`, so one row that failed to parse threw the request, and the other ten examples went with it.
+
+**Three things were wrong, and all three are fixed.**
+
+1. **Blast radius.** A list is not an all-or-nothing document. `GalleryRepo` now parses row by row: a row that does not match is skipped and logged with its slug at `error`, and the page serves the rest. The strictness is unchanged — this is the blast radius, not the rule. A regression test writes a bad preset straight into the table with SQL and asserts its neighbour still lists.
+
+2. **The two schemas disagreed.** `galleryExampleInputSchema` validated preset fields as plain strings while `galleryExampleSchema` applied the §13 word rule, so a write could store a row the read refused — a row that could be created and then never read. Exactly the drift D-100 warned about when the publish rules were centralised, one level down. The rule now lives once, in `gallery.port.ts`, and both schemas use it.
+
+3. **`logo` did not belong on the list.** §13's purpose is that an example's *product identity* must not ride into another seller's prompt through a reusable preset field. `brand`, `label`, `trademark`, `price`, `som` and `uzs` are unambiguous. `logo` is different: Jakhongir sells logo-animation ads, and there "logo" names the genre. It is removed, and the test that asserted the refusal is replaced by one asserting it is allowed.
+
+**What this cost.** The gallery was down for roughly ten minutes and I did not notice from the deploy checks — `/health/ready` was 200 and the landing page was 200, because the page renders a gallery fetched server-side and an empty one still returns HTML. **A deploy check that asks the API for the gallery and counts the examples would have caught it**, and the one after this did.

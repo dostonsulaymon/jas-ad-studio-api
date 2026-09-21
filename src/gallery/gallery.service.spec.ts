@@ -210,3 +210,27 @@ describe('the owner writes', () => {
     );
   });
 });
+
+/**
+ * D-106, found in production: one malformed row answered 400 for the entire public gallery.
+ * `rows.map(toExample)` threw on one row and took the other ten with it.
+ */
+it('serves the rest of the gallery when one row does not match the schema', async () => {
+  await repo.insert(example({ slug: 'good-one', sortOrder: 1 }), ownerId);
+  await repo.insert(example({ slug: 'another-good-one', sortOrder: 2 }), ownerId);
+
+  // Written past the schema on purpose: a row like this reached production through an older
+  // input schema that did not share the read schema's rules.
+  await db.pool.query(
+    `UPDATE gallery_examples
+        SET creative_preset = jsonb_set(creative_preset, '{pacing}', '"a premium brand shelf"')
+      WHERE slug = 'good-one'`,
+  );
+
+  // Other tests in this suite leave rows behind, so this asserts on the two it made rather
+  // than on the whole list: the broken one is gone, its neighbour is not.
+  const slugs = (await gallery.list()).map((card) => card.slug);
+
+  expect(slugs).not.toContain('good-one');
+  expect(slugs).toContain('another-good-one');
+});

@@ -156,9 +156,19 @@ describe('a draft may be as unfinished as the work is (R-015)', () => {
 });
 
 describe('a creative preset carries no product identity (§13)', () => {
+  /**
+   * D-106: "logo" was on this list until Jakhongir published logo-animation examples, where it is
+   * the genre rather than a leaked product fact — and the refusal took the whole public gallery
+   * down. The rule now allows it.
+   */
+  it('allows "logo", which names an ad genre rather than a product identity', () => {
+    expect(
+      parse({ creativePreset: { ...valid.creativePreset, pacing: 'Logo rasm' } }).success,
+    ).toBe(true);
+  });
+
   it.each([
     ['brand', 'a premium brand shelf'],
-    ['logo', 'logo catches the light'],
     ['label', 'label faces the camera'],
     ['price', 'price card beside the product'],
   ])('refuses a preset naming the %s', (_word, value) => {

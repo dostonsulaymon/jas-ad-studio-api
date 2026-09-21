@@ -83,6 +83,39 @@ export type GalleryList = z.infer<typeof galleryListSchema>;
 export type GalleryExampleView = z.infer<typeof galleryExampleViewSchema>;
 
 /**
+ * Words that are never a creative attribute (source 01 §13). They name product identity or money,
+ * and a preset field is copied into *another* seller's prompt, so an example's identity must not
+ * ride along with its lighting.
+ *
+ * **"logo" was removed on 2026-09-21.** It was in the list until Jakhongir published logo-animation
+ * examples, where "logo" is the genre, not a leaked product fact — and the refusal took the whole
+ * public gallery down with it (D-106). The rest are unambiguous: a brand, a label, a trademark or a
+ * price in a preset field is somebody pasting product prose into the wrong box.
+ */
+export const PRODUCT_IDENTITY_WORDS = [
+  'brand',
+  'label',
+  'trademark',
+  'price',
+  'som',
+  'uzs',
+] as const;
+
+export function namesProductIdentity(value: string): boolean {
+  const words = value.toLowerCase().match(/[a-z]+/g) ?? [];
+  return words.some((word) => (PRODUCT_IDENTITY_WORDS as readonly string[]).includes(word));
+}
+
+/** One creative attribute, with the §13 rule attached. Shared, so a write cannot store a row the
+ *  read refuses — which is exactly how D-106's outage happened. */
+const creativeAttributeField = z
+  .string()
+  .max(120)
+  .refine((value) => !namesProductIdentity(value), {
+    message: 'must not name product identity (§13): brand, label, price, …',
+  });
+
+/**
  * Everything a published example owes, checked in one place (R-015).
  *
  * A **draft** needs almost nothing: an owner should be able to save a title and come back with the
@@ -182,11 +215,11 @@ export const galleryExampleInputSchema = z
     promptEn: z.string(),
     conceptUz: z.string().max(600),
     creativePreset: z.object({
-      environment: z.string().max(120),
-      lighting: z.string().max(120),
-      cameraLanguage: z.string().max(120),
-      pacing: z.string().max(120),
-      mood: z.string().max(120),
+      environment: creativeAttributeField,
+      lighting: creativeAttributeField,
+      cameraLanguage: creativeAttributeField,
+      pacing: creativeAttributeField,
+      mood: creativeAttributeField,
     }),
     sourceType: z.enum(SOURCE_TYPES),
     sourceNote: z.string().max(200),

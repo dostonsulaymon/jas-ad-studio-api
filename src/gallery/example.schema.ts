@@ -2,6 +2,7 @@ import { z } from 'zod';
 import {
   ASPECT_RATIOS,
   GALLERY_CATEGORIES,
+  namesProductIdentity,
   PROVENANCE_NOT_RECORDED,
   requireCompleteWhenPublished,
   SOURCE_TYPES,
@@ -41,50 +42,16 @@ const mediaPath = z
   .refine((value) => !value.includes('..'), { message: 'must not contain ".."' });
 
 /**
- * Words that are never a creative attribute. Source 01 §13 lists what must never cross
- * from an example to a seller's prompt; these are the members of that list that cannot
- * appear in an honest description of lighting or camera work.
- *
- * Deliberately short. This is a tripwire for a human pasting product prose into a preset
- * field, **not** the mechanism that keeps product facts out of a seller's prompt — that
- * is the six-key resolution boundary in `gallery.port.ts` and the isolation test that
- * asserts on the assembled prompt. A longer list would start refusing legitimate
- * phrasing ("light that flatters matte materials") and teach whoever writes content to
- * fight the schema, which is how filters end up disabled.
- */
-const PRODUCT_IDENTITY_WORDS = [
-  'brand',
-  'logo',
-  'label',
-  'trademark',
-  'price',
-  'som',
-  'uzs',
-] as const;
-
-/**
- * A creative attribute is a short phrase. Product prose is long, and length is a better
- * signal of "somebody pasted the wrong thing here" than any word list.
+ * A creative attribute is a short phrase, with §13's word rule shared from the port so the schema
+ * that reads a row and the schema that writes one cannot disagree (D-106).
  */
 const creativeAttribute = z
   .string()
   .max(120)
-  .refine(
-    (value) => {
-      const words = value.toLowerCase().match(/[a-z]+/g) ?? [];
-      return !words.some((word) =>
-        (PRODUCT_IDENTITY_WORDS as readonly string[]).includes(word),
-      );
-    },
-    { message: 'must not name product identity (§13): brand, logo, label, price, …' },
-  );
+  .refine((value) => !namesProductIdentity(value), {
+    message: 'must not name product identity (§13): brand, label, price, …',
+  });
 
-/**
- * The only part of an example that may ever reach the model (§13, §14). Kept in its own
- * object precisely so that resolving an inspiration can name this field and nothing
- * around it: "Do not include product-specific factual claims inside reusable preset
- * fields."
- */
 export const creativePresetSchema = z
   .object({
     environment: creativeAttribute,
