@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
+import { bigint, integer, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core';
 import { users } from '../../auth/db/schema';
 
 /**
@@ -29,3 +29,37 @@ export const proAccess = pgTable('pro_access', {
 });
 
 export type ProAccessRow = typeof proAccess.$inferSelect;
+
+/**
+ * A seller's request to buy PRO, confirmed by hand (D-102, mirroring D-008's credit orders).
+ *
+ * The amount and the length are copied onto the row at the moment it is placed, not read from
+ * settings at confirmation time: a price the owner changes tomorrow must not silently change what
+ * somebody already agreed to pay. Same reason `credit_orders` carries its own `amount_uzs`.
+ */
+export const proOrders = pgTable('pro_orders', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+
+  amountUzs: bigint('amount_uzs', { mode: 'number' }).notNull(),
+  days: integer('days').notNull(),
+
+  /** pending → confirmed | rejected. One order grants access exactly once. */
+  status: text('status').notNull().default('pending'),
+  payerReference: text('payer_reference'),
+  rejectionReason: text('rejection_reason'),
+
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  confirmedAt: timestamp('confirmed_at', { withTimezone: true }),
+  confirmedBy: uuid('confirmed_by').references(() => users.id, { onDelete: 'set null' }),
+});
+
+/**
+ * One pending order per seller, as a partial unique index added by hand in migration 0014.
+ * Declared here as a comment rather than in the table definition because drizzle-kit does not
+ * emit partial indexes; the migration is the source of truth and `db:generate` leaves it alone.
+ */
+
+export type ProOrderRow = typeof proOrders.$inferSelect;

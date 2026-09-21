@@ -10,6 +10,21 @@ import type { Executor } from '../../common/db/transaction';
  * field starts null — the structure ships, the content is the owner's. A card number is
  * never seeded into a migration: that file is committed and this repo will have a remote.
  */
+/**
+ * What PRO costs and how long it lasts (D-102). One plan, no tiers, no choice of length.
+ *
+ * `priceUzs` is null until Jakhongir sets one, and a null price means PRO is **not for sale**:
+ * the order screen shows nothing rather than inventing a number, exactly as `GET /api/packs`
+ * returns an empty list while packs are unpriced (D-072). Source 01 forbids invented prices
+ * and this is the rule holding.
+ */
+export const proSubscriptionSchema = z.object({
+  priceUzs: z.number().int().positive().max(100_000_000).nullable().default(null),
+  days: z.number().int().positive().max(366).default(30),
+});
+
+export type ProSubscription = z.infer<typeof proSubscriptionSchema>;
+
 export const paymentInstructionsSchema = z.object({
   cardNumber: z.string().trim().min(8).max(32).nullable().default(null),
   cardHolder: z.string().trim().min(2).max(120).nullable().default(null),
@@ -73,6 +88,7 @@ export type HeroPhotos = z.infer<typeof heroPhotosSchema>;
  * a key that nothing validates.
  */
 export const SETTINGS_KEYS = {
+  pro_subscription: proSubscriptionSchema,
   payment_instructions: paymentInstructionsSchema,
   support_contacts: supportContactsSchema,
   hero_photos: heroPhotosSchema,
@@ -89,10 +105,12 @@ export function isSettingKey(value: string): value is SettingKey {
  * only a DTO *class* cannot be one, which is why the owner routes are split per key
  * rather than taking `:key` with a union body.
  */
-export type SettingValue = PaymentInstructions | SupportContacts | HeroPhotos;
+export type SettingValue = PaymentInstructions | SupportContacts | HeroPhotos | ProSubscription;
 
 export const publicSettingsSchema = z.object({
   paymentInstructions: paymentInstructionsSchema,
+  /** D-102: the locked PRO panel names the price, and it does so signed out. */
+  proSubscription: proSubscriptionSchema,
   supportContacts: supportContactsSchema,
   /** Public because the landing page renders them before anyone signs in. */
   heroPhotos: heroPhotosSchema,
@@ -107,6 +125,8 @@ export const SETTINGS_READER = Symbol('SETTINGS_READER');
 
 export interface SettingsReader {
   getPaymentInstructions(tx?: Executor): Promise<PaymentInstructions>;
+  /** D-102: what PRO costs and for how long. A null price means it is not for sale. */
+  getProSubscription(tx?: Executor): Promise<ProSubscription>;
   /** True when a seller could actually pay: card, Payme or Click is set. */
   isPaymentConfigured(tx?: Executor): Promise<boolean>;
   getPublic(tx?: Executor): Promise<PublicSettings>;

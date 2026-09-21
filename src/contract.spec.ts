@@ -83,6 +83,10 @@ const BODYLESS_WRITES = new Set([
   'POST /api/auth/logout',
   'POST /api/orders/{id}/cancel',
   'POST /api/owner/orders/{id}/confirm',
+  // D-102: the seller is in the session and the price comes from settings, so the request
+  // carries nothing. Confirming a PRO order is the same shape as confirming a credit one.
+  'POST /api/pro/orders',
+  'POST /api/owner/pro/orders/{id}/confirm',
   // Takes the project from the path and the retry key from Idempotency-Key (§32).
   'POST /api/projects/{id}/generations',
 ]);

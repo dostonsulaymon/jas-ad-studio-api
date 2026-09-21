@@ -680,6 +680,87 @@ describe('the owner edits the gallery', () => {
    * anybody, because Q-18 has not said what one costs. It is the grant that makes Layer 1
    * usable before Layer 2 exists, and it is audited like every other owner write (D-037).
    */
+  /**
+   * D-102's whole money path, end to end: a price, a seller asking, the owner confirming by hand,
+   * and access appearing. The rules that matter here are the ones credits already live by — one
+   * order grants exactly once, and a double tap cannot queue two payments.
+   */
+  it('sells PRO: price, order, confirm, access, and no second grant', async () => {
+    const priced = await send('/api/owner/settings/pro-subscription', {
+      cookie: ownerCookie,
+      method: 'PATCH',
+      body: { priceUzs: 49000, days: 30 },
+    });
+    expect(priced.status).toBe(200);
+
+    // Pressing the button twice is one order, held by a partial unique index.
+    const first = await send('/api/pro/orders', { cookie: aliceCookie, method: 'POST' });
+    const second = await send('/api/pro/orders', { cookie: aliceCookie, method: 'POST' });
+    expect(first.status).toBe(200);
+    expect(second.status).toBe(200);
+    const order = await json<{ id: string; amountUzs: number; days: number }>(first);
+    expect((await json<{ id: string }>(second)).id).toBe(order.id);
+    expect(order).toMatchObject({ amountUzs: 49000, days: 30 });
+
+    // Before the owner confirms, nothing is granted.
+    expect(await json<{ hasPro: boolean }>(await send('/api/pro/me', { cookie: aliceCookie }))).toMatchObject({ hasPro: false });
+
+    const queue = await send('/api/owner/pro/orders?status=pending', { cookie: ownerCookie });
+    expect(queue.status).toBe(200);
+    expect((await json<{ id: string; email: string }[]>(queue)).some((o) => o.id === order.id)).toBe(true);
+
+    const confirmed = await send(`/api/owner/pro/orders/${order.id}/confirm`, {
+      cookie: ownerCookie,
+      method: 'POST',
+    });
+    expect(confirmed.status).toBe(200);
+    expect(await json<{ hasPro: boolean }>(confirmed)).toMatchObject({ hasPro: true });
+
+    // Confirming the same order again is refused: an order grants once.
+    const again = await send(`/api/owner/pro/orders/${order.id}/confirm`, {
+      cookie: ownerCookie,
+      method: 'POST',
+    });
+    expect(again.status).toBe(409);
+    expect((await json<{ code: string }>(again)).code).toBe('PRO_ORDER_NOT_PENDING');
+
+    const mine = await send('/api/pro/orders', { cookie: aliceCookie });
+    expect(mine.status).toBe(200);
+    expect((await json<{ status: string }[]>(mine))[0]?.status).toBe('confirmed');
+  });
+
+  it('refuses to sell PRO while it has no price, and rejects an order with a reason', async () => {
+    await send('/api/owner/settings/pro-subscription', {
+      cookie: ownerCookie,
+      method: 'PATCH',
+      body: { priceUzs: null, days: 30 },
+    });
+
+    const refused = await send('/api/pro/orders', { cookie: bobCookie, method: 'POST' });
+    expect(refused.status).toBe(409);
+    expect((await json<{ code: string }>(refused)).code).toBe('PRO_NOT_FOR_SALE');
+
+    await send('/api/owner/settings/pro-subscription', {
+      cookie: ownerCookie,
+      method: 'PATCH',
+      body: { priceUzs: 49000, days: 30 },
+    });
+    const placed = await json<{ id: string }>(
+      await send('/api/pro/orders', { cookie: bobCookie, method: 'POST' }),
+    );
+
+    const rejected = await send(`/api/owner/pro/orders/${placed.id}/reject`, {
+      cookie: ownerCookie,
+      method: 'POST',
+      body: { reason: 'Toʻlov kelmadi' },
+    });
+    expect(rejected.status).toBe(204);
+
+    // Rejected, so still no access, and the seller can place a fresh one.
+    expect(await json<{ hasPro: boolean }>(await send('/api/pro/me', { cookie: bobCookie }))).toMatchObject({ hasPro: false });
+    expect((await send('/api/pro/orders', { cookie: bobCookie, method: 'POST' })).status).toBe(200);
+  });
+
   it('grants PRO access until a date, audits it, and moves the date when granted twice', async () => {
     const until = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
 

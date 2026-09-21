@@ -47,7 +47,9 @@ import {
   SETTINGS_ADMIN,
   type HeroPhotos,
   type PaymentInstructions,
+  type ProSubscription,
   type SettingsAdmin,
+  type SettingValue,
   type SupportContacts,
 } from '../settings/public/settings.port';
 import { AUDIT_WRITER, type AuditWriter } from './public/audit.port';
@@ -60,7 +62,15 @@ import {
   type OwnerGalleryList,
 } from '../gallery/public/gallery.port';
 import { MAX_VIDEO_BYTES, MediaRejected } from '../gallery/public/gallery.errors';
-import { PRO_ACCESS, proGrantSchema, type ProAccessPort, type ProStatus } from '../pro/public/pro.port';
+import {
+  PRO_ADMIN,
+  proGrantSchema,
+  rejectProOrderSchema,
+  type OwnerProOrder,
+  type ProAdminPort,
+  type ProOrderStatus,
+  type ProStatus,
+} from '../pro/public/pro.port';
 import { OwnerReportsService } from './owner-reports.service';
 import type { OwnerGeneration, OwnerSpendDay } from './public/owner-reports.port';
 import { OwnerGuard } from './owner.guard';
@@ -80,8 +90,11 @@ import {
   OwnerUserDto,
   PackEditDto,
   PaymentInstructionsDto,
+  OwnerProOrderDto,
   ProGrantDto,
   ProStatusDto,
+  ProSubscriptionDto,
+  RejectProOrderDto,
   RejectOrderDto,
   SupportContactsDto,
 } from './owner.dto';
@@ -111,7 +124,7 @@ export class OwnerController {
     @Inject(GALLERY_ADMIN) private readonly gallery: GalleryAdmin,
     private readonly reports: OwnerReportsService,
     @Inject(EVENT_LOG) private readonly events: EventLog,
-    @Inject(PRO_ACCESS) private readonly pro: ProAccessPort,
+    @Inject(PRO_ADMIN) private readonly pro: ProAdminPort,
   ) {}
 
   /** A read. Not audited — see the plan: a GET is not an action, and logging every list
@@ -243,6 +256,44 @@ export class OwnerController {
     return this.writeSetting(owner.id, 'support_contacts', body) as Promise<SupportContacts>;
   }
 
+  /** D-102: the PRO queue. A read, so not audited, like the credit order list. */
+  @Get('pro/orders')
+  @ApiOperation({ summary: 'PRO orders, newest first. Filter with ?status=pending.' })
+  @ApiOkResponse({ type: OwnerProOrderDto, isArray: true })
+  listProOrders(@Query('status') status?: string): Promise<OwnerProOrder[]> {
+    return this.pro.listOrders((status as ProOrderStatus | undefined) ?? null, DEFAULT_LIMIT);
+  }
+
+  /**
+   * Confirming an order is what actually grants PRO, and it grants exactly once: the update
+   * matches only a pending row, so two taps produce one grant and one refusal (D-008's rule,
+   * one table over).
+   */
+  @Post('pro/orders/:id/confirm')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Confirm a PRO payment. Extends the seller\'s access.' })
+  @ApiOkResponse({ type: ProStatusDto })
+  async confirmProOrder(@User() owner: CurrentUser, @Param('id') id: string): Promise<ProStatus> {
+    const status = await this.pro.confirmOrder(id, owner.id);
+    await this.audit.record(owner.id, 'pro.order.confirm', 'pro_order', id, { until: status.until });
+    return status;
+  }
+
+  @Post('pro/orders/:id/reject')
+  @HttpCode(204)
+  @ApiOperation({ summary: 'Reject a PRO order. The reason is required.' })
+  @ApiBody({ type: RejectProOrderDto })
+  async rejectProOrder(
+    @User() owner: CurrentUser,
+    @Param('id') id: string,
+    @Body() body: unknown,
+  ): Promise<void> {
+    const { reason } = rejectProOrderSchema.parse(body);
+    await this.pro.rejectOrder(id, reason, owner.id);
+    // The reason stays in the audit log only, as an order rejection does (P8 Part 5).
+    await this.audit.record(owner.id, 'pro.order.reject', 'pro_order', id, { reason });
+  }
+
   /**
    * R-010: PRO access by hand, until a date the owner chooses.
    *
@@ -358,6 +409,15 @@ export class OwnerController {
     return stored;
   }
 
+  /** D-102: what PRO costs and for how long. A null price means PRO is not for sale. */
+  @Patch('settings/pro-subscription')
+  @ApiOperation({ summary: 'Set the PRO price in soʻm and its length in days.' })
+  @ApiBody({ type: ProSubscriptionDto })
+  @ApiOkResponse({ type: ProSubscriptionDto })
+  setProSubscription(@User() owner: CurrentUser, @Body() body: unknown): Promise<ProSubscription> {
+    return this.writeSetting(owner.id, 'pro_subscription', body) as Promise<ProSubscription>;
+  }
+
   /** D-091: the hero tray's photos, so the landing page's examples are his too. */
   @Patch('settings/hero-photos')
   @ApiOperation({ summary: 'Set the hero tray photos, in display order.' })
@@ -371,7 +431,7 @@ export class OwnerController {
     ownerId: string,
     key: string,
     body: unknown,
-  ): Promise<PaymentInstructions | SupportContacts | HeroPhotos> {
+  ): Promise<SettingValue> {
     return withTransaction(this.pool, async (tx) => {
       const stored = await this.settings.setKey(key, body, ownerId, tx);
       await this.audit.record(ownerId, 'setting.update', 'site_setting', key, {}, tx);
