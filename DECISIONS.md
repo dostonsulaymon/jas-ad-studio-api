@@ -1566,6 +1566,8 @@ The trap this closes: `gallery.repo.ts` parses every row back out through `galle
 
 **The "PROMPTLY" rename is unanswered.** Jakhongir's page is titled *Revisions on PROMPTLY*. If the product is being renamed that is a domain, the source note under every gallery card and a pass over the Uzbek copy, not something to slip into a revisions pass.
 
-**675 api tests, 36 web unit tests, 84 Playwright at 1440/390/360.**
+**The pause control, after the deploy.** Seeing three dark pills on three playing clips, Doston asked why the play buttons are there at all. They stay: a clip that starts on its own has to be stoppable (WCAG 2.2.2 — motion that begins automatically and runs past five seconds needs a way to pause it), and under `prefers-reduced-motion` the button is the only way to start one. What changed is that it fades out while the clip is actually playing and comes back on hover or keyboard focus, on pointer devices only: a phone has no hover, so there it stays visible. A viewer who pauses keeps the control, or they could not resume.
+
+**675 api tests, 36 web unit tests, 84 Playwright at 1440/390/360.** Deployed to https://jas.kitobnarxi.uz on 2026-09-21 at Doston's instruction, backup taken first.
 
 Why: Doston's call ("finish them all"), built to `docs/superpowers/plans/2026-09-21-p8b-revisions-pass.md`.

@@ -114,7 +114,7 @@ Template:
 **Area:** web · **Status:** done on `p8b-revisions` (D-099), not yet merged
 **Ask:** "Videos have to play automatically when a user visits the website."
 **Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
-**Outcome:** Built, muted and in view only (D-099). The `src` attaches on a card's first intersection, the clip loops while on screen and pauses when it leaves, and `prefers-reduced-motion` keeps the old play-on-demand behaviour. The e2e assertion `autoplay === false` was replaced by three that state the new contract.
+**Outcome:** Built, muted and in view only (D-099). The `src` attaches on a card's first intersection, the clip loops while on screen and pauses when it leaves, and `prefers-reduced-motion` keeps the old play-on-demand behaviour. The e2e assertion `autoplay === false` was replaced by three that state the new contract. **Live 2026-09-21.** Seeing it, Doston asked why the play buttons are still there: the control stays (WCAG 2.2.2, and it is the only way to start a clip under reduced motion) but now fades while the clip plays and returns on hover or focus, on pointer devices only.
 
 ### R-014 · 2026-09-21 · The hero headline's line height is too tight
 **Area:** web · **Status:** done on `p8b-revisions` (D-099), not yet merged
