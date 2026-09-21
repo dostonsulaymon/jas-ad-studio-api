@@ -80,6 +80,7 @@ const PUBLISHED = {
   style: 'product-film',
   videoPath: 'clip.mp4',
   posterPath: 'poster.jpg',
+  referencePhotoPath: 'poster.jpg',
   aspectRatio: '9:16',
   durationSeconds: 10,
   promptEn:

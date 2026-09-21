@@ -626,6 +626,7 @@ describe('the owner edits the gallery', () => {
       style: 'product-film',
       videoPath: '',
       posterPath: '',
+      referencePhotoPath: null,
       aspectRatio: '9:16',
       durationSeconds: 0,
       promptEn: '',

@@ -2020,6 +2020,12 @@
                   "type": "string",
                   "maxLength": 200
                 },
+                "referencePhotoPath": {
+                  "type": "string",
+                  "maxLength": 200,
+                  "default": null,
+                  "nullable": true
+                },
                 "aspectRatio": {
                   "type": "string",
                   "enum": [
@@ -2185,6 +2191,12 @@
             "type": "string",
             "maxLength": 200
           },
+          "referencePhotoPath": {
+            "type": "string",
+            "maxLength": 200,
+            "default": null,
+            "nullable": true
+          },
           "aspectRatio": {
             "type": "string",
             "enum": [
@@ -2338,6 +2350,12 @@
           "posterPath": {
             "type": "string",
             "maxLength": 200
+          },
+          "referencePhotoPath": {
+            "type": "string",
+            "maxLength": 200,
+            "default": null,
+            "nullable": true
           },
           "aspectRatio": {
             "type": "string",
@@ -2995,6 +3013,12 @@
                 "posterUrl": {
                   "type": "string"
                 },
+                "referencePhotoUrl": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
                 "aspectRatio": {
                   "type": "string",
                   "enum": [
@@ -3036,6 +3060,7 @@
                 "style",
                 "videoUrl",
                 "posterUrl",
+                "referencePhotoUrl",
                 "aspectRatio",
                 "durationSeconds",
                 "conceptUz",
@@ -3086,6 +3111,10 @@
           "posterUrl": {
             "type": "string"
           },
+          "referencePhotoUrl": {
+            "type": "string",
+            "nullable": true
+          },
           "aspectRatio": {
             "type": "string",
             "enum": [
@@ -3130,6 +3159,7 @@
           "style",
           "videoUrl",
           "posterUrl",
+          "referencePhotoUrl",
           "aspectRatio",
           "durationSeconds",
           "conceptUz",

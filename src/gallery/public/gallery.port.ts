@@ -54,6 +54,8 @@ export const galleryCardSchema = z
     /** Ready to use. The client never builds a media URL out of a path. */
     videoUrl: z.string(),
     posterUrl: z.string(),
+    /** R-017: the raw product photo, or null when nobody supplied one. Ready to use. */
+    referencePhotoUrl: z.string().nullable(),
     aspectRatio: z.enum(ASPECT_RATIOS),
     durationSeconds: z.number(),
     conceptUz: z.string(),
@@ -174,6 +176,7 @@ export const galleryExampleInputSchema = z
     style: z.string().min(1).max(40),
     videoPath: z.string().max(200),
     posterPath: z.string().max(200),
+    referencePhotoPath: z.string().max(200).nullable().default(null),
     aspectRatio: z.enum(ASPECT_RATIOS),
     durationSeconds: z.number().min(0).max(600),
     promptEn: z.string(),

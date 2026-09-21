@@ -139,4 +139,4 @@ Template:
 **Ask:** "On the top left-hand side of the video, there has to be a raw photo of a product like in the reference below." The reference shows a small square thumbnail of the original product photo sitting over the top-left corner of each card's video.
 **Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, entry dated 21.09.26.
 **Note:** we do not have this photo. A gallery example stores `videoPath` and `posterPath` and nothing else; the seller's original reference image is not kept with an example. It needs a new nullable column, an upload in `/admin`, and somebody to supply one photo per example.
-**Outcome:**
+**Outcome:** Built on `p8f-reference-photo` (D-105). `reference_photo_path` (migration `0013`, nullable), an upload-and-remove slot in the `/admin` gallery sheet, and a rounded thumbnail over the top-left of the card. **Every example was seeded with a photo at Doston's instruction** — *"this is dev, we can update anything, just use random photos"* — of which three are the genuine product (rotary phone, notebook, wipes) and the rest are placeholders to be replaced in `/admin`.

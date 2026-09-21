@@ -27,6 +27,7 @@ interface Row {
   style: string;
   video_path: string;
   poster_path: string;
+  reference_photo_path: string | null;
   aspect_ratio: string;
   duration_seconds: number;
   prompt_en: string;
@@ -41,9 +42,10 @@ interface Row {
   sort_order: number;
 }
 
-const COLUMNS = `id, slug, title_uz, category, style, video_path, poster_path, aspect_ratio,
-  duration_seconds, prompt_en, concept_uz, creative_preset, source_type, source_note,
-  prompt_access, flow_model, flow_mode, is_published, sort_order`;
+const COLUMNS = `id, slug, title_uz, category, style, video_path, poster_path,
+  reference_photo_path, aspect_ratio, duration_seconds, prompt_en, concept_uz,
+  creative_preset, source_type, source_note, prompt_access, flow_model, flow_mode,
+  is_published, sort_order`;
 
 /** The row as the rest of the app sees it, plus the uuid the owner routes address. */
 export interface StoredExample extends GalleryExample {
@@ -59,6 +61,7 @@ function toExample(row: Row): StoredExample {
     style: row.style,
     videoPath: row.video_path,
     posterPath: row.poster_path,
+    referencePhotoPath: row.reference_photo_path,
     aspectRatio: row.aspect_ratio,
     durationSeconds: row.duration_seconds,
     promptEn: row.prompt_en,
@@ -107,11 +110,11 @@ export class GalleryRepo {
   async insert(input: GalleryExampleInput, ownerId: string): Promise<StoredExample> {
     const { rows } = await this.pool.query<Row>(
       `INSERT INTO gallery_examples
-         (slug, title_uz, category, style, video_path, poster_path, aspect_ratio,
-          duration_seconds, prompt_en, concept_uz, creative_preset, source_type,
-          source_note, prompt_access, flow_model, flow_mode, is_published, sort_order,
-          updated_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
+         (slug, title_uz, category, style, video_path, poster_path, reference_photo_path,
+          aspect_ratio, duration_seconds, prompt_en, concept_uz, creative_preset,
+          source_type, source_note, prompt_access, flow_model, flow_mode, is_published,
+          sort_order, updated_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)
        RETURNING ${COLUMNS}`,
       values(input, ownerId),
     );
@@ -122,11 +125,12 @@ export class GalleryRepo {
     const { rows } = await this.pool.query<Row>(
       `UPDATE gallery_examples SET
          slug = $1, title_uz = $2, category = $3, style = $4, video_path = $5,
-         poster_path = $6, aspect_ratio = $7, duration_seconds = $8, prompt_en = $9,
-         concept_uz = $10, creative_preset = $11, source_type = $12, source_note = $13,
-         prompt_access = $14, flow_model = $15, flow_mode = $16, is_published = $17,
-         sort_order = $18, updated_by = $19, updated_at = now()
-       WHERE id = $20
+         poster_path = $6, reference_photo_path = $7, aspect_ratio = $8,
+         duration_seconds = $9, prompt_en = $10, concept_uz = $11, creative_preset = $12,
+         source_type = $13, source_note = $14, prompt_access = $15, flow_model = $16,
+         flow_mode = $17, is_published = $18, sort_order = $19, updated_by = $20,
+         updated_at = now()
+       WHERE id = $21
        RETURNING ${COLUMNS}`,
       [...values(input, ownerId), rowId],
     );
@@ -150,6 +154,7 @@ function values(input: GalleryExampleInput, ownerId: string): unknown[] {
     input.style,
     input.videoPath,
     input.posterPath,
+    input.referencePhotoPath,
     input.aspectRatio,
     input.durationSeconds,
     input.promptEn,
