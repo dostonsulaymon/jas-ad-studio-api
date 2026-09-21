@@ -501,6 +501,105 @@
         ]
       }
     },
+    "/api/owner/pro/orders": {
+      "get": {
+        "operationId": "OwnerController_listProOrders",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/OwnerProOrderDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "PRO orders, newest first. Filter with ?status=pending.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
+    "/api/owner/pro/orders/{id}/confirm": {
+      "post": {
+        "operationId": "OwnerController_confirmProOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Confirm a PRO payment. Extends the seller's access.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
+    "/api/owner/pro/orders/{id}/reject": {
+      "post": {
+        "operationId": "OwnerController_rejectProOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectProOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Reject a PRO order. The reason is required.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
     "/api/owner/pro": {
       "post": {
         "operationId": "OwnerController_grantPro",
@@ -684,6 +783,38 @@
           }
         },
         "summary": "Upload a gallery clip or poster.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
+    "/api/owner/settings/pro-subscription": {
+      "patch": {
+        "operationId": "OwnerController_setProSubscription",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProSubscriptionDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProSubscriptionDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Set the PRO price in soʻm and its length in days.",
         "tags": [
           "Owner"
         ]
@@ -1063,6 +1194,51 @@
         ]
       }
     },
+    "/api/pro/orders": {
+      "post": {
+        "operationId": "ProController_placeOrder",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProOrderDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Ask to buy PRO. The owner confirms the payment by hand.",
+        "tags": [
+          "Pro"
+        ]
+      },
+      "get": {
+        "operationId": "ProController_listMyOrders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ProOrderDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "This seller's own PRO orders, newest first.",
+        "tags": [
+          "Pro"
+        ]
+      }
+    },
     "/api/projects/{projectId}/assets": {
       "post": {
         "description": "The format is decided by decoding, never by filename or content-type. Two copies are stored — a 2048px reference and a 1024px model input — with all metadata stripped. width and height describe the reference copy (D-066).",
@@ -1394,6 +1570,25 @@
               }
             }
           },
+          "proSubscription": {
+            "type": "object",
+            "properties": {
+              "priceUzs": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 100000000,
+                "default": null,
+                "nullable": true
+              },
+              "days": {
+                "default": 30,
+                "type": "integer",
+                "exclusiveMinimum": true,
+                "maximum": 366,
+                "minimum": 0
+              }
+            }
+          },
           "supportContacts": {
             "type": "object",
             "properties": {
@@ -1457,6 +1652,7 @@
         },
         "required": [
           "paymentInstructions",
+          "proSubscription",
           "supportContacts",
           "heroPhotos"
         ]
@@ -1930,6 +2126,104 @@
           }
         }
       },
+      "OwnerProOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "amountUzs": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "days": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "nullable": true
+          },
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          }
+        },
+        "required": [
+          "id",
+          "amountUzs",
+          "days",
+          "status",
+          "rejectionReason",
+          "createdAt",
+          "confirmedAt",
+          "userId",
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "ProStatusDto": {
+        "type": "object",
+        "properties": {
+          "hasPro": {
+            "type": "boolean"
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "nullable": true
+          }
+        },
+        "required": [
+          "hasPro",
+          "until"
+        ],
+        "additionalProperties": false
+      },
+      "RejectProOrderDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "additionalProperties": false
+      },
       "ProGrantDto": {
         "type": "object",
         "properties": {
@@ -1953,25 +2247,6 @@
           "userId",
           "until",
           "note"
-        ],
-        "additionalProperties": false
-      },
-      "ProStatusDto": {
-        "type": "object",
-        "properties": {
-          "hasPro": {
-            "type": "boolean"
-          },
-          "until": {
-            "type": "string",
-            "format": "date-time",
-            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
-            "nullable": true
-          }
-        },
-        "required": [
-          "hasPro",
-          "until"
         ],
         "additionalProperties": false
       },
@@ -2490,6 +2765,25 @@
           "contentType"
         ],
         "additionalProperties": false
+      },
+      "ProSubscriptionDto": {
+        "type": "object",
+        "properties": {
+          "priceUzs": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 100000000,
+            "default": null,
+            "nullable": true
+          },
+          "days": {
+            "default": 30,
+            "type": "integer",
+            "exclusiveMinimum": true,
+            "maximum": 366,
+            "minimum": 0
+          }
+        }
       },
       "HeroPhotosDto": {
         "type": "object",
@@ -3167,6 +3461,59 @@
           "sourceNote",
           "promptAccess",
           "promptEn"
+        ],
+        "additionalProperties": false
+      },
+      "ProOrderDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "amountUzs": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "days": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "confirmed",
+              "rejected"
+            ]
+          },
+          "rejectionReason": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "confirmedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "amountUzs",
+          "days",
+          "status",
+          "rejectionReason",
+          "createdAt",
+          "confirmedAt"
         ],
         "additionalProperties": false
       },

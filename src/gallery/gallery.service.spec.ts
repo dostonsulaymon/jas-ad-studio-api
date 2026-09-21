@@ -58,11 +58,8 @@ beforeAll(async () => {
     // This suite is about the query and the resolution boundary; nothing here uploads.
     new GalleryMediaStore({ get: () => mkdtempSync(join(tmpdir(), 'jas-gallery-')) } as never),
     // Nobody in this suite has PRO, which is the interesting half: a locked prompt is refused.
-    {
-      hasPro: () => Promise.resolve(false),
-      status: () => Promise.resolve({ hasPro: false, until: null }),
-      grant: () => Promise.reject(new Error('this suite never grants')),
-    },
+    // Nobody in this suite has PRO, which is the interesting half: a locked prompt is refused.
+    { hasPro: () => Promise.resolve(false), status: () => Promise.resolve({ hasPro: false, until: null }) },
   );
 }, 60_000);
 

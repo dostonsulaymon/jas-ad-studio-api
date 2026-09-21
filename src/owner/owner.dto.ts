@@ -5,7 +5,12 @@
  */
 import { createZodDto } from 'nestjs-zod';
 import { heroPhotosSchema } from '../settings/public/settings.port';
-import { proGrantSchema, proStatusSchema } from '../pro/public/pro.port';
+import {
+  ownerProOrderSchema,
+  proGrantSchema,
+  proStatusSchema,
+  rejectProOrderSchema,
+} from '../pro/public/pro.port';
 import {
   galleryExampleInputSchema,
   galleryMediaSchema,
@@ -18,6 +23,7 @@ import {
 } from './public/owner-reports.port';
 import {
   paymentInstructionsSchema,
+  proSubscriptionSchema,
   supportContactsSchema,
 } from '../settings/public/settings.port';
 import {
@@ -53,6 +59,7 @@ export class OwnerSpendDayDto extends createZodDto(ownerSpendDaySchema) {}
  */
 export class PaymentInstructionsDto extends createZodDto(paymentInstructionsSchema) {}
 export class SupportContactsDto extends createZodDto(supportContactsSchema) {}
+export class ProSubscriptionDto extends createZodDto(proSubscriptionSchema) {}
 
 /**
  * The gallery's owner-facing shapes (D-090). Built here from the gallery module's port
@@ -66,6 +73,8 @@ export class GalleryExampleInputDtoClass extends createZodDto(galleryExampleInpu
 
 export class ProGrantDto extends createZodDto(proGrantSchema) {}
 export class ProStatusDto extends createZodDto(proStatusSchema) {}
+export class OwnerProOrderDto extends createZodDto(ownerProOrderSchema) {}
+export class RejectProOrderDto extends createZodDto(rejectProOrderSchema) {}
 export class GalleryMediaDto extends createZodDto(galleryMediaSchema) {}
 
 /** D-091. Declared here for the same R-7 reason as the gallery classes above. */

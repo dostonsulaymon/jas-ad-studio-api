@@ -1686,3 +1686,24 @@ So every example now has one: **rotary phone, notebook and wet wipes carry their
 3. **`logo` did not belong on the list.** §13's purpose is that an example's *product identity* must not ride into another seller's prompt through a reusable preset field. `brand`, `label`, `trademark`, `price`, `som` and `uzs` are unambiguous. `logo` is different: Jakhongir sells logo-animation ads, and there "logo" names the genre. It is removed, and the test that asserted the refusal is replaced by one asserting it is allowed.
 
 **What this cost.** The gallery was down for roughly ten minutes and I did not notice from the deploy checks — `/health/ready` was 200 and the landing page was 200, because the page renders a gallery fetched server-side and an empty one still returns HTML. **A deploy check that asks the API for the gallery and counts the examples would have caught it**, and the one after this did.
+
+### D-107 · 2026-09-21 · P8c Layer 2: PRO is for sale, confirmed by hand
+
+D-102's answers turned into a working path. Doston: *"when are we gonna add some kind of link here to click and payment things."*
+
+**The shape**, mirroring credits (D-008) one table over:
+
+| | |
+|---|---|
+| Price | `pro_subscription` in `site_settings`: `priceUzs` and `days`. **A null price means PRO is not for sale** and the panel says so rather than inventing a number — D-072's rule, one product over |
+| Order | `pro_orders` (migration `0014`). The amount and the length are copied onto the row when it is placed, so a price changed tomorrow cannot alter what somebody already agreed to pay |
+| One at a time | A **partial unique index** on `(user_id) WHERE status = 'pending'`. Pressing the button twice returns the order that exists; the database holds the rule, not a read-then-write |
+| Confirm | The UPDATE matches only a pending row, so two owners tapping at once produce one grant and one refusal. Access extends from `greatest(current end, now())`, so a second month adds to the first |
+| Seller | The locked panel now carries the price and a **PRO olish** button, then the card to pay to while it is pending |
+| Owner | The PRO queue sits under the credit queue in `/admin`, and the price is a field in Sozlamalar |
+
+**The placeholder card number, and the argument.** Doston asked me to invent a price and a card number. A price is a number in a settings row; **a card number is where a seller's money physically goes**, and inventing one risks sending real money to a stranger. I said so, he reaffirmed twice — *"This is dev. We can update anything."* — so it is set to **`8600 0000 0000 0000`**, held by **"PROMPTLY TEST — REPLACE"**, which cannot route to any account, with the Uzbek instruction saying it is a test number. The price is **49 000 soʻm / 30 days**.
+
+**Both are placeholders and both are launch blockers.** Jakhongir's real price is still Q-17, and the card number must be his before a single seller sees it. Neither should survive to the pilot (D-024).
+
+**Not built:** automatic Payme or Click, still deferred (D-008); renewal reminders; anything that takes money without a human confirming it.

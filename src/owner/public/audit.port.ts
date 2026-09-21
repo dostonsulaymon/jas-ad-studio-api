@@ -8,6 +8,8 @@ export const AUDIT_TARGETS = [
   'credit_pack',
   'site_setting',
   'gallery_example',
+  /** D-102: a PRO order, confirmed or rejected by hand like a credit order. */
+  'pro_order',
 ] as const;
 export type AuditTarget = (typeof AUDIT_TARGETS)[number];
 
