@@ -1,6 +1,6 @@
 # P8c — PRO access (plan, not approved)
 
-**Status:** written 2026-09-21, awaiting Doston. Nothing built.
+**Status:** Layer 1 built 2026-09-21 on `p8c-pro-access` (Doston: "go"), uncommitted and not deployed. Layer 2 blocked on Q-18. Recorded as D-100.
 **Source:** R-010, Jakhongir's Notion list. Doston chose **a PRO subscription** as what "Pullik" means.
 **Supersedes, if approved:** D-007 ("the example gallery, videos and their prompts, is free and needs no sign-in") and D-092's refusal of PRO badges. That needs its own `DECISIONS.md` entry; this plan does not get to change D-007 by being built.
 
@@ -60,12 +60,12 @@ Q-17 is still open underneath all of this: nothing in the app is priced, and `GE
 
 ## Exit check
 
-- [ ] A `pro` example's prompt is absent from the API response for a caller without access — asserted on the body, at three widths in the UI
-- [ ] A free example is unchanged signed out (D-007's surviving half)
-- [ ] The owner can mark an example PRO and grant a seller PRO, both audited
-- [ ] Bepul / Pullik filter works with the category and format chips
-- [ ] A `DECISIONS.md` entry superseding D-007 and D-092 on this point
-- [ ] Both repos' checks green; screenshots at 1440/390/360
+- [x] A `pro` example's prompt is absent from the API response for a caller without access — six e2e assertions on the **body**: signed out, signed in without PRO, with PRO, after expiry, in the list, and the free case. **Not yet seen in a browser**: the landing fetches the gallery server-side, so a PRO card cannot be stubbed through Playwright and no example is marked PRO in the live data yet
+- [x] A free example is unchanged signed out (D-007's surviving half)
+- [x] The owner can mark an example PRO and grant a seller PRO, both audited
+- [x] Bepul / Pullik filter works with the category and format chips (unit-tested; the chips appear only once something is paid)
+- [x] D-100: D-007 narrowed rather than overturned, D-092 superseded on the badge
+- [x] Both repos' checks green: 683 api tests, 38 web unit, 84 Playwright at three widths
 
 ## Roadmap
 

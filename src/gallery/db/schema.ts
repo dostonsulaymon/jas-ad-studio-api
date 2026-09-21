@@ -42,6 +42,12 @@ export const galleryExamples = pgTable('gallery_examples', {
   flowModel: text('flow_model'),
   flowMode: text('flow_mode'),
 
+  /**
+   * R-010 / P8c: 'free' or 'pro'. Defaults to free, so every example that existed before
+   * this column stays exactly as open as it was and nothing is locked by a migration.
+   */
+  promptAccess: text('prompt_access').notNull().default('free'),
+
   isPublished: boolean('is_published').notNull().default(false),
   sortOrder: integer('sort_order').notNull().default(0),
 

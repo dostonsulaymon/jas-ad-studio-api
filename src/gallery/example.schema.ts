@@ -6,6 +6,7 @@ import {
   requireCompleteWhenPublished,
   SOURCE_TYPES,
 } from './public/gallery.port';
+import { PROMPT_ACCESS } from '../pro/public/pro.port';
 
 /** Re-exported: the constant belongs with the publish rule that uses it, which lives in the port. */
 export { PROVENANCE_NOT_RECORDED };
@@ -118,6 +119,16 @@ export const galleryExampleSchema = z
     sourceType: z.enum(SOURCE_TYPES),
     /** The honest label shown with the card (§42). */
     sourceNote: z.string().max(200),
+
+    /**
+     * R-010: whether opening this prompt needs PRO.
+     *
+     * Defaulted, not required, and the default is the open one. Every example written
+     * before this column existed — including the seeded record in `content/gallery.json` —
+     * parses as free, so nothing became paid by a migration or by a client that has not
+     * been updated. Locking an example is always something somebody chose.
+     */
+    promptAccess: z.enum(PROMPT_ACCESS).default('free'),
 
     /** D-011 records these per clip. Null is allowed only while unpublished. */
     flowModel: z.string().min(1).max(60).nullable(),

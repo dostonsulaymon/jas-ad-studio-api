@@ -1571,3 +1571,59 @@ The trap this closes: `gallery.repo.ts` parses every row back out through `galle
 **675 api tests, 36 web unit tests, 84 Playwright at 1440/390/360.** Deployed to https://jas.kitobnarxi.uz on 2026-09-21 at Doston's instruction, backup taken first.
 
 Why: Doston's call ("finish them all"), built to `docs/superpowers/plans/2026-09-21-p8b-revisions-pass.md`.
+
+### D-100 · 2026-09-21 · P8c Layer 1: PRO marking and locking, and what it does not decide
+
+Doston reaffirmed R-010 twice and chose **a subscription** as what "Pullik" means. A subscription needs a price, a period and a payment path that nobody has set (Q-18), so the phase was split and only the half that needs no answers was built. Plan: `docs/superpowers/plans/2026-09-21-p8c-pro-access.md`.
+
+**D-007 is narrowed, not overturned.** It said the gallery, its videos and its prompts are free and need no sign-in. That still holds for every free example, and every example that existed before today is free: the column defaults to `'free'`, the migration locked nothing, and a client that never sends the field locks nothing either. What changed is that an owner may now mark an example paid. D-092's refusal of PRO badges is superseded on that point.
+
+**What was built.**
+
+| | |
+|---|---|
+| `gallery_examples.prompt_access` | `'free'` or `'pro'`, default `'free'` (migration `0012`) |
+| Owner switch | In the gallery sheet, with the state shown on each row in the list |
+| The lock | `GET /api/gallery/:slug` refuses a PRO prompt with **403 `PROMPT_LOCKED`** unless the caller has PRO |
+| The badge | A PRO mark on the card, and the Prompt button becomes a PRO button that opens an explanation instead of the text |
+| Bepul / Pullik filter | Right-hand side above the gallery, beside the formats, and it appears only once something is actually paid |
+| `pro_access` table + `POST /api/owner/pro` | The owner grants access until a date. Audited. Granting twice moves the date rather than stacking |
+
+**403, not 404.** An unpublished example is a 404 because a 403 would confirm it exists. A PRO example is the opposite case: its badge is on the page, so refusing it tells a visitor nothing they cannot already see. Hiding it would make the badge a lie.
+
+**The refusal is in the service, not the controller,** so no future route can reach the prompt around it. The tests assert on the **response body**, not on the page: a badge over a prompt the API still sends is decoration, and the text would be one devtools tab away.
+
+**`pro_access` is deliberately not the subscription table.** It records the fact of access, not how it was bought, and `source` only ever says `owner_grant` today. Q-18 has not answered what a subscription costs, what a lapse does, or whether PRO includes generating — and that last one is the dangerous one: a generation costs about 4,414 som (D-082), so a flat fee with no cap has no ceiling. Guessing any of it here would have put a made-up money model in the schema.
+
+**Not built:** the subscription itself (Layer 2), and nothing in the app charges anybody for PRO.
+
+**683 api tests, 38 web unit tests, 84 Playwright at 1440/390/360.**
+
+Why: Doston's go, after his own correction that P8b's deferral of R-010 had been too wide.
+
+### D-101 · 2026-09-21 · A filtered gallery flows from the first slot, not from where it was
+
+Doston, on the live site: picking a category left the remaining card sitting where it had been instead of moving to the front of the row.
+
+D-099 had centred the grid on the **filtered** count, so each result was centred on its own width — one card of three landed in the middle, exactly where it had been as card two. The column count and the block's width now come from `cards.length`, the gallery's whole size, and never from the filtered count. A result flows from the first slot, under the chips, like any grid, and the block as a whole stays centred on the page.
+
+Why: his report, and the centring was mine from the day before.
+
+### D-102 · 2026-09-21 · What PRO is: gallery prompts, 30 days, paid by hand, one plan
+
+Q-18's answers, from Doston. Everything but the price.
+
+| | |
+|---|---|
+| What it unlocks | **The gallery's PRO prompts.** *"Any pro user can copy the prompts here."* Generating stays on credits |
+| Period | **30 days from the payment.** Not a calendar month, so there is no proration rule |
+| How it is paid | **By hand**, the way credits are (D-008): the seller orders, Jakhongir sees the transfer and confirms. No Payme or Click |
+| Plans | **One.** No tiers and no choice of length |
+| Which examples | **Jakhongir picks**, with the switch built in D-100 |
+| Price | **Still open**, with Q-17, and Jakhongir's |
+
+**Why "gallery prompts only" is the answer that matters.** The alternative was PRO including generation, and at about 4,414 som a generation (D-082) a flat monthly fee against uncapped use has no ceiling — the heaviest users are exactly the ones who subscribe. Unlocking prompts that are already written costs us nothing per use, so the price cannot be outrun. This is the one Q-18 question that could have lost money on every customer, and it went the safe way.
+
+**One plan keeps Layer 2 small.** No `pro_plans` table, no plan list on the order screen, no per-plan price. `pro_access` already records the fact of access rather than what was bought, so adding lengths or tiers later changes the buying screen and nothing underneath it.
+
+**What is still not built.** The seller-facing order for PRO. Until the price exists it would show nothing, the way the credit packs screen shows nothing today (D-072). Jakhongir grants PRO by hand meanwhile, which is D-100's `POST /api/owner/pro`.
