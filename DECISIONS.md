@@ -1627,3 +1627,24 @@ Q-18's answers, from Doston. Everything but the price.
 **One plan keeps Layer 2 small.** No `pro_plans` table, no plan list on the order screen, no per-plan price. `pro_access` already records the fact of access rather than what was bought, so adding lengths or tiers later changes the buying screen and nothing underneath it.
 
 **What is still not built.** The seller-facing order for PRO. Until the price exists it would show nothing, the way the credit packs screen shows nothing today (D-072). Jakhongir grants PRO by hand meanwhile, which is D-100's `POST /api/owner/pro`.
+
+### D-103 · 2026-09-21 · The product is called Promptly — Q-09 and D-016 closed
+
+Doston: *"PROMPTLY Our website's name is this. So please update everywhere."* This supersedes **D-016**, which called "JAS Ad Studio · by JAS Studio" a working name and said Jakhongir would pick the real one before launch, and closes **Q-09**.
+
+**How it is written.** `PROMPTLY` as the wordmark — the header, the footer, the logo tile, which is now a `P`. **Promptly** in ordinary text, because the name sits inside Uzbek sentences: *"Promptly prompti asosida Google Flowʻda tayyorlangan namuna"* under a gallery card would shout in capitals.
+
+**What changed.** The web app and the admin panel, the API's Swagger title, one proper noun in the AI system prompt, the living documents (`README.md`, `CLAUDE.md` in both repos, `BRIEF.md`, `PROGRESS.md`), and — because it is public text a visitor reads — the **source note on three gallery rows**, rewritten in place after a backup. D-016's "one brand settings file" rule is why this was eleven strings and not a week: `t.brand.name` was already the only place the wordmark lived.
+
+**What deliberately did not change.**
+
+- **`docs/source/*`** — Jakhongir's own documents. The precedence rules in `CLAUDE.md` depend on quoting them as they were written; rewriting a source record to match a later decision is how a source stops being one.
+- **Past `DECISIONS.md` entries.** D-016 says the name is a placeholder; replacing the name inside it would make the entry meaningless. History is not restated, it is superseded — by this entry.
+- **Every infrastructure name:** the domain `jas.kitobnarxi.uz`, the database `jas_ad_studio`, the repository folders, the pm2 processes, the Docker volumes. No seller sees any of them, and renaming the domain means a new Google OAuth redirect, a new tunnel and a new DNS record. That is a P9 task with Jakhongir, not a find-and-replace.
+
+**Two things still carrying the old name, and neither is in this repo.**
+
+1. **The Google sign-in consent screen still says "JAS Ad Studio"** (D-016 recorded it as a placeholder). Every seller signing in reads it. It is a setting in the Google Cloud console and only Doston can change it.
+2. The repository folders and the public hostname, as above.
+
+**`AD_DIRECTOR_PROMPT_VERSION` stays `ad-director-v3`.** One proper noun changed and no direction did, so bumping it would claim a revision that P7 did not make. The change is dated here instead, which is greppable.

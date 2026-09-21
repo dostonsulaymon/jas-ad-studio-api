@@ -95,6 +95,8 @@ Which Flow model does Jakhongir actually use (Veo 3.1, Fast or Lite), and which 
 Is "JAS Ad Studio by JAS Studio" the final name? Which domain? Is there a logo, and who owns the brand assets?
 **Answer:** Rename before launch. We build with a placeholder in one brand settings file, and the domain is bought after the name is final, before P8 (2026-09-11). The new name and logo are still to come from Jakhongir.
 
+**Closed 2026-09-21 → D-103. The name is Promptly** (`PROMPTLY` as the wordmark). D-016's brand-settings-file plan is what made this a small change. **The domain is still `jas.kitobnarxi.uz`** and moving it is a P9 task with Jakhongir: a new domain means a new Google OAuth redirect, a new tunnel and a new DNS record, none of which a seller benefits from today.
+
 ### Q-10 · Uzbek voiceover in the MVP? → D-017
 The spec offers "O‘zbekcha ovozli matn". Veo's Uzbek speech is unreliable.
 **Recommendation:** Deliver voiceover and overlay text as separate Uzbek lines for editing only. No speech inside the video prompt at launch.

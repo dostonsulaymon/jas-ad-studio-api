@@ -103,7 +103,7 @@ function repairDocument(document: OpenAPIObject): OpenAPIObject {
  */
 export function buildOpenApiDocument(app: INestApplication): OpenAPIObject {
   const config = new DocumentBuilder()
-    .setTitle('JAS Ad Studio API')
+    .setTitle('Promptly API')
     .setDescription('Ad concepts and Google Flow prompts for Uzbek sellers.')
     .setVersion('0.0.1')
     .build();

@@ -15,7 +15,7 @@ Read this first, then:
 
 ## What this is
 
-**JAS Ad Studio** is an Uzbek-first web app for online sellers. A seller uploads photos of their product and writes a short brief. The app returns one advertising concept, a ready-to-paste English video prompt for Google Flow, and an Uzbek shot plan. Flow is the tool; the seller picks the model (Veo, Omni) and the aspect ratio inside it (D-047). **The app writes prompts. Google Flow makes the video.**
+**Promptly** is an Uzbek-first web app for online sellers. A seller uploads photos of their product and writes a short brief. The app returns one advertising concept, a ready-to-paste English video prompt for Google Flow, and an Uzbek shot plan. Flow is the tool; the seller picks the model (Veo, Omni) and the aspect ratio inside it (D-047). **The app writes prompts. Google Flow makes the video.**
 
 Business model: sellers buy prompt credits. The example gallery (videos and their prompts) is free and needs no sign-in (D-007).
 
