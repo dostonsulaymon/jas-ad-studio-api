@@ -1,0 +1,1 @@
+ALTER TABLE "gallery_examples" ADD COLUMN "reference_photo_path" text;

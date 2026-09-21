@@ -26,6 +26,15 @@ export const galleryExamples = pgTable('gallery_examples', {
   /** Relative paths into the media volume. Content-addressed, so they never change. */
   videoPath: text('video_path').notNull(),
   posterPath: text('poster_path').notNull(),
+
+  /**
+   * R-017: the seller's raw product photo, shown small over the top-left of the card.
+   *
+   * Nullable and null by default, because for most examples nobody wrote it down. It is a
+   * claim about provenance — "this video was made from this photo" — so an example without
+   * one shows nothing rather than borrowing a picture of some other product.
+   */
+  referencePhotoPath: text('reference_photo_path'),
   aspectRatio: text('aspect_ratio').notNull(),
   durationSeconds: real('duration_seconds').notNull(),
 

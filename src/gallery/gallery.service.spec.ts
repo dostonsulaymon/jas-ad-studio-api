@@ -34,6 +34,7 @@ const example = (patch: Partial<GalleryExampleInput> = {}): GalleryExampleInput 
   style: 'product-film',
   videoPath: 'ab/cd.mp4',
   posterPath: 'ab/cd.jpg',
+  referencePhotoPath: null,
   aspectRatio: '9:16',
   durationSeconds: 10,
   promptEn: 'A 250 ml bottle of Nocturne by Maison Verre, priced 450000 som.',

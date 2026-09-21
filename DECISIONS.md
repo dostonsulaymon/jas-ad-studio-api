@@ -1660,3 +1660,15 @@ Two changes from Doston looking at the live site.
 The tile is now fixed at 9:16 — the product is vertical-ad-first and that is the studio's own default — and a clip that does not match is fitted **whole** inside it (`object-contain`) with a blurred, darkened copy of its own poster filling the rest. Same poster URL as the video element already uses, so it costs no extra request, and it is only rendered for a clip that needs it.
 
 **Why not crop.** Filling the tile with `object-cover` would have been tidier and is what most grids do, but this is a gallery of *product* ads: a centre crop can cut the product out of frame, and nobody would see it happen. Fitting the whole frame cannot lie about what the video shows.
+
+### D-105 · 2026-09-21 · The raw product photo on a card, and placeholders in dev
+
+R-017, from Jakhongir: *"On the top left-hand side of the video, there has to be a raw photo of a product."*
+
+**Built.** `gallery_examples.reference_photo_path`, nullable (migration `0013`); an upload-and-remove slot in the `/admin` gallery sheet beside the poster and the video; a rounded thumbnail over the top-left of the card, 56px on a phone and 64px above `sm`. The card carries a ready `referencePhotoUrl`, or `null`, built like every other media URL — the client never assembles a media path. It sits top-left and the PRO badge top-right, so they never collide.
+
+**The placeholders, and the argument that was had.** A thumbnail in that slot is a claim: *this video was made from this photo*. For most examples nobody recorded one, and I said so — the product lock (source 01 §25) and D-089's refusal to guess a Flow model are the same principle. Doston overruled it for dev: *"This is dev. We can update anything. Just use random photos."* His call, and it is the right trade for a pre-launch site nobody is buying from yet.
+
+So every example now has one: **rotary phone, notebook and wet wipes carry their real product photo**, and the rest carry an unrelated picture from `public/namunalar` as a placeholder. The `/admin` slot exists precisely so they get replaced; **they must be, before the pilot** (D-024), because a real seller reading a real card would be reading a false claim.
+
+**What stops this becoming permanent.** Nothing automatic — it is a note here and a line in R-017. If the pilot approaches with placeholders still in place, replacing them is a launch blocker, not a nicety.

@@ -107,6 +107,8 @@ export const galleryExampleSchema = z
 
     videoPath: mediaPath,
     posterPath: mediaPath,
+    /** R-017. Null means nobody supplied one, and the card shows nothing there. */
+    referencePhotoPath: mediaPath.nullable().default(null),
     aspectRatio: z.enum(ASPECT_RATIOS),
     durationSeconds: z.number().min(0).max(600),
 
