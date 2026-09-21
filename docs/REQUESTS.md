@@ -91,3 +91,39 @@ Template:
 **Ask:** "We will build the front from scratch later… so it will build it differently while not touching the existing one, should look like the one I gave you and Jahongir's own one. The one you built is more like shit because of the colors mismatch and old design."
 **Note:** the dark redesign (D-092) recoloured v1's components and added an orange accent that neither reference has; the result read as reskinned, not designed. The rebuild is a new app in `jas-ad-studio-web-v2`, monochrome, designed from the references outward, with the API unchanged and v1 left running until Doston approves a switch. The ready-to-paste prompt is `docs/prompts/2026-09-13-frontend-rebuild.md`. R-003 (the projects experience) should be decided inside that rebuild.
 **Outcome:** Built 2026-09-13 as `jas-ad-studio-web-v2` and switched live the same day: pm2 `jas-web` serves it on 3042, and v1 is stopped (D-093). R-003 was not decided inside the rebuild; projects stay a drawer and R-003 stays open.
+
+### R-010 · 2026-09-21 · A PRO badge on some examples, and a Bepul / Pullik filter
+**Area:** web, api, admin · **Status:** blocked on Q-17 — see the Outcome
+**Ask:** "Some content needs a **PRO** badge instead of the prompt below the videos; admins need the option to make the prompt free or paid. (Above the gallery section's right-hand side, there will be a Bepul & Pullik filter button)"
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
+**Outcome:** Not built in P8b (D-099). It overturns D-007 (the gallery and its prompts are free and need no sign-in) and was already declined once in D-092 for the same reason: what "Pullik" costs is undecided while Q-17/D-082 is open and `GET /api/packs` returns `[]`. Needs Jakhongir's answer on what a paid prompt means (credits, a subscription, or marketing only), then its own decision entry and plan.
+
+### R-011 · 2026-09-21 · The gallery wastes the left and right edges of a wide screen
+**Area:** web · **Status:** done on `p8b-revisions` (D-099), not yet merged
+**Ask:** "When the site is open, it has too much free space on the left and right sides of the gallery. We don't need this extra space when we have more content."
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
+**Outcome:** Built. The gallery measure is 1600px with a fifth column at `2xl`. With three published examples no width removes the space, so a row never has more columns than it has cards and a short row is centred: the gap is symmetric rather than a hole where the fourth card should be. It closes when Q-04 is answered and more examples exist.
+
+### R-012 · 2026-09-21 · Remove the gallery's section header to close the gap under the headline
+**Area:** web · **Status:** done on `p8b-revisions` (D-099), not yet merged
+**Ask:** "We have to remove this part completely so that we can have less space between the main headline and the gallery." (the *Reklama misollari* title, its lead paragraph and the count)
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
+**Outcome:** Built. The heading, its lead paragraph and the visible count are gone; the `<h2>` stays `sr-only` because the section is `aria-labelledby` it, and the live result count moved into the filter row, where it is still the only feedback filtering gives.
+
+### R-013 · 2026-09-21 · Gallery videos play by themselves
+**Area:** web · **Status:** done on `p8b-revisions` (D-099), not yet merged
+**Ask:** "Videos have to play automatically when a user visits the website."
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
+**Outcome:** Built, muted and in view only (D-099). The `src` attaches on a card's first intersection, the clip loops while on screen and pauses when it leaves, and `prefers-reduced-motion` keeps the old play-on-demand behaviour. The e2e assertion `autoplay === false` was replaced by three that state the new contract.
+
+### R-014 · 2026-09-21 · The hero headline's line height is too tight
+**Area:** web · **Status:** done on `p8b-revisions` (D-099), not yet merged
+**Ask:** "The leading of the headline text is so small; it has to be a bit bigger so that it'll be much easier to read."
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
+**Outcome:** Built. Hero headline leading `0.98` → `1.06`, tracking `-0.045em` → `-0.04em`.
+
+### R-015 · 2026-09-21 · Adding a gallery example asks for too much, and says only that something is wrong
+**Area:** admin, web, api · **Status:** done on `p8b-revisions` (api + web, D-099), not yet merged
+**Ask:** "It became so tough to upload a resource to the gallery. No need for all the sections to be filled." Screenshot shows the save failing with *"Ma'lumotlarda xatolik bor. Belgilangan maydonni to'g'rilang."* and a request id, with no indication of which field.
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
+**Outcome:** Built, in three parts (D-099). The API already returned `details.fields[]`; the panel now names those fields in Uzbek and marks the inputs. A draft needs only slug, title, category, format, ratio and sort order; publishing still requires everything, with one issue per missing field. The sheet derives the slug from the title, reads duration and ratio off the uploaded clip, and groups the publish-only fields under their own heading.

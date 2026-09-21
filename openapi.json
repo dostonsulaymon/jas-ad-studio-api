@@ -1912,12 +1912,10 @@
                 },
                 "videoPath": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 200
                 },
                 "posterPath": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 200
                 },
                 "aspectRatio": {
@@ -1930,17 +1928,14 @@
                 },
                 "durationSeconds": {
                   "type": "number",
-                  "exclusiveMinimum": true,
-                  "maximum": 600,
-                  "minimum": 0
+                  "minimum": 0,
+                  "maximum": 600
                 },
                 "promptEn": {
-                  "type": "string",
-                  "minLength": 1
+                  "type": "string"
                 },
                 "conceptUz": {
                   "type": "string",
-                  "minLength": 1,
                   "maxLength": 600
                 },
                 "creativePreset": {
@@ -1948,27 +1943,22 @@
                   "properties": {
                     "environment": {
                       "type": "string",
-                      "minLength": 3,
                       "maxLength": 120
                     },
                     "lighting": {
                       "type": "string",
-                      "minLength": 3,
                       "maxLength": 120
                     },
                     "cameraLanguage": {
                       "type": "string",
-                      "minLength": 3,
                       "maxLength": 120
                     },
                     "pacing": {
                       "type": "string",
-                      "minLength": 3,
                       "maxLength": 120
                     },
                     "mood": {
                       "type": "string",
-                      "minLength": 3,
                       "maxLength": 120
                     }
                   },
@@ -2079,12 +2069,10 @@
           },
           "videoPath": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 200
           },
           "posterPath": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 200
           },
           "aspectRatio": {
@@ -2097,17 +2085,14 @@
           },
           "durationSeconds": {
             "type": "number",
-            "exclusiveMinimum": true,
-            "maximum": 600,
-            "minimum": 0
+            "minimum": 0,
+            "maximum": 600
           },
           "promptEn": {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           "conceptUz": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 600
           },
           "creativePreset": {
@@ -2115,27 +2100,22 @@
             "properties": {
               "environment": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               },
               "lighting": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               },
               "cameraLanguage": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               },
               "pacing": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               },
               "mood": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               }
             },
@@ -2235,12 +2215,10 @@
           },
           "videoPath": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 200
           },
           "posterPath": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 200
           },
           "aspectRatio": {
@@ -2253,17 +2231,14 @@
           },
           "durationSeconds": {
             "type": "number",
-            "exclusiveMinimum": true,
-            "maximum": 600,
-            "minimum": 0
+            "minimum": 0,
+            "maximum": 600
           },
           "promptEn": {
-            "type": "string",
-            "minLength": 1
+            "type": "string"
           },
           "conceptUz": {
             "type": "string",
-            "minLength": 1,
             "maxLength": 600
           },
           "creativePreset": {
@@ -2271,27 +2246,22 @@
             "properties": {
               "environment": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               },
               "lighting": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               },
               "cameraLanguage": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               },
               "pacing": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               },
               "mood": {
                 "type": "string",
-                "minLength": 3,
                 "maxLength": 120
               }
             },

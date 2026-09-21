@@ -74,9 +74,86 @@ export type GalleryList = z.infer<typeof galleryListSchema>;
 export type GalleryExampleView = z.infer<typeof galleryExampleViewSchema>;
 
 /**
+ * Everything a published example owes, checked in one place (R-015).
+ *
+ * A **draft** needs almost nothing: an owner should be able to save a title and come back with the
+ * video tomorrow. **Publishing** is where every rule bites, because that is the moment the example
+ * becomes a claim on a public page — the source note (§42), the Flow provenance (D-011, D-089), the
+ * prompt §48 copies, and the five preset fields an inspiration resolves from (§13).
+ *
+ * One issue per missing field, each with its own `path`, so the owner panel can mark the inputs
+ * instead of saying "something is wrong".
+ */
+export interface PublishableExample {
+  videoPath: string;
+  posterPath: string;
+  durationSeconds: number;
+  promptEn: string;
+  conceptUz: string;
+  creativePreset: Record<string, string>;
+  sourceNote: string;
+  flowModel: string | null;
+  flowMode: string | null;
+  isPublished: boolean;
+}
+
+const PRESET_KEYS = ['environment', 'lighting', 'cameraLanguage', 'pacing', 'mood'] as const;
+
+export function requireCompleteWhenPublished(value: PublishableExample, ctx: z.RefinementCtx): void {
+  if (!value.isPublished) return;
+
+  const missing = (path: (string | number)[], message: string) => {
+    ctx.addIssue({ code: 'custom', message, path });
+  };
+
+  if (value.videoPath.trim() === '') missing(['videoPath'], 'a published example needs its video');
+  if (value.posterPath.trim() === '') missing(['posterPath'], 'a published example needs its poster');
+  if (!(value.durationSeconds > 0)) missing(['durationSeconds'], 'a published example needs its duration');
+  if (value.promptEn.trim() === '') missing(['promptEn'], 'a published example needs the prompt it was made with (§48)');
+  if (value.conceptUz.trim() === '') missing(['conceptUz'], 'a published example needs its Uzbek concept');
+
+  for (const key of PRESET_KEYS) {
+    if ((value.creativePreset[key] ?? '').trim().length < 3) {
+      missing(['creativePreset', key], 'a published example needs all five creative attributes (§13)');
+    }
+  }
+
+  /**
+   * D-011: a published clip states which Flow model and mode made it. Enforced here rather than
+   * trusted to whoever edits it, so a clip cannot go live without its provenance.
+   */
+  if (value.flowModel === null || value.flowMode === null) {
+    missing(
+      ['flowModel'],
+      'a published example must record flowModel and flowMode (D-011) — ' +
+        `use "${PROVENANCE_NOT_RECORDED}" if it genuinely was not written down, never a guess`,
+    );
+  }
+
+  /** §42: "If an example is produced internally by JAS Studio, label it as an example." */
+  if (value.sourceNote.trim() === '') {
+    missing(['sourceNote'], 'a published example must carry its honest source note (§42)');
+  }
+}
+
+/**
+ * An honest "we did not write it down" for `flowModel` / `flowMode` (D-089).
+ *
+ * A named value rather than free prose, so it is greppable and so nobody has to decide how to
+ * phrase not knowing. It is deliberately NOT the same as `null`: null means the example is still a
+ * draft, this means somebody looked and the record does not exist. A guess is never an acceptable
+ * third option — the field exists to be true.
+ */
+export const PROVENANCE_NOT_RECORDED = 'not-recorded';
+
+/**
  * What the owner sends when creating or editing an example. The id is the table's, the
  * slug is the caller's, and `isPublished` is the only field that changes what a visitor
  * sees — which is why nothing here defaults it to true.
+ *
+ * R-015: the fields a draft may leave empty are empty-able *here*, and required by
+ * `requireCompleteWhenPublished` above. What identifies and orders an example — slug, title,
+ * category, style, ratio, sort order — is required either way, because a row needs a key.
  */
 export const galleryExampleInputSchema = z
   .object({
@@ -88,18 +165,18 @@ export const galleryExampleInputSchema = z
     titleUz: z.string().min(1).max(120),
     category: z.enum(GALLERY_CATEGORIES),
     style: z.string().min(1).max(40),
-    videoPath: z.string().min(1).max(200),
-    posterPath: z.string().min(1).max(200),
+    videoPath: z.string().max(200),
+    posterPath: z.string().max(200),
     aspectRatio: z.enum(ASPECT_RATIOS),
-    durationSeconds: z.number().positive().max(600),
-    promptEn: z.string().min(1),
-    conceptUz: z.string().min(1).max(600),
+    durationSeconds: z.number().min(0).max(600),
+    promptEn: z.string(),
+    conceptUz: z.string().max(600),
     creativePreset: z.object({
-      environment: z.string().min(3).max(120),
-      lighting: z.string().min(3).max(120),
-      cameraLanguage: z.string().min(3).max(120),
-      pacing: z.string().min(3).max(120),
-      mood: z.string().min(3).max(120),
+      environment: z.string().max(120),
+      lighting: z.string().max(120),
+      cameraLanguage: z.string().max(120),
+      pacing: z.string().max(120),
+      mood: z.string().max(120),
     }),
     sourceType: z.enum(SOURCE_TYPES),
     sourceNote: z.string().max(200),
@@ -108,7 +185,8 @@ export const galleryExampleInputSchema = z
     isPublished: z.boolean(),
     sortOrder: z.number().int(),
   })
-  .strict();
+  .strict()
+  .superRefine(requireCompleteWhenPublished);
 
 export type GalleryExampleInputDto = z.infer<typeof galleryExampleInputSchema>;
 
