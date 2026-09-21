@@ -1,6 +1,6 @@
-# JAS Ad Studio — API
+# Promptly — API
 
-The backend for **JAS Ad Studio**. A seller uploads a product photo and a short brief, and gets back a professional English video prompt for Google Flow plus an Uzbek shot plan. This repo handles the AI call, prompt credits and orders, product photo uploads, and the example gallery's content.
+The backend for **Promptly**. A seller uploads a product photo and a short brief, and gets back a professional English video prompt for Google Flow plus an Uzbek shot plan. This repo handles the AI call, prompt credits and orders, product photo uploads, and the example gallery's content.
 
 **Status: P0 to P4 merged (2026-09-12).** Google sign-in, projects, private photo uploads, prompt credits with a manually confirmed order flow, and the generation pipeline — reserve, call, validate, debit, with a lease and a sweeper so a late success cannot race a refund. 530 tests, and one real generation walked end to end through the queue.
 

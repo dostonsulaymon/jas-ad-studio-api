@@ -89,7 +89,7 @@ const PUBLISHED = {
   conceptUz: 'Tungi shabada atirining sekin ochilishi.',
   creativePreset: PRESET,
   sourceType: 'app-prompt',
-  sourceNote: 'JAS Ad Studio prompti asosida Google Flow’da tayyorlangan namuna.',
+  sourceNote: 'Promptly prompti asosida Google Flow’da tayyorlangan namuna.',
   promptAccess: 'free',
   flowModel: 'Veo 3.1',
   flowMode: 'Frames to video',

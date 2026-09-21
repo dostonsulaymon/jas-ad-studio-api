@@ -113,7 +113,7 @@ up, which is the `revalidate: 60` on the server fetch working as intended.
 these, Doston answered *"Omni, Veo 3.1 choose randomly"* — a mix of both, and no record of
 which made which. Picking at random would have written a claim that is wrong for about
 half of them into the one file whose job is to say where the content came from, under a
-card that reads *"JAS Ad Studio prompti asosida Google Flowʻda tayyorlangan namuna."*
+card that reads *"Promptly prompti asosida Google Flowʻda tayyorlangan namuna."*
 
 So `flowModel` says `Omni yoki Veo 3.1` — what is actually known — and `flowMode` says
 `not-recorded`, now a named constant rather than someone's prose. `null` still means

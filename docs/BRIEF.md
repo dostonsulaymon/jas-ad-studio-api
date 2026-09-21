@@ -6,7 +6,7 @@ What we are building, for whom, and the known conflicts to resolve. The full req
 
 ## The product in one paragraph
 
-JAS Ad Studio turns a seller's product photo into a professional short video ad **prompt**. The seller uploads one to four photos of the same product, writes a name and a short factual description, and picks a goal and a creative format (D-065 removed the separate style picker). One AI call studies the photos and returns one ad package:
+Promptly turns a seller's product photo into a professional short video ad **prompt**. The seller uploads one to four photos of the same product, writes a name and a short factual description, and picks a goal and a creative format (D-065 removed the separate style picker). One AI call studies the photos and returns one ad package:
 
 - an Uzbek concept title and angle
 - what must stay identical about the product

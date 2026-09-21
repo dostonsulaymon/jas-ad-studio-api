@@ -26,7 +26,7 @@ export const ASPECT_RATIOS = ['9:16', '16:9', '1:1'] as const;
 
 /**
  * §42: every example carries its provenance. `app-prompt` is a clip generated from a
- * prompt this app produced — the only value that earns "made with JAS Ad Studio"
+ * prompt this app produced — the only value that earns "made with Promptly"
  * (D-011). `studio-made` is JAS Studio's own work made some other way; `external` is
  * somebody else's, and carries the usage-rights burden §42 describes.
  */
