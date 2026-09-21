@@ -93,10 +93,10 @@ Template:
 **Outcome:** Built 2026-09-13 as `jas-ad-studio-web-v2` and switched live the same day: pm2 `jas-web` serves it on 3042, and v1 is stopped (D-093). R-003 was not decided inside the rebuild; projects stay a drawer and R-003 stays open.
 
 ### R-010 · 2026-09-21 · A PRO badge on some examples, and a Bepul / Pullik filter
-**Area:** web, api, admin · **Status:** blocked on Q-17 — see the Outcome
+**Area:** web, api, admin · **Status:** accepted → P8c, plan written 2026-09-21, not approved
 **Ask:** "Some content needs a **PRO** badge instead of the prompt below the videos; admins need the option to make the prompt free or paid. (Above the gallery section's right-hand side, there will be a Bepul & Pullik filter button)"
 **Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 2026-09-21.
-**Outcome:** Not built in P8b (D-099). It overturns D-007 (the gallery and its prompts are free and need no sign-in) and was already declined once in D-092 for the same reason: what "Pullik" costs is undecided while Q-17/D-082 is open and `GET /api/packs` returns `[]`. Needs Jakhongir's answer on what a paid prompt means (credits, a subscription, or marketing only), then its own decision entry and plan.
+**Outcome:** Not built in P8b (D-099); taken up as its own phase on 2026-09-21 after Doston reaffirmed it. He chose **a subscription** as what "Pullik" means, which makes it a phase rather than a task: plan in `docs/superpowers/plans/2026-09-21-p8c-pro-access.md`, open questions in **Q-18**. **The deferral in P8b was too wide** — only the unlock step needed Jakhongir; the badge, the owner switch, the Bepul/Pullik filter and the server-side lock are the same under every model and could have been built. Original reasoning kept below because it still holds for the subscription half: not built in P8b (D-099). It overturns D-007 (the gallery and its prompts are free and need no sign-in) and was already declined once in D-092 for the same reason: what "Pullik" costs is undecided while Q-17/D-082 is open and `GET /api/packs` returns `[]`. Needs Jakhongir's answer on what a paid prompt means (credits, a subscription, or marketing only), then its own decision entry and plan.
 
 ### R-011 · 2026-09-21 · The gallery wastes the left and right edges of a wide screen
 **Area:** web · **Status:** done on `p8b-revisions` (D-099), not yet merged

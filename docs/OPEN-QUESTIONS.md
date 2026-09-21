@@ -177,6 +177,23 @@ Not the ~87% the 1,100 som figure implied. And `DAILY_AI_SPEND_LIMIT_USD` defaul
 
 ---
 
+### Q-18 · What a PRO subscription is, exactly → **open, for Jakhongir**
+
+Raised 2026-09-21 by R-010. Jakhongir asked for a PRO badge on some examples, an owner switch for free or paid, and a Bepul/Pullik filter. Doston chose **a subscription** as what "paid" means. The plan is `docs/superpowers/plans/2026-09-21-p8c-pro-access.md`; it splits into a layer that can be built now (marking, locking, an owner grant) and a layer that cannot (the subscription itself).
+
+1. **Price and period.** How much, and for how long: 30 days, or a calendar month?
+2. **Does PRO include generating?** ⚠️ **The one that must be answered first.** A generation costs about **4,414 som** (D-082, Q-17). If PRO means unlimited generating, an active subscriber has no ceiling: one seller generating daily costs about 132,000 som a month against a flat fee. **Recommendation: PRO unlocks gallery prompts only, and generating stays on credits.** If it must include generating, it needs a monthly cap and the cap is part of the price.
+3. **Payment:** manual confirmation as credits use (D-008), or automatic Payme/Click?
+4. **Who picks the PRO examples,** and roughly what share of the gallery is paid? A gallery that is mostly locked stops being a shop window (source 01 §42, D-007).
+5. **Does PRO change the credit price** for a subscriber, or are the two independent?
+
+If approved, this supersedes **D-007** (the gallery and its prompts are free and need no sign-in) and **D-092**'s refusal of PRO badges. It does not get to supersede them by being built: it needs its own entry.
+
+**Blocks:** Layer 2 of P8c. Layer 1 is not blocked.
+**Answer:**
+
+---
+
 ## Part B — technology (Doston)
 
 ### T-01 · Database, sign-in and file storage → D-028
