@@ -83,6 +83,74 @@ describe('a published example must be labelled honestly (§42)', () => {
   });
 });
 
+/**
+ * R-015. Jakhongir could not save an example at all until every one of fourteen fields was
+ * filled, and the panel only told him that something was wrong. A draft is now allowed to be
+ * as empty as the work actually is; publishing is where the rules bite.
+ */
+describe('a draft may be as unfinished as the work is (R-015)', () => {
+  const bare = {
+    id: 'bare-draft',
+    slug: 'bare-draft',
+    titleUz: 'Hali tayyor emas',
+    category: 'aksessuar',
+    style: 'product-film',
+    videoPath: '',
+    posterPath: '',
+    aspectRatio: '9:16',
+    durationSeconds: 0,
+    promptEn: '',
+    conceptUz: '',
+    creativePreset: { environment: '', lighting: '', cameraLanguage: '', pacing: '', mood: '' },
+    sourceType: 'app-prompt',
+    sourceNote: '',
+    flowModel: null,
+    flowMode: null,
+    isPublished: false,
+    sortOrder: 0,
+  };
+
+  it('accepts a draft carrying only what identifies and orders it', () => {
+    expect(galleryExampleSchema.safeParse(bare).success).toBe(true);
+  });
+
+  it('still refuses a draft with no title or no slug, because a row needs a key', () => {
+    expect(galleryExampleSchema.safeParse({ ...bare, titleUz: '' }).success).toBe(false);
+    expect(galleryExampleSchema.safeParse({ ...bare, slug: '' }).success).toBe(false);
+  });
+
+  it('names every field that is missing when that draft is published', () => {
+    const result = galleryExampleSchema.safeParse({ ...bare, isPublished: true });
+
+    expect(result.success).toBe(false);
+    expect(result.error?.issues.map((issue) => issue.path.join('.'))).toEqual([
+      'videoPath',
+      'posterPath',
+      'durationSeconds',
+      'promptEn',
+      'conceptUz',
+      'creativePreset.environment',
+      'creativePreset.lighting',
+      'creativePreset.cameraLanguage',
+      'creativePreset.pacing',
+      'creativePreset.mood',
+      'flowModel',
+      'sourceNote',
+    ]);
+  });
+
+  // The §13 tripwire still fires on a draft: a preset that names a brand is wrong whether or
+  // not the example is live, and catching it late means catching it after it is public.
+  it('keeps the product-identity rule on a draft', () => {
+    const result = galleryExampleSchema.safeParse({
+      ...bare,
+      creativePreset: { ...bare.creativePreset, environment: 'a premium brand shelf' },
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
+
 describe('a creative preset carries no product identity (§13)', () => {
   it.each([
     ['brand', 'a premium brand shelf'],

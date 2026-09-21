@@ -1,5 +1,14 @@
 import { z } from 'zod';
-import { ASPECT_RATIOS, GALLERY_CATEGORIES, SOURCE_TYPES } from './public/gallery.port';
+import {
+  ASPECT_RATIOS,
+  GALLERY_CATEGORIES,
+  PROVENANCE_NOT_RECORDED,
+  requireCompleteWhenPublished,
+  SOURCE_TYPES,
+} from './public/gallery.port';
+
+/** Re-exported: the constant belongs with the publish rule that uses it, which lives in the port. */
+export { PROVENANCE_NOT_RECORDED };
 
 /**
  * One gallery example, as it appears in `content/gallery.json` (R-5, source 01 §14).
@@ -16,12 +25,18 @@ const slug = z
   .max(80)
   .regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, 'must be a lowercase slug');
 
-/** Relative, and refused if it tries to climb. `media.ts` refuses again at read time. */
+/**
+ * Relative, and refused if it tries to climb. `media.ts` refuses again at read time.
+ *
+ * Empty is allowed because a draft may not have its video yet (R-015); publishing without one is
+ * refused by `requireCompleteWhenPublished`, not here.
+ */
 const mediaPath = z
   .string()
-  .min(1)
   .max(200)
-  .regex(/^[A-Za-z0-9][A-Za-z0-9._/-]*$/, 'must be a relative media path')
+  .refine((value) => value === '' || /^[A-Za-z0-9][A-Za-z0-9._/-]*$/.test(value), {
+    message: 'must be a relative media path',
+  })
   .refine((value) => !value.includes('..'), { message: 'must not contain ".."' });
 
 /**
@@ -52,7 +67,6 @@ const PRODUCT_IDENTITY_WORDS = [
  */
 const creativeAttribute = z
   .string()
-  .min(3)
   .max(120)
   .refine(
     (value) => {
@@ -80,16 +94,6 @@ export const creativePresetSchema = z
   })
   .strict();
 
-/**
- * An honest "we did not write it down" for `flowModel` / `flowMode` (D-089).
- *
- * A named value rather than free prose, so it is greppable and so nobody has to decide
- * how to phrase not knowing. It is deliberately NOT the same as `null`: null means the
- * example is still a draft, this means somebody looked and the record does not exist.
- * A guess is never an acceptable third option — the field exists to be true.
- */
-export const PROVENANCE_NOT_RECORDED = 'not-recorded';
-
 export const galleryExampleSchema = z
   .object({
     id: slug,
@@ -103,11 +107,11 @@ export const galleryExampleSchema = z
     videoPath: mediaPath,
     posterPath: mediaPath,
     aspectRatio: z.enum(ASPECT_RATIOS),
-    durationSeconds: z.number().positive().max(600),
+    durationSeconds: z.number().min(0).max(600),
 
     /** The exact English prompt. §12 shows it; §48 copies this and nothing else. */
-    promptEn: z.string().min(1),
-    conceptUz: z.string().min(1).max(600),
+    promptEn: z.string(),
+    conceptUz: z.string().max(600),
 
     creativePreset: creativePresetSchema,
 
@@ -124,21 +128,10 @@ export const galleryExampleSchema = z
   })
   .strict()
   /**
-   * D-011: a published clip states which Flow model and mode made it. Enforced here
-   * rather than trusted to whoever edits the file, so a clip cannot go live without its
-   * provenance — the record either exists or the gallery refuses to boot.
+   * Every publish rule lives in the port, so the row schema and the owner's input schema cannot
+   * drift apart — a draft this schema accepts on the way out is one the API accepted on the way in.
    */
-  .refine((e) => !e.isPublished || (e.flowModel !== null && e.flowMode !== null), {
-    message:
-      'a published example must record flowModel and flowMode (D-011) — ' +
-      `use "${PROVENANCE_NOT_RECORDED}" if it genuinely was not written down, never a guess`,
-    path: ['flowModel'],
-  })
-  /** §42: "If an example is produced internally by JAS Studio, label it as an example." */
-  .refine((e) => !e.isPublished || e.sourceNote.trim().length > 0, {
-    message: 'a published example must carry its honest source note (§42)',
-    path: ['sourceNote'],
-  });
+  .superRefine(requireCompleteWhenPublished);
 
 export const galleryContentSchema = z
   .object({ examples: z.array(galleryExampleSchema) })

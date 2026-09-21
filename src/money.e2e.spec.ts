@@ -612,6 +612,66 @@ describe('the owner edits the gallery', () => {
     ...patch,
   });
 
+  /**
+   * R-015: the owner can save work in progress. The list read afterwards is the part that used
+   * to break silently — every row comes back out through the same schema it went in through, so
+   * relaxing one without the other would take the whole panel down the moment a draft existed.
+   */
+  it('saves a nearly empty draft, and refuses to publish it by name', async () => {
+    const bare = {
+      slug: 'bare-draft',
+      titleUz: 'Hali tayyor emas',
+      category: 'aksessuar',
+      style: 'product-film',
+      videoPath: '',
+      posterPath: '',
+      aspectRatio: '9:16',
+      durationSeconds: 0,
+      promptEn: '',
+      conceptUz: '',
+      creativePreset: { environment: '', lighting: '', cameraLanguage: '', pacing: '', mood: '' },
+      sourceType: 'app-prompt',
+      sourceNote: '',
+      flowModel: null,
+      flowMode: null,
+      isPublished: false,
+      sortOrder: 11,
+    };
+
+    const created = await send('/api/owner/gallery', {
+      cookie: ownerCookie,
+      method: 'POST',
+      body: bare,
+    });
+    expect(created.status).toBe(201);
+    const { id } = await json<{ id: string }>(created);
+
+    const listed = await send('/api/owner/gallery', { cookie: ownerCookie });
+    expect(listed.status).toBe(200);
+    const all = await json<{ examples: { id: string; titleUz: string }[] }>(listed);
+    expect(all.examples.find((e) => e.id === id)?.titleUz).toBe('Hali tayyor emas');
+
+    const refused = await send(`/api/owner/gallery/${id}`, {
+      cookie: ownerCookie,
+      method: 'PATCH',
+      body: { ...bare, isPublished: true },
+    });
+    expect(refused.status).toBe(400);
+    const problem = await json<{ code: string; details: { fields: { path: string }[] } }>(refused);
+    expect(problem.code).toBe('VALIDATION_FAILED');
+    expect(problem.details.fields.map((f) => f.path)).toContain('videoPath');
+    expect(problem.details.fields.map((f) => f.path)).toContain('creativePreset.mood');
+    expect(problem.details.fields.map((f) => f.path)).toContain('flowModel');
+
+    // Refused means refused: it is still a draft, and still not on the public page.
+    const afterwards = await fetch(`${origin}/api/gallery`);
+    expect(
+      (await json<{ examples: { slug: string }[] }>(afterwards)).examples.some(
+        (e) => e.slug === 'bare-draft',
+      ),
+    ).toBe(false);
+  });
+
   it('creates, edits, publishes and deletes an example', async () => {
     const created = await send('/api/owner/gallery', {
       cookie: ownerCookie,

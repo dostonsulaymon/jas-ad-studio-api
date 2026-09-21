@@ -1545,3 +1545,27 @@ Doston: *"commit merge to main both."* Built to `docs/superpowers/plans/2026-09-
 **Left open, not in P8:** the public site is a `next dev` server (P9 deployment); `ugc-authentic` may need an interaction boundary like `lifestyle-story`; privacy and terms text still owed by Jakhongir (D-022).
 
 Why: Doston's call, with every part live and verified.
+
+### D-099 · 2026-09-21 · P8b: gallery clips autoplay in view, and an example may be saved unfinished
+
+Jakhongir sent six revisions on a Notion page (*Revisions on PROMPTLY*, 2026-09-21), logged as R-010 to R-015. Five were built as `p8b-revisions`; R-010 was not (see below). Two of the five overturn earlier decisions, so they are recorded here rather than buried in a diff.
+
+**1. A gallery card plays by itself while it is on screen.** This supersedes D-087/D-088's play-on-demand card, whose whole point was that a visitor downloads nothing until they ask. The compromise that keeps both: the `src` is attached on the card's **first intersection** and never before, so `preload="none"` still means what it says and a visitor who does not scroll fetches only what they can see; the clip is muted (no browser autoplays sound), looped (a frozen last frame reads as broken), paused the moment it leaves the viewport, and never autoplayed under `prefers-reduced-motion`, where the old one-at-a-time manual behaviour stands. The e2e assertion `autoplay === false` was deleted on purpose and replaced by three that state the new contract.
+
+Why the care: the clips are served off Doston's machine through the tunnel. "Play everything on arrival" costs nothing at three examples and grows into a bill at thirty.
+
+**2. A gallery example may be saved before it is finished.** `galleryExampleInputSchema` demanded fourteen non-empty fields before anything could be stored, including five creative-preset phrases. Now a **draft** needs only what identifies and orders a row — slug, title, category, format, ratio, sort order — and **publishing** requires the full set. Every honesty rule stays exactly where it was and moved to one place, `requireCompleteWhenPublished` in `gallery.port.ts`: the source note (§42), the Flow provenance (D-011, D-089), the prompt (§48), the five preset fields (§13). It emits **one issue per missing field with its own path**, so the owner panel can mark the input instead of saying that something is wrong.
+
+The trap this closes: `gallery.repo.ts` parses every row back out through `galleryExampleSchema`, which carried the same rules. Relaxing the input schema alone would have taken the owner panel down the moment a draft existed. Both schemas now share one rule and a test asserts the round trip.
+
+**3. What was already there and unused.** The API has always returned `details.fields[]` on a validation failure and `ApiError.details` has always carried it to the browser. `ErrorNotice` dropped it and printed "Ma'lumotlarda xatolik bor" with a request id — the screenshot Jakhongir sent. The panel now names the fields in Uzbek and marks them. Nothing on the API side was needed for that.
+
+**4. The gallery's empty sides are a content problem.** R-011 asked for the wasted space beside the gallery. The measure went to 1600px and a fifth column appears at `2xl`, but with three published examples no width removes the space: a row never has more columns than it has cards, and a short row is centred, so the gap is symmetric rather than a hole where the fourth card should be. It closes when Q-04 is answered and more examples are published.
+
+**R-010 (a PRO badge and a Bepul/Pullik filter) was not built.** It overturns D-007 (the gallery and its prompts are free, no sign-in), it was already declined once for this reason in D-092, and what "Pullik" costs is undecided while Q-17/D-082 is open and `GET /api/packs` returns `[]`. A paid badge over a shop that cannot sell is worse than no badge. It needs Jakhongir's answer, then its own decision entry.
+
+**The "PROMPTLY" rename is unanswered.** Jakhongir's page is titled *Revisions on PROMPTLY*. If the product is being renamed that is a domain, the source note under every gallery card and a pass over the Uzbek copy, not something to slip into a revisions pass.
+
+**675 api tests, 36 web unit tests, 84 Playwright at 1440/390/360.**
+
+Why: Doston's call ("finish them all"), built to `docs/superpowers/plans/2026-09-21-p8b-revisions-pass.md`.
