@@ -56,3 +56,27 @@ export function readCookie(header: string | undefined, name: string): string | n
 
   return null;
 }
+
+/**
+ * Sets `request.user` when there is a valid session and lets everyone through either way.
+ *
+ * For routes that are public but answer differently to a signed-in caller — the gallery's
+ * PRO prompts (R-010). Deliberately a second guard rather than a flag on `SessionGuard`:
+ * a flag on the guard that protects every seller route is one typo away from making that
+ * route public.
+ */
+@Injectable()
+export class OptionalSessionGuard implements CanActivate {
+  constructor(@Inject(SESSION_RESOLVER) private readonly sessions: SessionResolver) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request = context.switchToHttp().getRequest<RequestWithUser>();
+    const token = readCookie(request.headers.cookie, SESSION_COOKIE);
+    if (!token) return true;
+
+    const user = await this.sessions.resolve(token);
+    if (user) request.user = user;
+
+    return true;
+  }
+}

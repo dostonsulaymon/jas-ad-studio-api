@@ -7,6 +7,7 @@ import { ConfigModule } from './common/config/config.module';
 import { CreditsModule } from './credits/credits.module';
 import { EventsModule } from './events/events.module';
 import { GalleryModule } from './gallery/gallery.module';
+import { ProModule } from './pro/pro.module';
 import { GenerationModule } from './generation/generation.module';
 import { DatabaseModule } from './common/db/database.module';
 import { ApiErrorFilter } from './common/filters/api-error.filter';
@@ -33,6 +34,7 @@ import { CsrfGuard } from './auth/csrf.guard';
     OwnerModule,
     ProjectsModule,
     GalleryModule,
+    ProModule,
     AssetsModule,
     AiModule,
     GenerationModule,

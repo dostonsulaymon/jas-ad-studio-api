@@ -605,6 +605,7 @@ describe('the owner edits the gallery', () => {
     },
     sourceType: 'app-prompt',
     sourceNote: 'Namuna.',
+    promptAccess: 'free',
     flowModel: 'Veo 3.1',
     flowMode: 'Frames to video',
     isPublished: false,
@@ -632,6 +633,7 @@ describe('the owner edits the gallery', () => {
       creativePreset: { environment: '', lighting: '', cameraLanguage: '', pacing: '', mood: '' },
       sourceType: 'app-prompt',
       sourceNote: '',
+      promptAccess: 'free',
       flowModel: null,
       flowMode: null,
       isPublished: false,
@@ -670,6 +672,55 @@ describe('the owner edits the gallery', () => {
         (e) => e.slug === 'bare-draft',
       ),
     ).toBe(false);
+  });
+
+  /**
+   * R-010: the owner hands out PRO by hand. **Not a subscription** — nothing here charges
+   * anybody, because Q-18 has not said what one costs. It is the grant that makes Layer 1
+   * usable before Layer 2 exists, and it is audited like every other owner write (D-037).
+   */
+  it('grants PRO access until a date, audits it, and moves the date when granted twice', async () => {
+    const until = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+
+    const granted = await send('/api/owner/pro', {
+      cookie: ownerCookie,
+      method: 'POST',
+      body: { userId: aliceId, until, note: 'Pilot seller, paid by transfer' },
+    });
+    expect(granted.status).toBe(200);
+    expect(await json<{ hasPro: boolean }>(granted)).toMatchObject({ hasPro: true });
+
+    // Granting again moves the date rather than stacking or failing: a mistake is fixed
+    // by granting the date you meant.
+    const shorter = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
+    const again = await send('/api/owner/pro', {
+      cookie: ownerCookie,
+      method: 'POST',
+      body: { userId: aliceId, until: shorter, note: 'Corrected' },
+    });
+    expect(again.status).toBe(200);
+    expect((await json<{ until: string }>(again)).until).toBe(shorter);
+
+    const { rows } = await db.pool.query<{ count: string }>(
+      `SELECT count(*) FROM pro_access WHERE user_id = $1`,
+      [aliceId],
+    );
+    expect(rows[0]?.count).toBe('1');
+
+    const audit = await db.pool.query<{ action: string }>(
+      `SELECT action FROM owner_audit_log WHERE target_type = 'user' AND action = 'pro.grant'`,
+    );
+    expect(audit.rows).toHaveLength(2);
+  });
+
+  it('refuses a seller trying to grant themselves PRO', async () => {
+    const refused = await send('/api/owner/pro', {
+      cookie: aliceCookie,
+      method: 'POST',
+      body: { userId: aliceId, until: new Date().toISOString(), note: 'nope' },
+    });
+
+    expect(refused.status).toBe(404);
   });
 
   it('creates, edits, publishes and deletes an example', async () => {

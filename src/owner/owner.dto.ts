@@ -5,6 +5,7 @@
  */
 import { createZodDto } from 'nestjs-zod';
 import { heroPhotosSchema } from '../settings/public/settings.port';
+import { proGrantSchema, proStatusSchema } from '../pro/public/pro.port';
 import {
   galleryExampleInputSchema,
   galleryMediaSchema,
@@ -62,6 +63,9 @@ export class SupportContactsDto extends createZodDto(supportContactsSchema) {}
 export class OwnerGalleryListDto extends createZodDto(ownerGalleryListSchema) {}
 export class OwnerGalleryExampleDto extends createZodDto(ownerGalleryExampleSchema) {}
 export class GalleryExampleInputDtoClass extends createZodDto(galleryExampleInputSchema) {}
+
+export class ProGrantDto extends createZodDto(proGrantSchema) {}
+export class ProStatusDto extends createZodDto(proStatusSchema) {}
 export class GalleryMediaDto extends createZodDto(galleryMediaSchema) {}
 
 /** D-091. Declared here for the same R-7 reason as the gallery classes above. */

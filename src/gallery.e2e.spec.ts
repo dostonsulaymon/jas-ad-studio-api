@@ -90,6 +90,7 @@ const PUBLISHED = {
   creativePreset: PRESET,
   sourceType: 'app-prompt',
   sourceNote: 'JAS Ad Studio prompti asosida Google Flow’da tayyorlangan namuna.',
+  promptAccess: 'free',
   flowModel: 'Veo 3.1',
   flowMode: 'Frames to video',
   isPublished: true,
@@ -105,6 +106,16 @@ const DRAFT = {
   flowMode: null,
   sourceNote: '',
   sortOrder: 2,
+} satisfies GalleryExampleInput;
+
+/** R-010: published, visible, and its prompt behind PRO. */
+const LOCKED = {
+  ...PUBLISHED,
+  slug: 'locked-example',
+  titleUz: 'Pullik namuna',
+  promptEn: 'PRO-ONLY PROMPT TEXT, must never reach a caller without access.',
+  promptAccess: 'pro',
+  sortOrder: 3,
 } satisfies GalleryExampleInput;
 
 const brief = {
@@ -214,7 +225,7 @@ beforeAll(async () => {
   const repo = moduleRef.get(GalleryRepo);
   // `id` is the public slug on a card; the table generates its own uuid, so it is not an
   // input. `toInput` drops it in one place rather than at every call site.
-  for (const fixture of [PUBLISHED, DRAFT]) {
+  for (const fixture of [PUBLISHED, DRAFT, LOCKED]) {
     await repo.insert(fixture, aliceId);
   }
 
@@ -256,7 +267,9 @@ describe('the gallery is the free product (D-007, source 01 §23)', () => {
 
     expect(response.status).toBe(200);
     const body = await json<{ examples: { id: string }[] }>(response);
-    expect(body.examples.map((example) => example.id)).toEqual([PUBLISHED.slug]);
+    // The PRO one is listed too: a locked prompt is not a hidden example (R-010). The
+    // draft is the only thing missing, and that is what "published" means.
+    expect(body.examples.map((example) => example.id)).toEqual([PUBLISHED.slug, LOCKED.slug]);
   });
 
   it('answers with security headers and no framework banner (P8 security review)', async () => {
@@ -424,6 +437,80 @@ describe("an example's product details never reach the model", () => {
  * D-077. The list comes from the generated contract rather than a hand-kept array, so a
  * gallery route added without a test that drives it to a 2xx fails this suite.
  */
+/**
+ * R-010 / P8c. The badge is the promise; this is the enforcement.
+ *
+ * Every assertion here is on the **response body**, not on the page. A PRO badge over a
+ * prompt the API still hands out is decoration — the text would be one devtools tab away,
+ * and we would have told the owner his paid content was protected when it was not.
+ */
+describe('a PRO example does not give up its prompt (R-010)', () => {
+  const promptOf = (body: unknown) => JSON.stringify(body);
+
+  it('refuses a signed-out visitor, and leaks no prompt while refusing', async () => {
+    const response = await anonymous(`/api/gallery/${LOCKED.slug}`);
+
+    expect(response.status).toBe(403);
+    const body = await json<{ code: string }>(response);
+    expect(body.code).toBe('PROMPT_LOCKED');
+    expect(promptOf(body)).not.toContain('PRO-ONLY PROMPT TEXT');
+  });
+
+  it('refuses a signed-in seller who has no PRO', async () => {
+    const response = await send(`/api/gallery/${LOCKED.slug}`, { cookie: aliceCookie });
+
+    expect(response.status).toBe(403);
+    expect(promptOf(await json(response))).not.toContain('PRO-ONLY PROMPT TEXT');
+  });
+
+  it('still lists the example, so the badge and the filter have something to render', async () => {
+    const body = await json<{ examples: { slug: string; promptAccess: string }[] }>(
+      await anonymous('/api/gallery'),
+    );
+
+    const card = body.examples.find((e) => e.slug === LOCKED.slug);
+    expect(card?.promptAccess).toBe('pro');
+    // The list never carried a prompt (§15); this says so out loud now that one is secret.
+    expect(promptOf(body)).not.toContain('PRO-ONLY PROMPT TEXT');
+  });
+
+  it('hands it over once the seller has PRO, and takes it back when that runs out', async () => {
+    await db.pool.query(
+      `INSERT INTO pro_access (user_id, granted_until) VALUES ($1, now() + interval '1 day')
+         ON CONFLICT (user_id) DO UPDATE SET granted_until = EXCLUDED.granted_until`,
+      [aliceId],
+    );
+
+    const allowed = await send(`/api/gallery/${LOCKED.slug}`, { cookie: aliceCookie });
+    expect(allowed.status).toBe(200);
+    expect((await json<{ promptEn: string }>(allowed)).promptEn).toContain('PRO-ONLY PROMPT TEXT');
+
+    // Expiry is a date, not a flag: a row left in place with a past date is no access.
+    await db.pool.query(`UPDATE pro_access SET granted_until = now() - interval '1 day' WHERE user_id = $1`, [aliceId]);
+
+    const expired = await send(`/api/gallery/${LOCKED.slug}`, { cookie: aliceCookie });
+    expect(expired.status).toBe(403);
+
+    await db.pool.query(`DELETE FROM pro_access WHERE user_id = $1`, [aliceId]);
+  });
+
+  it('leaves a free example exactly as open as it was (D-007)', async () => {
+    const response = await anonymous(`/api/gallery/${PUBLISHED.slug}`);
+
+    expect(response.status).toBe(200);
+    const body = await json<{ promptEn: string; promptAccess: string }>(response);
+    expect(body.promptAccess).toBe('free');
+    expect(body.promptEn.length).toBeGreaterThan(0);
+  });
+
+  it('tells a signed-out visitor they have no PRO, rather than erroring', async () => {
+    const response = await anonymous('/api/pro/me');
+
+    expect(response.status).toBe(200);
+    expect(await json(response)).toEqual({ hasPro: false, until: null });
+  });
+});
+
 describe('endpoint coverage', () => {
   it('drives every gallery route in the contract to a success at least once', () => {
     const contract = JSON.parse(readFileSync('openapi.json', 'utf8')) as {

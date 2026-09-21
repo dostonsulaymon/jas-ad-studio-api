@@ -60,6 +60,7 @@ import {
   type OwnerGalleryList,
 } from '../gallery/public/gallery.port';
 import { MAX_VIDEO_BYTES, MediaRejected } from '../gallery/public/gallery.errors';
+import { PRO_ACCESS, proGrantSchema, type ProAccessPort, type ProStatus } from '../pro/public/pro.port';
 import { OwnerReportsService } from './owner-reports.service';
 import type { OwnerGeneration, OwnerSpendDay } from './public/owner-reports.port';
 import { OwnerGuard } from './owner.guard';
@@ -79,6 +80,8 @@ import {
   OwnerUserDto,
   PackEditDto,
   PaymentInstructionsDto,
+  ProGrantDto,
+  ProStatusDto,
   RejectOrderDto,
   SupportContactsDto,
 } from './owner.dto';
@@ -108,6 +111,7 @@ export class OwnerController {
     @Inject(GALLERY_ADMIN) private readonly gallery: GalleryAdmin,
     private readonly reports: OwnerReportsService,
     @Inject(EVENT_LOG) private readonly events: EventLog,
+    @Inject(PRO_ACCESS) private readonly pro: ProAccessPort,
   ) {}
 
   /** A read. Not audited — see the plan: a GET is not an action, and logging every list
@@ -237,6 +241,33 @@ export class OwnerController {
     @Body() body: unknown,
   ): Promise<SupportContacts> {
     return this.writeSetting(owner.id, 'support_contacts', body) as Promise<SupportContacts>;
+  }
+
+  /**
+   * R-010: PRO access by hand, until a date the owner chooses.
+   *
+   * A date rather than a number of days: "until" is what Jakhongir can check against a
+   * payment he was sent, and there is no arithmetic here to get wrong. Granting twice
+   * moves the date instead of stacking, so a mistake is corrected by granting again.
+   *
+   * **This is not a subscription.** Q-18 has not answered what one costs or how it is
+   * paid for, so nothing here charges anybody. It is the owner handing out access.
+   */
+  @Post('pro')
+  @HttpCode(200)
+  @ApiOperation({ summary: 'Give a seller PRO access until a date. The note is required.' })
+  @ApiBody({ type: ProGrantDto })
+  @ApiOkResponse({ type: ProStatusDto })
+  async grantPro(@User() owner: CurrentUser, @Body() body: unknown): Promise<ProStatus> {
+    const input = proGrantSchema.parse(body);
+    const status = await this.pro.grant(input, owner.id);
+
+    await this.audit.record(owner.id, 'pro.grant', 'user', input.userId, {
+      until: input.until,
+      note: input.note,
+    });
+
+    return status;
   }
 
   /**

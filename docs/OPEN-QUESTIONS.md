@@ -190,7 +190,16 @@ Raised 2026-09-21 by R-010. Jakhongir asked for a PRO badge on some examples, an
 If approved, this supersedes **D-007** (the gallery and its prompts are free and need no sign-in) and **D-092**'s refusal of PRO badges. It does not get to supersede them by being built: it needs its own entry.
 
 **Blocks:** Layer 2 of P8c. Layer 1 is not blocked.
-**Answer:**
+
+**Answer (Doston, 2026-09-21) → D-102.** Answered except the price.
+
+1. **Period: 30 days from the payment.** Not a calendar month, so there is no proration rule.
+2. **PRO unlocks the gallery's PRO prompts. Generating still costs credits.** Doston: *"any pro user can copy the prompts here."* This is the recommendation, and it is the answer that keeps a flat fee safe: a subscriber's marginal cost to us is close to zero, so no amount of use can run past the price.
+3. **Paid by hand**, the way credits are (D-008): the seller orders, Jakhongir sees the transfer, confirms, access starts. No automatic checkout.
+4. **Jakhongir picks** which examples are PRO, in `/admin`. That switch is D-100 and is already built.
+5. **One subscription, not a set of plans.** No tiers, no lengths to choose from. Lengths or tiers can be added later without changing how access is stored, because `pro_access` records the fact of access rather than what was bought (D-100).
+
+**Still open: the price.** It belongs with Q-17, and it is Jakhongir's. Until it exists the order screen has nothing to show, exactly as `GET /api/packs` returns `[]` today (D-072).
 
 ---
 

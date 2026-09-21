@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import type { GalleryInspiration } from '../ai/public/generator.port';
 import type { GalleryExample } from './example.schema';
 import { GalleryMediaStore } from './gallery.media-store';
 import { GalleryRepo, type StoredExample } from './gallery.repo';
 import { GalleryExampleNotFoundError } from './public/gallery.errors';
+import { PRO_ACCESS, type ProAccessPort } from '../pro/public/pro.port';
+import { PromptLockedError } from '../pro/public/pro.errors';
 import type {
   GalleryAdmin,
   GalleryCard,
@@ -21,6 +23,7 @@ export class GalleryService implements GalleryReader, GalleryAdmin {
   constructor(
     private readonly repo: GalleryRepo,
     private readonly media: GalleryMediaStore,
+    @Inject(PRO_ACCESS) private readonly pro: ProAccessPort,
   ) {}
 
   async list(): Promise<GalleryCard[]> {
@@ -28,9 +31,20 @@ export class GalleryService implements GalleryReader, GalleryAdmin {
     return examples.map((example) => toCard(example));
   }
 
-  async get(slug: string): Promise<GalleryExampleView> {
+  /**
+   * R-010: the one place a prompt is handed over, so it is the one place that can refuse.
+   *
+   * `viewerId` is null for a signed-out visitor — the route is public and stays public
+   * (D-007), it just does not give away a PRO prompt. The refusal happens here rather
+   * than in the controller so that no future route can reach the prompt around it.
+   */
+  async get(slug: string, viewerId: string | null = null): Promise<GalleryExampleView> {
     const example = await this.repo.findPublishedBySlug(slug);
     if (!example) throw new GalleryExampleNotFoundError(`No published example: ${slug}`);
+
+    if (example.promptAccess === 'pro' && !(await this.pro.hasPro(viewerId))) {
+      throw new PromptLockedError(`Example ${slug} is PRO and this caller has no access`);
+    }
 
     return { ...toCard(example), promptEn: example.promptEn };
   }
@@ -109,6 +123,7 @@ function toCard(example: GalleryExample): GalleryCard {
     conceptUz: example.conceptUz,
     sourceType: example.sourceType,
     sourceNote: example.sourceNote,
+    promptAccess: example.promptAccess,
   };
 }
 
@@ -130,6 +145,7 @@ function toOwnerView(example: StoredExample): OwnerGalleryExample {
     creativePreset: example.creativePreset,
     sourceType: example.sourceType,
     sourceNote: example.sourceNote,
+    promptAccess: example.promptAccess,
     flowModel: example.flowModel,
     flowMode: example.flowMode,
     isPublished: example.isPublished,

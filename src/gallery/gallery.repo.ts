@@ -34,6 +34,7 @@ interface Row {
   creative_preset: unknown;
   source_type: string;
   source_note: string;
+  prompt_access: string;
   flow_model: string | null;
   flow_mode: string | null;
   is_published: boolean;
@@ -42,7 +43,7 @@ interface Row {
 
 const COLUMNS = `id, slug, title_uz, category, style, video_path, poster_path, aspect_ratio,
   duration_seconds, prompt_en, concept_uz, creative_preset, source_type, source_note,
-  flow_model, flow_mode, is_published, sort_order`;
+  prompt_access, flow_model, flow_mode, is_published, sort_order`;
 
 /** The row as the rest of the app sees it, plus the uuid the owner routes address. */
 export interface StoredExample extends GalleryExample {
@@ -65,6 +66,7 @@ function toExample(row: Row): StoredExample {
     creativePreset: row.creative_preset,
     sourceType: row.source_type,
     sourceNote: row.source_note,
+    promptAccess: row.prompt_access,
     flowModel: row.flow_model,
     flowMode: row.flow_mode,
     isPublished: row.is_published,
@@ -107,8 +109,9 @@ export class GalleryRepo {
       `INSERT INTO gallery_examples
          (slug, title_uz, category, style, video_path, poster_path, aspect_ratio,
           duration_seconds, prompt_en, concept_uz, creative_preset, source_type,
-          source_note, flow_model, flow_mode, is_published, sort_order, updated_by)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+          source_note, prompt_access, flow_model, flow_mode, is_published, sort_order,
+          updated_by)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19)
        RETURNING ${COLUMNS}`,
       values(input, ownerId),
     );
@@ -121,9 +124,9 @@ export class GalleryRepo {
          slug = $1, title_uz = $2, category = $3, style = $4, video_path = $5,
          poster_path = $6, aspect_ratio = $7, duration_seconds = $8, prompt_en = $9,
          concept_uz = $10, creative_preset = $11, source_type = $12, source_note = $13,
-         flow_model = $14, flow_mode = $15, is_published = $16, sort_order = $17,
-         updated_by = $18, updated_at = now()
-       WHERE id = $19
+         prompt_access = $14, flow_model = $15, flow_mode = $16, is_published = $17,
+         sort_order = $18, updated_by = $19, updated_at = now()
+       WHERE id = $20
        RETURNING ${COLUMNS}`,
       [...values(input, ownerId), rowId],
     );
@@ -154,6 +157,7 @@ function values(input: GalleryExampleInput, ownerId: string): unknown[] {
     JSON.stringify(input.creativePreset),
     input.sourceType,
     input.sourceNote,
+    input.promptAccess,
     input.flowModel,
     input.flowMode,
     input.isPublished,

@@ -501,6 +501,38 @@
         ]
       }
     },
+    "/api/owner/pro": {
+      "post": {
+        "operationId": "OwnerController_grantPro",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProGrantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Give a seller PRO access until a date. The note is required.",
+        "tags": [
+          "Owner"
+        ]
+      }
+    },
     "/api/owner/gallery": {
       "get": {
         "operationId": "OwnerController_listGallery",
@@ -976,7 +1008,7 @@
     },
     "/api/gallery/{slug}": {
       "get": {
-        "description": "An unpublished slug is a 404, never a 403 — a 403 confirms it exists.",
+        "description": "An unpublished slug is a 404, never a 403 — a 403 confirms it exists. A PRO example IS a 403 (PROMPT_LOCKED): its badge already says it exists.",
         "operationId": "GalleryController_get",
         "parameters": [
           {
@@ -998,11 +1030,36 @@
                 }
               }
             }
+          },
+          "403": {
+            "description": "The prompt is PRO and this caller has no access."
           }
         },
         "summary": "One published example, with its English prompt. Works signed out.",
         "tags": [
           "Gallery"
+        ]
+      }
+    },
+    "/api/pro/me": {
+      "get": {
+        "operationId": "ProController_status",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProStatusDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Whether this caller may open PRO prompts. Works signed out.",
+        "tags": [
+          "Pro"
         ]
       }
     },
@@ -1873,6 +1930,51 @@
           }
         }
       },
+      "ProGrantDto": {
+        "type": "object",
+        "properties": {
+          "userId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "required": [
+          "userId",
+          "until",
+          "note"
+        ],
+        "additionalProperties": false
+      },
+      "ProStatusDto": {
+        "type": "object",
+        "properties": {
+          "hasPro": {
+            "type": "boolean"
+          },
+          "until": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$",
+            "nullable": true
+          }
+        },
+        "required": [
+          "hasPro",
+          "until"
+        ],
+        "additionalProperties": false
+      },
       "OwnerGalleryListDto": {
         "type": "object",
         "properties": {
@@ -1981,6 +2083,14 @@
                 "sourceNote": {
                   "type": "string",
                   "maxLength": 200
+                },
+                "promptAccess": {
+                  "default": "free",
+                  "type": "string",
+                  "enum": [
+                    "free",
+                    "pro"
+                  ]
                 },
                 "flowModel": {
                   "type": "string",
@@ -2139,6 +2249,14 @@
             "type": "string",
             "maxLength": 200
           },
+          "promptAccess": {
+            "default": "free",
+            "type": "string",
+            "enum": [
+              "free",
+              "pro"
+            ]
+          },
           "flowModel": {
             "type": "string",
             "minLength": 1,
@@ -2284,6 +2402,14 @@
           "sourceNote": {
             "type": "string",
             "maxLength": 200
+          },
+          "promptAccess": {
+            "default": "free",
+            "type": "string",
+            "enum": [
+              "free",
+              "pro"
+            ]
           },
           "flowModel": {
             "type": "string",
@@ -2893,6 +3019,13 @@
                 },
                 "sourceNote": {
                   "type": "string"
+                },
+                "promptAccess": {
+                  "type": "string",
+                  "enum": [
+                    "free",
+                    "pro"
+                  ]
                 }
               },
               "required": [
@@ -2907,7 +3040,8 @@
                 "durationSeconds",
                 "conceptUz",
                 "sourceType",
-                "sourceNote"
+                "sourceNote",
+                "promptAccess"
               ],
               "additionalProperties": false
             }
@@ -2977,6 +3111,13 @@
           "sourceNote": {
             "type": "string"
           },
+          "promptAccess": {
+            "type": "string",
+            "enum": [
+              "free",
+              "pro"
+            ]
+          },
           "promptEn": {
             "type": "string"
           }
@@ -2994,6 +3135,7 @@
           "conceptUz",
           "sourceType",
           "sourceNote",
+          "promptAccess",
           "promptEn"
         ],
         "additionalProperties": false

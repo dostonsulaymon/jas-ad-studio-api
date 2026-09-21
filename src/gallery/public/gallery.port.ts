@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { PROMPT_ACCESS } from '../../pro/public/pro.port';
 import type { GalleryInspiration } from '../../ai/public/generator.port';
 
 /**
@@ -59,6 +60,12 @@ export const galleryCardSchema = z
     /** §42: provenance travels with the example, never as a separate claim. */
     sourceType: z.enum(SOURCE_TYPES),
     sourceNote: z.string(),
+    /**
+     * R-010: on the card, so the badge and the Bepul/Pullik filter render from the list
+     * alone. Saying an example is paid is not the same as handing over its prompt — that
+     * is the detail route's business, and it refuses.
+     */
+    promptAccess: z.enum(PROMPT_ACCESS),
   })
   .strict();
 
@@ -180,6 +187,8 @@ export const galleryExampleInputSchema = z
     }),
     sourceType: z.enum(SOURCE_TYPES),
     sourceNote: z.string().max(200),
+    /** Defaults to free: an owner who never touches this switch never locks anything. */
+    promptAccess: z.enum(PROMPT_ACCESS).default('free'),
     flowModel: z.string().min(1).max(60).nullable(),
     flowMode: z.string().min(1).max(60).nullable(),
     isPublished: z.boolean(),

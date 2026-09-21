@@ -85,6 +85,13 @@
       "when": 1789360353662,
       "tag": "0011_free_boomer",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789990798990,
+      "tag": "0012_lush_eternals",
+      "breakpoints": true
     }
   ]
 }

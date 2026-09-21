@@ -1,4 +1,4 @@
-import { Controller, Get, Header, Param, Req, Res } from '@nestjs/common';
+import { Controller, Get, Header, Param, Req, Res, UseGuards } from '@nestjs/common';
 import {
   ApiOkResponse,
   ApiOperation,
@@ -11,6 +11,7 @@ import { GalleryExampleDto, GalleryListDto } from './gallery.dto';
 import { GalleryService } from './gallery.service';
 import { GalleryMedia, parseRange } from './media';
 import type { GalleryExampleView, GalleryList } from './public/gallery.port';
+import { OptionalSessionGuard, type RequestWithUser } from '../auth/public/session.guard';
 
 /**
  * Spec §3 and source 01 §23: the gallery is the free product (D-007). Every route here
@@ -96,14 +97,23 @@ export class GalleryController {
     this.media.open(file, range ?? undefined).pipe(response);
   }
 
+  /**
+   * Still public (D-007), and still not guarded — `OptionalSessionGuard` only reads a
+   * session if one is there, so a signed-out visitor gets every free example's prompt
+   * exactly as before. A PRO example is the one case that answers 403 (R-010).
+   */
   @Get(':slug')
+  @UseGuards(OptionalSessionGuard)
   @ApiOperation({
     summary: 'One published example, with its English prompt. Works signed out.',
-    description: 'An unpublished slug is a 404, never a 403 — a 403 confirms it exists.',
+    description:
+      'An unpublished slug is a 404, never a 403 — a 403 confirms it exists. A PRO ' +
+      'example IS a 403 (PROMPT_LOCKED): its badge already says it exists.',
   })
   @ApiOkResponse({ type: GalleryExampleDto })
+  @ApiResponse({ status: 403, description: 'The prompt is PRO and this caller has no access.' })
   @Header('Cache-Control', 'no-cache')
-  get(@Param('slug') slug: string): Promise<GalleryExampleView> {
-    return this.gallery.get(slug);
+  get(@Param('slug') slug: string, @Req() request: RequestWithUser): Promise<GalleryExampleView> {
+    return this.gallery.get(slug, request.user?.id ?? null);
   }
 }

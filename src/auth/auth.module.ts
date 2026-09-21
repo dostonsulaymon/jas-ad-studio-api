@@ -5,7 +5,7 @@ import { AuthController } from './auth.controller';
 import { ALLOWED_ORIGINS, GOOGLE_CONFIG, OWNER_EMAILS, WEB_ORIGIN } from './auth.tokens';
 import { CsrfGuard } from './csrf.guard';
 import type { GoogleConfig } from './google.client';
-import { SessionGuard } from './public/session.guard';
+import { OptionalSessionGuard, SessionGuard } from './public/session.guard';
 import { SESSION_RESOLVER } from './public/auth.port';
 import { SessionService } from './session.service';
 import { UserService } from './user.service';
@@ -24,6 +24,7 @@ import { UserService } from './user.service';
     // The guard depends on this interface, never on SessionService directly.
     { provide: SESSION_RESOLVER, useExisting: SessionService },
     SessionGuard,
+    OptionalSessionGuard,
     CsrfGuard,
     {
       provide: GOOGLE_CONFIG,
@@ -74,6 +75,6 @@ import { UserService } from './user.service';
       ],
     },
   ],
-  exports: [SessionService, SessionGuard, SESSION_RESOLVER, ALLOWED_ORIGINS],
+  exports: [SessionService, SessionGuard, OptionalSessionGuard, SESSION_RESOLVER, ALLOWED_ORIGINS],
 })
 export class AuthModule {}
