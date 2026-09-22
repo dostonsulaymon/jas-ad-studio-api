@@ -21,6 +21,18 @@ import type { Executor } from '../../common/db/transaction';
 export const proSubscriptionSchema = z.object({
   priceUzs: z.number().int().positive().max(100_000_000).nullable().default(null),
   days: z.number().int().positive().max(366).default(30),
+  /**
+   * R-021: how many prompt generations a PRO month includes, on top of the PRO prompts.
+   *
+   * **Granted as ordinary credits**, so there is no second counter to keep, no second refund
+   * path when a generation fails, and a seller's balance stays one number. Zero — the default —
+   * means PRO unlocks prompts and nothing else, which is exactly what D-102 shipped.
+   *
+   * The number is Jakhongir's and he does not have it yet: at about 4,414 soʻm a generation
+   * (D-082) the count *is* most of the price, so it stays 0 until he sets it rather than being
+   * guessed here.
+   */
+  generationsIncluded: z.number().int().min(0).max(1000).default(0),
 });
 
 export type ProSubscription = z.infer<typeof proSubscriptionSchema>;

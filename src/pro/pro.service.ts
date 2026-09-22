@@ -3,6 +3,7 @@ import { Pool } from 'pg';
 import { PG_POOL } from '../common/db/tokens';
 import type { Executor } from '../common/db/transaction';
 import { withTransaction } from '../common/db/transaction';
+import { CREDIT_ADMIN, type CreditAdminPort } from '../credits/public/credits.port';
 import { SETTINGS_READER, type SettingsReader } from '../settings/public/settings.port';
 import {
   ProNotForSaleError,
@@ -23,19 +24,22 @@ interface OrderRow {
   id: string;
   amount_uzs: string | number;
   days: number;
+  generations: number;
   status: ProOrderStatus;
   rejection_reason: string | null;
   created_at: Date;
   confirmed_at: Date | null;
 }
 
-const ORDER_COLUMNS = 'id, amount_uzs, days, status, rejection_reason, created_at, confirmed_at';
+const ORDER_COLUMNS =
+  'id, amount_uzs, days, generations, status, rejection_reason, created_at, confirmed_at';
 
 function toOrder(row: OrderRow): ProOrder {
   return {
     id: row.id,
     amountUzs: Number(row.amount_uzs),
     days: row.days,
+    generations: row.generations,
     status: row.status,
     rejectionReason: row.rejection_reason,
     createdAt: row.created_at.toISOString(),
@@ -50,6 +54,7 @@ export class ProService implements ProAccessPort, ProAdminPort {
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
     @Inject(SETTINGS_READER) private readonly settings: SettingsReader,
+    @Inject(CREDIT_ADMIN) private readonly credits: CreditAdminPort,
   ) {}
 
   /**
@@ -95,9 +100,9 @@ export class ProService implements ProAccessPort, ProAdminPort {
     if (pending) return toOrder(pending);
 
     const { rows } = await this.pool.query<OrderRow>(
-      `INSERT INTO pro_orders (user_id, amount_uzs, days) VALUES ($1, $2, $3)
+      `INSERT INTO pro_orders (user_id, amount_uzs, days, generations) VALUES ($1, $2, $3, $4)
        RETURNING ${ORDER_COLUMNS}`,
-      [userId, plan.priceUzs, plan.days],
+      [userId, plan.priceUzs, plan.days, plan.generationsIncluded],
     );
     return toOrder(rows[0] as OrderRow);
   }
@@ -130,10 +135,10 @@ export class ProService implements ProAccessPort, ProAdminPort {
    */
   async confirmOrder(orderId: string, ownerId: string): Promise<ProStatus> {
     return withTransaction(this.pool, async (tx) => {
-      const { rows } = await tx.query<{ user_id: string; days: number }>(
+      const { rows } = await tx.query<{ user_id: string; days: number; generations: number }>(
         `UPDATE pro_orders SET status = 'confirmed', confirmed_at = now(), confirmed_by = $2
           WHERE id = $1 AND status = 'pending'
-        RETURNING user_id, days`,
+        RETURNING user_id, days, generations`,
         [orderId, ownerId],
       );
 
@@ -155,6 +160,19 @@ export class ProService implements ProAccessPort, ProAdminPort {
                      updated_at = now(), updated_by = EXCLUDED.updated_by`,
         [order.user_id, order.days, `pro_order ${orderId}`, ownerId],
       );
+
+      /**
+       * R-021: the generations a PRO month includes arrive as ordinary credits, in the same
+       * transaction as the access. One ledger, one balance, and the existing reserve, debit and
+       * refund paths work on them unchanged — a second counter would need a second refund rule
+       * the day a generation fails.
+       */
+      if (order.generations > 0) {
+        await this.credits.grant(
+          { userId: order.user_id, credits: order.generations, note: `PRO ${orderId}` },
+          tx,
+        );
+      }
 
       return this.status(order.user_id, tx);
     });

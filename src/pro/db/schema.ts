@@ -45,6 +45,8 @@ export const proOrders = pgTable('pro_orders', {
 
   amountUzs: bigint('amount_uzs', { mode: 'number' }).notNull(),
   days: integer('days').notNull(),
+  /** R-021: prompt credits this order includes, copied at order time like the amount. */
+  generations: integer('generations').notNull().default(0),
 
   /** pending → confirmed | rejected. One order grants access exactly once. */
   status: text('status').notNull().default('pending'),

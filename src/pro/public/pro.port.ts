@@ -38,6 +38,8 @@ export const proOrderSchema = z
     id: z.uuid(),
     amountUzs: z.number().int(),
     days: z.number().int(),
+    /** R-021: prompt credits this order grants on confirmation. Zero is normal. */
+    generations: z.number().int(),
     status: z.enum(PRO_ORDER_STATUSES),
     rejectionReason: z.string().nullable(),
     createdAt: z.iso.datetime(),

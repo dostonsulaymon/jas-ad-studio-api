@@ -1586,6 +1586,12 @@
                 "exclusiveMinimum": true,
                 "maximum": 366,
                 "minimum": 0
+              },
+              "generationsIncluded": {
+                "default": 0,
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 1000
               }
             }
           },
@@ -2144,6 +2150,11 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
+          "generations": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -2182,6 +2193,7 @@
           "id",
           "amountUzs",
           "days",
+          "generations",
           "status",
           "rejectionReason",
           "createdAt",
@@ -2782,6 +2794,12 @@
             "exclusiveMinimum": true,
             "maximum": 366,
             "minimum": 0
+          },
+          "generationsIncluded": {
+            "default": 0,
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
           }
         }
       },
@@ -3482,6 +3500,11 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
+          "generations": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
           "status": {
             "type": "string",
             "enum": [
@@ -3510,6 +3533,7 @@
           "id",
           "amountUzs",
           "days",
+          "generations",
           "status",
           "rejectionReason",
           "createdAt",

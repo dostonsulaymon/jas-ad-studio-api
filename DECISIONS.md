@@ -1719,3 +1719,17 @@ Two of Jakhongir's four 21.09 items. The other two: one he struck through himsel
 **R-020, the receipt.** A transfer means nothing until somebody sees it, so both screens that show a card number — the credits drawer and the PRO panel — now end with *"Tasdiqlash uchun toʻlov chekini telegram orqali yuboring → @handle"*. **No API change:** `supportContacts.telegramUser` has been public since 6b, so the handle is whatever the owner set in `/admin`, and the line disappears by itself if he clears it. Nothing is hard-coded.
 
 **R-021 is recorded and not built, and it changes D-102.** Jakhongir now wants PRO to include a capped number of generations as well as the PRO prompts. That is the middle option from Q-18, and it is safe *because* it is capped — but the cap **is** the price, at about 4,414 soʻm a generation (D-082), and he says the number comes after his own cost maths. Building a limit before knowing it would mean picking his price for him.
+
+### D-109 · 2026-09-22 · PRO's included generations are ordinary credits, and the number stays Jakhongir's
+
+R-021: Jakhongir wants a PRO month to include a capped number of generations as well as the PRO prompts. This supersedes **D-102's second answer**, which said generating stays on credits and PRO unlocks prompts only.
+
+**It is safe because it is capped.** The refusal in D-102 was to *uncapped* generation against a flat fee: at about 4,414 soʻm a generation (D-082) a heavy subscriber has no ceiling, and heavy users are exactly who subscribes. A fixed count has a known worst case, which is the whole difference.
+
+**The count is granted as ordinary credits.** `pro_subscription.generationsIncluded` (default **0**), copied onto the order when it is placed like the amount and the length, and granted through `CREDIT_ADMIN.grant` in the same transaction that extends the access. One ledger, one balance, and the existing reserve, debit and refund paths work on them unchanged.
+
+The alternative was a separate PRO allowance counter. It would have needed its own refund rule the first time a generation failed, its own display beside the credit balance, and an answer to "which pot does this generation come out of" — three new questions to solve a problem the ledger already solves.
+
+**The number is not invented.** It defaults to `0`, which is exactly what D-102 shipped: PRO unlocks prompts and nothing else. Jakhongir types the real count in `/admin` when his cost maths is done, and at 4,414 soʻm each **the count is most of the price** — picking it here would be picking his price for him. The panel says what a buyer gets either way: "PRO promptlar + N ta prompt limiti", or just the prompts when N is 0.
+
+**Still open:** the count and the price, both his, both blocking a real sale.
