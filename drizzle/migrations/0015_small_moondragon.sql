@@ -1,0 +1,1 @@
+ALTER TABLE "pro_orders" ADD COLUMN "generations" integer DEFAULT 0 NOT NULL;

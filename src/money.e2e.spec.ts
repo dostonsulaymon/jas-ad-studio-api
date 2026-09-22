@@ -689,9 +689,13 @@ describe('the owner edits the gallery', () => {
     const priced = await send('/api/owner/settings/pro-subscription', {
       cookie: ownerCookie,
       method: 'PATCH',
-      body: { priceUzs: 49000, days: 30 },
+      body: { priceUzs: 49000, days: 30, generationsIncluded: 3 },
     });
     expect(priced.status).toBe(200);
+
+    const before = await json<{ available: number }>(
+      await send('/api/credits/balance', { cookie: aliceCookie }),
+    );
 
     // Pressing the button twice is one order, held by a partial unique index.
     const first = await send('/api/pro/orders', { cookie: aliceCookie, method: 'POST' });
@@ -727,13 +731,22 @@ describe('the owner edits the gallery', () => {
     const mine = await send('/api/pro/orders', { cookie: aliceCookie });
     expect(mine.status).toBe(200);
     expect((await json<{ status: string }[]>(mine))[0]?.status).toBe('confirmed');
+
+    /**
+     * R-021: the generations a PRO month includes arrive as ordinary credits, in the same
+     * transaction as the access, so the existing reserve/debit/refund paths work on them.
+     */
+    const after = await json<{ available: number }>(
+      await send('/api/credits/balance', { cookie: aliceCookie }),
+    );
+    expect(after.available).toBe(before.available + 3);
   });
 
   it('refuses to sell PRO while it has no price, and rejects an order with a reason', async () => {
     await send('/api/owner/settings/pro-subscription', {
       cookie: ownerCookie,
       method: 'PATCH',
-      body: { priceUzs: null, days: 30 },
+      body: { priceUzs: null, days: 30, generationsIncluded: 0 },
     });
 
     const refused = await send('/api/pro/orders', { cookie: bobCookie, method: 'POST' });
@@ -743,7 +756,7 @@ describe('the owner edits the gallery', () => {
     await send('/api/owner/settings/pro-subscription', {
       cookie: ownerCookie,
       method: 'PATCH',
-      body: { priceUzs: 49000, days: 30 },
+      body: { priceUzs: 49000, days: 30, generationsIncluded: 0 },
     });
     const placed = await json<{ id: string }>(
       await send('/api/pro/orders', { cookie: bobCookie, method: 'POST' }),
