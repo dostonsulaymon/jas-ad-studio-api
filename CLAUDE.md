@@ -9,7 +9,9 @@ Read this first, then:
 - `docs/PLAN.md`: the phase roadmap. Each phase has its own detailed plan in `docs/superpowers/plans/`
 - `docs/REQUESTS.md`: things Doston asked to add, not yet decided. When he asks for a feature, append it there. Before writing any phase plan, go through every `new` request with him
 
-**Related repository:** `../jas-ad-studio-web`, the Next.js frontend. It is a client of this API, so any change to a public API contract changes its world too.
+**Related repository:** `../jas-ad-studio-web-v2`, the Next.js frontend and the live site. It is a client of this API, so any change to a public API contract changes its world too. `../jas-ad-studio-web` is **v1, dead** (D-093) — do not edit it.
+
+**Web work happens in a worktree, never in the live tree.** pm2 `jas-web` runs `pnpm dev` straight out of `../jas-ad-studio-web-v2`, so every save there reaches real visitors on the next hot reload. Use `../jas-ad-studio-web-v2-p8b` (a git worktree on port 3043), then merge to `main` and restart pm2.
 
 ---
 
@@ -23,17 +25,21 @@ People: Jakhongir is the owner and client. Doston builds it, with Claude (D-003)
 
 ## Status
 
-**P0 to P5 all closed and merged. P6 is next.** Updated 2026-09-12.
+**P0 to P8 closed and merged, plus nine request passes (P8b to P8j). P9, launch and pilot, is next.** Updated 2026-09-22.
 
-A seller can sign in with Google, create a project, upload product photos, buy credits through a manually confirmed order, and press generate once to get one ad package — a Flow prompt and an Uzbek shot plan — for one credit. A failure gives the credit back; a success stays bought even if the browser dies. The model is `gpt-5.5` (D-052) and four creative formats decide each prompt's shape from config (D-058).
+The product is **Promptly** (D-103), live at https://jas.kitobnarxi.uz.
 
-**One real generation has been walked end to end through the queue** (D-082): 60 seconds, $0.359, a 2,251-word prompt and a three-shot Uzbek plan.
+**What works, end to end, on the live site.** A seller signs in with Google, creates a project, uploads product photos, and spends one prompt limit to get one ad package — a Flow prompt and an Uzbek shot plan. A failure returns the limit. The gallery is free and needs no sign-in, its clips autoplay muted while on screen, and each card carries the raw product photo and its provenance. The owner edits everything a visitor sees from `/admin`: examples, hero photos, support contacts, prices, and which examples are PRO.
 
-**P5 closed 2026-09-12 (D-086).** The studio, the owner `/admin` panel, the credit and order screens and the generation result are all built in `../jas-ad-studio-web`, and the whole path has been walked by hand against a running stack, not only asserted in tests. That walk found three defects in **this** repo, all fixed: `WEB_ORIGIN` defaulted to this API's own port so every browser write was refused, `GET /api/projects/:id` returned 3 of the brief's 11 fields so a saved brief could never be read back, and the owner panel's generations and spend views had no endpoint. See `docs/PROGRESS.md`.
+**PRO is built and sellable** (D-100, D-102, D-107, D-109). An owner marks an example PRO; `GET /api/gallery/:slug` then answers **403 `PROMPT_LOCKED`** to anyone without access, so the badge is enforced rather than decorative. A seller sees the price, places an order, transfers the money and sends the receipt by Telegram; the owner confirms it in `/admin` and access plus any included prompt limits land in the same transaction.
 
-What is **not** built: the example gallery (P6), hardening and backups (P7), deployment and the pilot (P8). **D-082 blocks selling**: nothing is priced, and a real generation costs about 4,414 soʻm against the 1,100 the pricing assumed. That one needs Jakhongir.
+**Three placeholders are launch blockers, and none of them is code:**
 
-**The one thing blocking product progress is not code.** D-082 measured a generation at about 4,400 som against the 1,100 som the pack prices assume. Until Jakhongir sets real prices, `GET /api/packs` returns an empty list by design (D-072) and the order screens have nothing to show.
+1. **The PRO price and its included generation count** (49 000 soʻm / 100 generations today). At D-082's measured ~4,414 soʻm a generation, 100 costs about 441 400 soʻm against a 49 000 soʻm price. Jakhongir sets both — this is Q-17 and R-021, the same conversation.
+2. **The card number** is `8600 0000 0000 0000`, holder `PROMPTLY TEST — REPLACE`. It routes nowhere on purpose. Replace it before a seller sees it (D-107).
+3. **Eight of the gallery's reference photos are unrelated placeholders** (D-105). A thumbnail there claims the video was made from that photo.
+
+**Credit packs are still unpriced**, so `GET /api/packs` returns an empty list by design (D-072) and the credit order screen has nothing to show.
 
 Nothing gets built before its phase plan in `docs/superpowers/plans/` is approved.
 
@@ -118,7 +124,7 @@ Two gotchas, both learned the hard way:
 
 - **Any script that boots the Nest app must be compiled, not run through tsx.** esbuild emits no decorator metadata, so `NestFactory.create()` cannot resolve constructor types and exits silently with no error. `src/openapi.ts` is compiled by `nest build` for this reason.
 - **Never find a process with `pgrep -f` here.** Other projects on this machine run `dist/main.api` and `dist/main.worker` too, and the pattern also matches the searching shell's own command line. Match on `/proc/<pid>/cwd` instead.
-- **The `.env` points at the public site, not localhost** (since 2026-09-13). `WEB_ORIGIN=https://jas.kitobnarxi.uz` and `GOOGLE_REDIRECT_URI=https://jas.kitobnarxi.uz/api/auth/google/callback`, with `EXTRA_WEB_ORIGINS` letting `http://localhost:3042` write too. Google sign-in always returns to the public host. Do not "fix" these back to localhost: the whole public setup is in `../jas-ad-studio-web/CLAUDE.md` → *Running it publicly*. The api runs from `dist/` under pm2 as `jas-api` and `jas-worker`, so after `pnpm build` restart them with pm2 or the site keeps serving the old code.
+- **The `.env` points at the public site, not localhost** (since 2026-09-13). `WEB_ORIGIN=https://jas.kitobnarxi.uz` and `GOOGLE_REDIRECT_URI=https://jas.kitobnarxi.uz/api/auth/google/callback`, with `EXTRA_WEB_ORIGINS` letting `http://localhost:3042` write too. Google sign-in always returns to the public host. Do not "fix" these back to localhost: the whole public setup is in `../jas-ad-studio-web-v2/CLAUDE.md`. The api runs from `dist/` under pm2 as `jas-api` and `jas-worker`, so after `pnpm build` restart them with pm2 or the site keeps serving the old code.
 
 ---
 

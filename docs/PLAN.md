@@ -24,8 +24,25 @@ How phases work:
 | **P5** ✅ | Studio UI | web | Hero, 3-step wizard, inline result, copy with a fallback, TXT export, Flow handoff, history drawer, credits and order screens, every Uzbek error state. The owner `/admin` panel: orders, grants, settings, read-only users, generations and spend (D-037). | **Closed 2026-09-12 (D-086).** Full flow driven in Playwright at 1440, 390 and 360: 33 assertions, plus 54 unit tests. The whole path also walked by hand against the running stack, which found the WEB_ORIGIN defect and four UI defects. |
 | **P6** ✅ | Gallery | both | Example content config, video hosting that uses no database egress (R2 or static), posters and lazy loading, prompt sheet, copy, inspiration presets. | **Closed 2026-09-13 (D-087, D-088).** Signed out over real HTTP and in Playwright at 1440, 390 and 360. Isolation asserted on the bytes handed to the provider: mis-wiring one field fails 8 assertions. Content is curated but **unpublished** — each example needs its Flow model and mode from Doston. |
 | **P7** ✅ | Prompt quality | api | `ad-director-v3`: the lessons from Doston's two reference prompts (`docs/source/04-reference-prompts.md`), applied to the existing formats rather than replacing them (D-095, D-096). | **Closed 2026-09-13 at Doston's decision (D-097).** 650 tests; deployed; three real v3 generations all carry timed shots, a held final shot and the grade bans. Flow videos are judged by Doston himself; no scored pack was run |
-| **P8** | Hardening | both | Security review, backups with a rehearsed restore, abuse limits, analytics events, privacy and terms text, project deletion. | `/security-review` findings fixed; restore from backup rehearsed once |
+| **P8** ✅ | Hardening | both | Security review, backups with a rehearsed restore, abuse limits, analytics events, privacy and terms text, project deletion. | **Closed 2026-09-14 (D-098).** All seven parts deployed and checked live; 670 tests; `pnpm audit --prod` clean in both repos. |
+| **P8b–P8j** ✅ | Request passes | both | Not phases in the original roadmap — Jakhongir's Notion revisions, taken one branch at a time off `main`. See the table below. | Each one deployed and verified on the live site the same day |
 | **P9** | Launch & pilot | both | Cloudflare Tunnel (or a VPS with Caddy, if we switch; D-032), domain on Cloudflare DNS, deploy, and a 10–15 seller pilot run from the checklist in source 01 §53. | Pilot results recorded in `docs/PROGRESS.md` |
+
+## The request passes (P8b to P8j)
+
+Jakhongir sends revisions as a Notion page; each becomes an `R-0xx` in `docs/REQUESTS.md` and a branch off `main`. All of these are merged and live.
+
+| Branch | What | Decisions |
+|---|---|---|
+| `p8b-revisions` | Gallery width and reflow, section header removed, hero leading, muted autoplay in view, draft gallery examples with field-level errors | D-099 |
+| `p8c-pro-access` | PRO marking and locking: `prompt_access`, 403 `PROMPT_LOCKED`, the badge, the Bepul/Pullik filter, owner grants | D-100, D-102 |
+| `p8d-promptly` | The rename to **Promptly** | D-103 |
+| `p8e-pro-badge` | The gold PRO badge, and one 9:16 tile for every clip whatever its ratio | D-104 |
+| `p8f-reference-photo` | The raw product photo on a card, uploadable in `/admin` | D-105 |
+| — | One malformed row no longer takes the whole gallery down | D-106 |
+| `p8h-pro-orders` | PRO for sale: price setting, `pro_orders`, the buy button, the owner queue | D-107 |
+| `p8i-regenerate-and-receipt` | Step 2 regenerates in a new format; both payment screens name the Telegram receipt handle | D-108 |
+| `p8j-pro-generations` | A PRO month can include prompt credits, granted through the ledger | D-109 |
 
 ## Branches
 

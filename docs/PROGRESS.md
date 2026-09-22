@@ -2,7 +2,7 @@
 
 Where the project stands, what is next, and what is blocked. Updated at the end of every step. Decisions live in `/DECISIONS.md`. The roadmap lives in `docs/PLAN.md`.
 
-**Last updated:** 2026-09-13
+**Last updated:** 2026-09-22
 
 ## Resume here
 
@@ -10,14 +10,54 @@ Where the project stands, what is next, and what is blocked. Updated at the end 
 
 | | |
 |---|---|
-| Phase | **P8c–P8f all built, merged and deployed 2026-09-21.** PRO access Layer 1, the Promptly rename, the gold badge, one tile shape, and the raw product photo. Layer 2 (the PRO order screen) is unblocked by D-102 except the price. |
-| Branch | Both repos on **`main`**, everything merged. Web work still happens in the worktree `../jas-ad-studio-web-v2-p8b`, port 3043, so the live tree is never half-edited. |
-| Active plan | **`docs/superpowers/plans/2026-09-21-p8c-pro-access.md`** — Layer 1 done, Layer 2 waits on the price. |
-| Doing now | Nothing. Live and verified. Today shipped: PRO marking and locking (D-100), Q-18's answers (D-102), the **Promptly** rename (D-103), the gold PRO badge and one 9:16 tile for every clip (D-104), the raw product photo over the top left (D-105), and the fix for the outage it uncovered (D-106). |
-| Next | **Replace the placeholder product photos in `/admin`** — eight of the eleven examples carry an unrelated picture, and a thumbnail there claims the video was made from that photo (D-105). This is a launch blocker, not a nicety. Then **P8c Layer 2**, the seller-facing PRO order, which needs only the price from Jakhongir. |
-| Blocked | **The PRO price and the pack prices are both Jakhongir's** (Q-17 / D-082), and they block selling and P9. **Q-18 is answered** (D-102) except the price: PRO unlocks gallery prompts, 30 days, paid by hand, one plan. **Q-04** (which examples get published) is what would close R-011's empty sides. Privacy and terms text still owed by Jakhongir (D-022). The **PROMPTLY** rename is unanswered. |
-| Live config | `ad-director-v3`. `DAILY_AI_SPEND_LIMIT_USD=10`, a **rolling 24 h** cap. The public site is still a `next dev` server serving `jas-ad-studio-web-v2` on 3042 — P9 should serve a production build. `/health/ready` is excluded from the `/api` prefix (`bootstrap.ts:18`), so it answers on the origin only and is **404 through the tunnel by design** — check it at `http://127.0.0.1:3040/health/ready`. |
-| Last verified state | **2026-09-21, after the D-106 fix.** api: lint, typecheck, build clean, **684 tests in 48 files**, `openapi:check` up to date. web v2: **38 unit tests**, **84 Playwright** at 1440/390/360. On https://jas.kitobnarxi.uz: 11 gallery examples served, every one with a reference photo, 5 marked PRO, the landing 200 and a locked prompt 403. **A deploy check now asks the API for the gallery and counts the examples** — the old checks were 200 on `/health/ready` and the landing page, and both stayed green through a gallery that was answering 400. |
+| Phase | **P0–P8 closed and merged, plus the request passes P8b–P8j, all deployed.** Next is **P9, launch and pilot** — and it is blocked on Jakhongir, not on code. Product is **Promptly** (D-103), live at https://jas.kitobnarxi.uz. |
+| Branch | Both repos on **`main`**, everything merged, working trees clean. **Web work never happens in `../jas-ad-studio-web-v2`** — pm2 `jas-web` serves that tree live, so every save reaches visitors. Use the worktree **`../jas-ad-studio-web-v2-p8b`** (port 3043, `API_ORIGIN=http://127.0.0.1:3040`), then merge to `main` and restart pm2. `../jas-ad-studio-web` is v1 and dead (D-093). |
+| Active plan | None open. The last one, `docs/superpowers/plans/2026-09-21-p8c-pro-access.md`, is done except Layer 2's price. P9 needs its plan written before any launch work starts. |
+| Doing now | Nothing in flight. Everything Jakhongir asked for on the Notion page *Revisions on PROMPTLY* is built and live: R-010 to R-021, except R-018 which he struck through himself. Decisions D-099 to D-109 cover them. **Deploying is standing-authorised** — commit, merge to `main`, deploy, without asking; back up first when a migration rides along, and report what was verified. |
+| Next | **P9 (launch and pilot) needs its plan written and approved.** Before it, three placeholders must be replaced — see Blocked. Also open, both small: the mute/unmute toggle on gallery clips (Doston parked it), and a possible config block so **goal** and **platform** reshape the prompt the way the format does — today they are only facts in the DATA block. |
+| Blocked | **All three are Jakhongir's, none is code.** (1) **The PRO price and its generation count** — 49 000 soʻm and 100 today, and at D-082's ~4,414 soʻm a generation 100 costs about 441 400 soʻm. Q-17 and R-021 are the same conversation. (2) **The card number** is `8600 0000 0000 0000` / `PROMPTLY TEST — REPLACE`, which routes nowhere on purpose (D-107). (3) **Eight gallery reference photos are unrelated placeholders** (D-105) and a thumbnail there claims the video was made from that photo. Credit packs are still unpriced, so `GET /api/packs` returns `[]` by design (D-072). Privacy and terms text still owed (D-022). |
+| Live config | `ad-director-v3`. `DAILY_AI_SPEND_LIMIT_USD=10`, a rolling 24 h cap. `OWNER_EMAILS=dostonqosimiy19@gmail.com,jahongirabduqahhorov6@gmail.com` — **the role is recomputed on every sign-in** (`user.service.ts:24`), so deleting an owner account and signing in again restores owner access with no promotion step. The public site is still a `next dev` server; P9 should serve a production build. `/health/ready` is excluded from the `/api` prefix (`bootstrap.ts:18`), so it is **404 through the tunnel by design** — check it at `http://127.0.0.1:3040/health/ready`. |
+| Last verified state | **2026-09-22.** api: lint, typecheck, build clean, **686 tests in 48 files**, `openapi:check` up to date. web v2: **38 unit tests**, **84 Playwright** at 1440/390/360. Live: 9 gallery examples, all with a reference photo, 5 PRO; a locked prompt 403 over the real internet; the PRO plan serving `{priceUzs: 49000, days: 30, generationsIncluded: 100}`. **Deploy check that matters:** ask the API for the gallery and count the examples — `/health/ready` and the landing page both stayed green through the D-106 outage. |
+
+## 2026-09-21 to 22 — Jakhongir's revisions, and PRO becomes sellable (D-099 to D-109)
+
+Jakhongir sent a Notion page, *Revisions on PROMPTLY*, and kept adding to it. Each item became an
+`R-0xx` in `docs/REQUESTS.md` and its own branch off `main`; all of them are merged and live.
+
+**The product was renamed to Promptly** (D-103), closing Q-09 and superseding D-016. `PROMPTLY` is
+the wordmark, `Promptly` sits inside Uzbek sentences. Infrastructure keeps its old names on purpose:
+the domain, the database, the repo folders and the pm2 processes are not seen by any seller, and the
+domain would mean a new OAuth redirect, tunnel and DNS record. **The Google consent screen still says
+"JAS Ad Studio"** and only Doston can change it, in the Google Cloud console.
+
+**PRO went from an idea to a working sale in a day.** An owner marks an example PRO; the detail route
+answers 403 `PROMPT_LOCKED` to anyone without access, so the badge is enforced rather than decorative
+(D-100). Q-18 was answered (D-102), then partly re-answered when Jakhongir asked for included
+generations (D-109) — those arrive as ordinary credits through the ledger, so reserve, debit and
+refund work on them unchanged.
+
+**The outage worth remembering (D-106).** Minutes after a deploy, `GET /api/gallery` answered 400 to
+every visitor: one example had `pacing: "Logo"`, the §13 word rule refused it, and `rows.map(toExample)`
+took the other ten examples down with it. Three fixes — rows are parsed one at a time and a bad one is
+skipped and logged; the input schema and the row schema now share the §13 rule so a write can no longer
+store a row the read refuses; and `logo` left the word list, because Jakhongir sells logo-animation ads.
+**The deploy checks said green throughout** — `/health/ready` 200 and the landing page 200 — because the
+page renders a server-fetched gallery and an empty one is still valid HTML. A deploy check now asks the
+API for the gallery and counts the examples.
+
+**Test accounts were cleared on 2026-09-22** so sign-up could be walked from scratch.
+`dostonibnsulaymon@gmail.com` was deleted outright. `dostonqosimiy19@gmail.com` could not be:
+`owner_audit_log.owner_id` is `ON DELETE RESTRICT` by design, so an owner cannot erase their own trail.
+Its identity was retired instead (`retired-02b63c96@removed.invalid`) and its projects deleted, which
+frees the Google account for a fresh sign-in while keeping 52 audit rows intact. `OWNER_EMAILS`
+recomputes the role at sign-in, so signing back in restores owner access by itself.
+
+**Shared with Jakhongir:** an interactive page showing exactly what one generation sends to OpenAI —
+the system prompt, the TARGET and FORMAT blocks and the fenced DATA message, with a format switcher.
+https://claude.ai/artifact/KhQvqnh4TKrkJv8fNiKx3W (private; share from the page's Share menu). A plain
+snapshot lives at `docs/reference/2026-09-22-openai-payload-example.txt`. He is writing a replacement
+system prompt; **changing it is a standing-gate action** and goes through Doston before it reaches the
+model.
 
 ## 2026-09-13 — phase 7: prompt quality (D-094 to D-097)
 
