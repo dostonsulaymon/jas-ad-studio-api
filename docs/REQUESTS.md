@@ -140,3 +140,27 @@ Template:
 **Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, entry dated 21.09.26.
 **Note:** we do not have this photo. A gallery example stores `videoPath` and `posterPath` and nothing else; the seller's original reference image is not kept with an example. It needs a new nullable column, an upload in `/admin`, and somebody to supply one photo per example.
 **Outcome:** Built on `p8f-reference-photo` (D-105). `reference_photo_path` (migration `0013`, nullable), an upload-and-remove slot in the `/admin` gallery sheet, and a rounded thumbnail over the top-left of the card. **Every example was seeded with a photo at Doston's instruction** — *"this is dev, we can update anything, just use random photos"* — of which three are the genuine product (rotary phone, notebook, wipes) and the rest are placeholders to be replaced in `/admin`.
+
+### R-018 · 2026-09-22 · Smaller headline, so the gallery peeks above the fold
+**Area:** web · **Status:** declined for now — Jakhongir struck it through himself
+**Ask:** "Headline text on this part has to be a little bit smaller and also placed a bit above so that a part of the gallery can be seen when a visitor enters the website."
+**Outcome:** Marked **(Not for now)** on the Notion page by Jakhongir. Not built. Note that R-014 moved the hero leading the other way (1.06) two days earlier at Doston's request, so these two pull against each other and whoever revives this should read D-104 first.
+
+### R-019 · 2026-09-22 · No way to regenerate a prompt in a different format
+**Area:** web · **Status:** accepted → P8i
+**Ask:** "Once, after generating a prompt, there is no option to regenerate the prompt in a different format (reklama formati) for an ad video." Two suggestions: on step 2 the bottom button becomes **Tayyorlash** instead of **Davom etish** and generates straight away, **OR** **Yangi versiya tayyorlash** is placed above **Promptni nusxalash**.
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 21.09.26 section.
+**Outcome:** Built his first option, which is the one that fixes the actual problem: on step 2, once the project already has a prompt, the bottom button is **Tayyorlash** and pressing it jumps to step 3 and generates. His second option — moving **Yangi versiya tayyorlash** above **Promptni nusxalash** — was not needed; that button already exists and only makes a new version of the *same* brief, which is not what "a different format" means.
+
+### R-020 · 2026-09-22 · A Telegram username for sending the payment receipt
+**Area:** web, admin · **Status:** accepted → P8i
+**Ask:** "For making a payment and sending it for approval, there has to be a Telegram username '@username' to send the transaction screenshot. There has to be a message below the card number." The Uzbek line: *"Tasdiqlash uchun toʻlov chekini telegram orqali yuboring → @username"*.
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 21.09.26 section.
+**Outcome:** Built, in **both** places a card number is shown — the credits drawer and the PRO panel — because a transfer means nothing until somebody sees the receipt. No API change was needed: `supportContacts.telegramUser` already existed and is already public, so the handle is whatever the owner has set in `/admin` (`@dostonsulaymon_wk` today) and the line disappears if it is cleared.
+
+### R-021 · 2026-09-22 · PRO includes a capped number of generations
+**Area:** api, web · **Status:** new — **changes D-102**
+**Ask:** "When a user buys a pro plan, the user gets access to a limited number of prompt generation options (the exact number and the price of the PRO plan will be determined soon after calculating the expenses for generating one prompt approximately) and full access to pro prompts as well. We have to consider this while preparing the payment method."
+**Note:** D-102 answered Q-18 with "PRO unlocks gallery prompts only; generating stays on credits", chosen because a flat fee against an uncapped ~4,414 soʻm cost has no ceiling (D-082). Jakhongir is now asking for the **capped** variant, which is safe *because* it is capped — the cap is part of the price. **The number is the blocker**, and he says it comes after his cost maths.
+**Source:** Jakhongir's Notion page *Revisions on PROMPTLY*, 21.09.26 section.
+**Outcome:**
