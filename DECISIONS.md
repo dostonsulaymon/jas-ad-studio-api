@@ -1707,3 +1707,15 @@ D-102's answers turned into a working path. Doston: *"when are we gonna add some
 **Both are placeholders and both are launch blockers.** Jakhongir's real price is still Q-17, and the card number must be his before a single seller sees it. Neither should survive to the pilot (D-024).
 
 **Not built:** automatic Payme or Click, still deferred (D-008); renewal reminders; anything that takes money without a human confirming it.
+
+### D-108 · 2026-09-22 · Step 2 regenerates, and a payment screen says where to send the receipt
+
+Two of Jakhongir's four 21.09 items. The other two: one he struck through himself (R-018), one needs a number he has not worked out yet (R-021).
+
+**R-019, regenerating in a different format.** He offered two fixes and they are not equivalent, so only one was built. *"Yangi versiya tayyorlash" above "Promptni nusxalash"* moves a button that already exists and makes another version of **the same brief** — it does not let anyone change the format. The other option does: on step 2, once the project already has a prompt, the bottom button becomes **Tayyorlash**, and pressing it moves to step 3 and generates. One press instead of three, and it is the press that was missing.
+
+**It still says what it costs.** Generating from step 2 skips step 3, which was the only screen that said "this uses 1 prompt limit". So the step 2 button carries that sentence beside it. Skipping a review step must not mean skipping the one line about money.
+
+**R-020, the receipt.** A transfer means nothing until somebody sees it, so both screens that show a card number — the credits drawer and the PRO panel — now end with *"Tasdiqlash uchun toʻlov chekini telegram orqali yuboring → @handle"*. **No API change:** `supportContacts.telegramUser` has been public since 6b, so the handle is whatever the owner set in `/admin`, and the line disappears by itself if he clears it. Nothing is hard-coded.
+
+**R-021 is recorded and not built, and it changes D-102.** Jakhongir now wants PRO to include a capped number of generations as well as the PRO prompts. That is the middle option from Q-18, and it is safe *because* it is capped — but the cap **is** the price, at about 4,414 soʻm a generation (D-082), and he says the number comes after his own cost maths. Building a limit before knowing it would mean picking his price for him.
