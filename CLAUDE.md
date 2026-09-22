@@ -9,9 +9,18 @@ Read this first, then:
 - `docs/PLAN.md`: the phase roadmap. Each phase has its own detailed plan in `docs/superpowers/plans/`
 - `docs/REQUESTS.md`: things Doston asked to add, not yet decided. When he asks for a feature, append it there. Before writing any phase plan, go through every `new` request with him
 
-**Related repository:** `../jas-ad-studio-web-v2`, the Next.js frontend and the live site. It is a client of this API, so any change to a public API contract changes its world too. `../jas-ad-studio-web` is **v1, dead** (D-093) — do not edit it.
+**Related repository:** `../jas-ad-studio-web`, the Next.js frontend and the live site. It is a client of this API, so any change to a public API contract changes its world too.
 
-**Web work happens in a worktree, never in the live tree.** pm2 `jas-web` runs `pnpm dev` straight out of `../jas-ad-studio-web-v2`, so every save there reaches real visitors on the next hot reload. Use `../jas-ad-studio-web-v2-p8b` (a git worktree on port 3043), then merge to `main` and restart pm2.
+Older frontends are out of the way: v1 and the v2 build worktree were archived on 2026-09-22, and `../jas-ad-studio-web` now holds what used to be `jas-ad-studio-web-v2` (D-093's rebuild). Anything still named `-v2` in an older `DECISIONS.md` entry means this directory.
+
+**Web work happens in a worktree, never in the live tree.** pm2 `jas-web` runs `pnpm dev` straight out of `../jas-ad-studio-web`, so every save there reaches real visitors on the next hot reload. Cut one per branch and delete it after merging:
+
+```
+git -C ../jas-ad-studio-web worktree add ../jas-ad-studio-web-wt -b p9-something main
+cd ../jas-ad-studio-web-wt && pnpm install
+cp -r ../jas-ad-studio-web/public/namunalar public/     # gitignored, the Playwright fixtures need them
+API_ORIGIN=http://127.0.0.1:3040 npx next dev -p 3043
+```
 
 ---
 
@@ -124,7 +133,7 @@ Two gotchas, both learned the hard way:
 
 - **Any script that boots the Nest app must be compiled, not run through tsx.** esbuild emits no decorator metadata, so `NestFactory.create()` cannot resolve constructor types and exits silently with no error. `src/openapi.ts` is compiled by `nest build` for this reason.
 - **Never find a process with `pgrep -f` here.** Other projects on this machine run `dist/main.api` and `dist/main.worker` too, and the pattern also matches the searching shell's own command line. Match on `/proc/<pid>/cwd` instead.
-- **The `.env` points at the public site, not localhost** (since 2026-09-13). `WEB_ORIGIN=https://jas.kitobnarxi.uz` and `GOOGLE_REDIRECT_URI=https://jas.kitobnarxi.uz/api/auth/google/callback`, with `EXTRA_WEB_ORIGINS` letting `http://localhost:3042` write too. Google sign-in always returns to the public host. Do not "fix" these back to localhost: the whole public setup is in `../jas-ad-studio-web-v2/CLAUDE.md`. The api runs from `dist/` under pm2 as `jas-api` and `jas-worker`, so after `pnpm build` restart them with pm2 or the site keeps serving the old code.
+- **The `.env` points at the public site, not localhost** (since 2026-09-13). `WEB_ORIGIN=https://jas.kitobnarxi.uz` and `GOOGLE_REDIRECT_URI=https://jas.kitobnarxi.uz/api/auth/google/callback`, with `EXTRA_WEB_ORIGINS` letting `http://localhost:3042` write too. Google sign-in always returns to the public host. Do not "fix" these back to localhost: the whole public setup is in `../jas-ad-studio-web/CLAUDE.md`. The api runs from `dist/` under pm2 as `jas-api` and `jas-worker`, so after `pnpm build` restart them with pm2 or the site keeps serving the old code.
 
 ---
 
